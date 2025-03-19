@@ -8,4 +8,9 @@ def create_config():
 
     config['data_file_path'] = '../data/data.xlsx'
 
+    config['data_start_date'] = None
+    config['data_duration'] = 14
+
+
+
     return config
