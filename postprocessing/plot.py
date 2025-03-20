@@ -56,7 +56,7 @@ if __name__ == "__main__":
                 plt.plot(*unit.boundary.xy, label=key, c=_color)
             else:
                 plt.plot(*unit.boundary.xy, c=_color)
-    # plt.xlim([-100, 100])
-    # plt.ylim([-100, 100])
+            plt.text(unit.centroid.x, unit.centroid.y, str(idx))
+
     plt.legend()
     plt.show()
