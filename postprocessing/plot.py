@@ -21,33 +21,42 @@ def generate_polygon_from_anchor(x1: float, y1: float, dx: float, dy: float, ind
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
+    import random
     from shapely.plotting import plot_polygon
     # 예제 사용
-    rect = generate_polygon_from_anchor(0, 0, 10, 7.5, index=0)
-    rect1 = generate_polygon_from_anchor(-10, 0, 10, 7.5, index=0)
-    rect2 = generate_polygon_from_anchor(-20, 0, 10, 7.5, index=0)
-    rect3 = generate_polygon_from_anchor(-30, 0, 10, 7.5, index=0)
-    rect8 = generate_polygon_from_anchor(-10, -7.5, 10, 7.5, index=0)
-    rect9 = generate_polygon_from_anchor(-20, -7.5, 10, 7.5, index=0)
-    rect10 = generate_polygon_from_anchor(-30, -7.5, 10, 7.5, index=0)
-    rect4 = generate_polygon_from_anchor(0, 0, 10, 8.5, index=1)
-    rect5 = generate_polygon_from_anchor(-10, 0, 10, 8.5, index=1)
-    rect6 = generate_polygon_from_anchor(-20, 0, 10, 8.5, index=1)
-    rect7 = generate_polygon_from_anchor(-30, 0, 10, 8.5, index=1)
+    unit_dict = {'Area1':[], 'Area2':[], 'Area3':[], 'Area4':[], 'Area5':[]}
+    unit_dict['Area1'].append(generate_polygon_from_anchor(0, 0, 10, 7.5, index=0))
+    unit_dict['Area1'].append(generate_polygon_from_anchor(-10, 0, 10, 7.5, index=0))
+    unit_dict['Area1'].append(generate_polygon_from_anchor(-20, 0, 10, 7.5, index=0))
+    unit_dict['Area1'].append(generate_polygon_from_anchor(-30, 0, 10, 7.5, index=0))
+    unit_dict['Area1'].append(generate_polygon_from_anchor(-10, -7.5, 10, 7.5, index=0))
+    unit_dict['Area1'].append(generate_polygon_from_anchor(-20, -7.5, 10, 7.5, index=0))
+    unit_dict['Area1'].append(generate_polygon_from_anchor(-30, -7.5, 10, 7.5, index=0))
+    unit_dict['Area2'].append(generate_polygon_from_anchor(0, 0, 10, 8.5, index=1))
+    unit_dict['Area2'].append(generate_polygon_from_anchor(-10, 0, 10, 8.5, index=1))
+    unit_dict['Area2'].append(generate_polygon_from_anchor(-20, 0, 10, 8.5, index=1))
+    unit_dict['Area2'].append(generate_polygon_from_anchor(-30, 0, 10, 8.5, index=1))
+    unit_dict['Area3'].append(generate_polygon_from_anchor(0, 0, 7.8, 12.5, index=2))
+    unit_dict['Area3'].append(generate_polygon_from_anchor(-7.8, 0, 7.8, 12.5, index=2))
+    unit_dict['Area3'].append(generate_polygon_from_anchor(0, -12.5, 7.8, 12.5, index=2))
+    unit_dict['Area3'].append(generate_polygon_from_anchor(-7.8, -12.5, 7.8, 12.5, index=2))
+    unit_dict['Area3'].append(generate_polygon_from_anchor(0, -25, 7.8, 12.5, index=2))
+    unit_dict['Area3'].append(generate_polygon_from_anchor(-7.8, -25, 7.8, 12.5, index=2))
+    unit_dict['Area3'].append(generate_polygon_from_anchor(0, -37.5, 7.8, 12.5, index=2))
+    unit_dict['Area3'].append(generate_polygon_from_anchor(-7.8, -37.5, 7.8, 12.5, index=2))
 
     plt.figure()
-    # plt.plot(rect.exterior.coords.xy, label='WorkArea1')
-    # rect = generate_polygon_from_anchor(0, 0, 10, 7.5)
 
-    # plot_polygon(rect)
-    # plot_polygon(rect1)
-    # plot_polygon(rect2)
-    # plot_polygon(rect3)
-    # plot_polygon(rect4)
-    # plot_polygon(rect5)
-    # plot_polygon(rect6)
-    # plot_polygon(rect7)
-    # plot_polygon(rect8)
-    # plot_polygon(rect9)
-    # plot_polygon(rect10)
+    plt.gca().set_aspect('equal', adjustable='box')  # 가로세로 비율 1:1 유지
+    for key, units in unit_dict.items():
+        _color = (random.random(), random.random(), random.random())
+        for idx, unit in enumerate(units):
+            unit : Polygon
+            if idx == 0:
+                plt.plot(*unit.boundary.xy, label=key, c=_color)
+            else:
+                plt.plot(*unit.boundary.xy, c=_color)
+    # plt.xlim([-100, 100])
+    # plt.ylim([-100, 100])
+    plt.legend()
     plt.show()
