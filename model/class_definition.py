@@ -1,5 +1,11 @@
 import numpy as np
 
+class Work_unit:
+    def __init__(self, x, y, dx, dy):
+        self.x = x
+        self.y = y
+        self.dx = dx
+        self.dy = dy
 
 class Work_area:
     def __init__(self, group_id, surface_id, priority, lug_condition, indoor_outdoor_condition, L_limit_of_block,
@@ -23,6 +29,7 @@ class Work_area:
         self.unavailable_area_L = None
         self.unavailable_area_B = None
         self.crane_operation_dict = dict()
+        self.unit_list = list()
 
     def add_unavailable_area(self, x, y, L, B):
         self.unavailable_area_x = int(x * 10)
