@@ -11,6 +11,8 @@ class CPmodel:
         self.df_raw_data_dict = dict()
         self.work_area_list = dict()
         self.crane_dict = dict()
+        self.block_dict = dict()
+        self.calendar = dict()
 
     def get_data(self):
         try:

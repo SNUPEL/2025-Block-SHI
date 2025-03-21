@@ -38,7 +38,7 @@ def get_work_area_list(df_work_area_group, df_work_area):
                     direction = [rect['TP운송방향1'] == 'Y', rect['TP운송방향2'] == 'Y', rect['TP운송방향3'] == 'Y',
                                  rect['TP운송방향4'] == 'Y']
                     temp_work_area = WorkArea(group_id=row['그룹ID'], surface_id_list=rect['정반ID'], priority=row['우선순위'],
-                                              indoor_outdoor_condition=row['옥내외'], lug_condition=row['우선순위'],
+                                              indoor_outdoor_condition=row['옥내외'], lug_condition=row['러그고려'],
                                               L_limit_of_block=row['사이즈제한LTH'], B_limit_of_block=row['사이즈제한BTH'],
                                               H_limit_of_block=row['사이즈제한HGT'], W_limit_of_block=row['사이즈제한WGT'],
                                               TP_condition=row['TP운송여부'], TP_direction=direction, L=length, B=breadth)
@@ -82,7 +82,7 @@ def get_work_area_list(df_work_area_group, df_work_area):
                     combined_breadth = y_vals[-1] - y_vals[0]
                     temp_work_area\
                         = WorkArea(group_id=row['그룹ID'], surface_id_list=list(group['정반ID']), priority=row['우선순위'],
-                                   indoor_outdoor_condition=row['옥내외'], lug_condition=row['우선순위'],
+                                   indoor_outdoor_condition=row['옥내외'], lug_condition=row['러그고려'],
                                    L_limit_of_block=row['사이즈제한LTH'], B_limit_of_block=row['사이즈제한BTH'],
                                    H_limit_of_block=row['사이즈제한HGT'], W_limit_of_block=row['사이즈제한WGT'],
                                    TP_condition=row['TP운송여부'], TP_direction=direction,
@@ -159,9 +159,28 @@ def preprocess_data(self):
     #     print(work_area.crane_operation_dict)
     #     print(key, work_area.surface_id_list)
 
-    if 'BLK' in sheet_name_list:
-        # 구현 예정
+    if 'UNAL_WORKDAY' in sheet_name_list:
+        # 향후 추가해 일정으로 활용
+
         pass
+    else:
+        print('Sheet names do not match')
+
+    if 'BLK' in sheet_name_list:
+        df_block = self.df_raw_data_dict['BLK']
+        df_block[['착수일', '완료일', 'TO일정', 'PE일정']]\
+            = df_block[['착수일', '완료일', 'TO일정', 'PE일정']].apply(pd.to_datetime, errors='coerce')
+        for _, row in df_block.iterrows():
+            temp_block = Block(ship_type=row['선종'], project_number=row['호선'], block_number=row['블록'],
+                               allocation_start_date=row['착수일'], allocation_end_date=row['완료일'],
+                               processing_time=row['공기'], TO_date=row['TO일정'], PE_date=row['PE일정'],
+                               length=row['블록길이'], breadth=row['블록폭'], height=row['블록높이'], weight=row['블록중량'],
+                               indoor_outdoor_condition=row['옥내외'], lug_direction=row['러그방향'],
+                               allocate_condtion=row['배치확정여부'])
+            temp_block.adjust_time(self.calendar)
+            if temp_block.allocate_condtion == 'Y':
+                temp_block.get_location(row['그룹ID'], row['블록위치X'], row['블록위치Y'])
+            self.block_dict[(row['선종'], row['호선'], row['블록'])] = temp_block
     else:
         print('Sheet names do not match')
 
@@ -170,3 +189,6 @@ def preprocess_data(self):
         pass
     else:
         print('Sheet names do not match')
+
+
+

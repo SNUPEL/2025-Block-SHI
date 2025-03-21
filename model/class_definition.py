@@ -43,3 +43,38 @@ class Crane:
         self.Crane_id = Crane_id
         self.condition = condition
         self.unavailable_time_list = list()
+
+
+class Block:
+    def __init__(self, ship_type, project_number, block_number,
+                 allocation_start_date, allocation_end_date, processing_time, TO_date, PE_date,
+                 length, breadth, height, weight, indoor_outdoor_condition, lug_direction, allocate_condtion):
+        self.ship_type = ship_type
+        self.project_number = project_number
+        self.block_number = block_number
+        self.allocation_start_date = allocation_start_date
+        self.allocation_end_date = allocation_end_date
+        self.processing_time = processing_time
+        self.TO_date = TO_date
+        self.PE_date = PE_date
+        self.length = length
+        self.breadth = breadth
+        self.height = height
+        self.weight = weight
+        self.indoor_outdoor_condition = indoor_outdoor_condition
+        self.lug_direction = lug_direction
+        self.allocate_condtion = allocate_condtion
+        self.group_id = None
+        self.surface_id_list = None
+        self.x_location = None
+        self.y_location = None
+
+    def adjust_time(self, calendar):
+        pass
+
+    def get_location(self, group_id, x_location, y_location):
+        # 향후 배치 확정 블록 데이터 존재 시 좌표를 정반 그룹과 위치에 맞춰 변환하는 코드 추가 구현
+        self.surface_id_list = None
+        pass
+
+
