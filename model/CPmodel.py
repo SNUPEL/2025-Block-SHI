@@ -9,7 +9,7 @@ class CPmodel:
     def __init__(self, config):
         self.config = config
         self.df_raw_data_dict = dict()
-        self.work_area_list = list()
+        self.work_area_list = dict()
         self.crane_dict = dict()
 
     def get_data(self):

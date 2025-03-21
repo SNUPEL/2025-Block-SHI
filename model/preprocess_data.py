@@ -4,7 +4,7 @@ import numpy as np
 
 
 def get_work_area_list(df_work_area_group, df_work_area):
-    work_area_list = []
+    work_area_dict = dict()
     for _, row in df_work_area_group.iterrows():
         if row['사용여부'] == 'Y':
             filtered_df_work_area = df_work_area[
@@ -44,7 +44,7 @@ def get_work_area_list(df_work_area_group, df_work_area):
                                               TP_condition=row['TP운송여부'], TP_direction=direction, L=length, B=breadth)
                     temp_work_area.work_unit_dict[rect['정반ID']] = WorkUnit(unit_id=rect['정반ID'], x=rect['그룹내정반위치X'],
                                                                            y=rect['그룹내정반위치Y'], dx=length, dy=breadth)
-                    work_area_list.append(temp_work_area)
+                    work_area_dict[(row['그룹ID'], rect['정반ID'])] = temp_work_area
                 filtered_df_work_area_group_by_axis = None
             else:
                 print('Unexpected input error encountered.')
@@ -119,11 +119,11 @@ def get_work_area_list(df_work_area_group, df_work_area):
                             f" {temp_work_area.unavailable_area_y})"
                             f" with L={temp_work_area.unavailable_area_L}, B={temp_work_area.unavailable_area_B}")
 
-                    work_area_list.append(temp_work_area)
+                    work_area_dict[(row['그룹ID'], tuple(group['정반ID']))] = temp_work_area
         else:
             continue
     print('Work area definition is complete')
-    return work_area_list
+    return work_area_dict
 
 
 def preprocess_data(self):
@@ -131,14 +131,14 @@ def preprocess_data(self):
     if 'WORKAREA_GROUP' in sheet_name_list and 'WORKAREA' in sheet_name_list:
         df_work_area_group = self.df_raw_data_dict['WORKAREA_GROUP']
         df_work_area = self.df_raw_data_dict['WORKAREA']
-        self.work_area_list = get_work_area_list(df_work_area_group, df_work_area)
+        self.work_area_dict = get_work_area_list(df_work_area_group, df_work_area)
     else:
         print('Sheet names do not match')
 
     if 'WORKAREA_CRANE_REL' in sheet_name_list and 'CRANE_WORK_TIME' in sheet_name_list:
         df_crane_time = pd.merge(self.df_raw_data_dict['WORKAREA_CRANE_REL'], self.df_raw_data_dict['CRANE_WORK_TIME'],
                                  on=['작업종류', '크레인ID'], how='left')
-        for work_area in self.work_area_list:
+        for _, work_area in self.work_area_dict.items():
             for key, group in df_crane_time.groupby('그룹ID').get_group(work_area.group_id).groupby('작업종류'):
                 work_area.crane_operation_dict[key] = (sum(group['작업시간']), list(group['크레인ID']))
     else:
@@ -153,12 +153,11 @@ def preprocess_data(self):
         print('Sheet names do not match')
 
     # 검증용 print 문
-
-    # for work_area in self.work_area_list:
-    #     for id, unit in work_area.work_unit_dict.items():
+    # for key, work_area in self.work_area_dict.items():
+    #     for unit_id, unit in work_area.work_unit_dict.items():
     #         print(work_area.group_id, unit.unit_id, unit.x, unit.y, unit.dx, unit.dy)
     #     print(work_area.crane_operation_dict)
-    #     print(work_area.surface_id_list)
+    #     print(key, work_area.surface_id_list)
 
     if 'BLK' in sheet_name_list:
         # 구현 예정
