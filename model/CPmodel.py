@@ -4,11 +4,7 @@ np.bool = np.bool_
 from docplex.cp.model import *
 from preprocess_data import *
 from define_variable import *
-from solve_model import *
-from postprocess_solution import *
-from add_constraint_block_intersection import *
-from add_objective_sum_delay import *
-from add_objective_sum_unassinged_block import *
+
 
 
 
@@ -45,28 +41,28 @@ class CPmodel:
         # 결정 변수 생성
         define_variable(self)
 
-        # 블록 간섭 제약
-        add_constraint_block_intersection(self)
+        # # 블록 간섭 제약
+        # add_constraint_block_intersection(self)
+        #
+        # # 지연 최소화 목적함수
+        # add_objective_sum_delay(self)
+        #
+        # # 미배치 블록 최소화 목적함수
+        # add_objective_sum_unassinged_block(self)
+        #
+        # ## <모델 탐색 파트> ##
+        # self.solution_cpmodel= solve_model(self,
+        #                                        model=self.cpmodel,
+        #                                        objective_function=self.obj,
+        #                                        direction="maximize",
+        #                                        time_limit=self.config['time_limit_phase1'],
+        #                                        method='single_solution')
+        #
+        # ## <모델 후처리> ##
+        # postprocess_solution(self)
 
-        # 지연 최소화 목적함수
-        add_objective_sum_delay(self)
-
-        # 미배치 블록 최소화 목적함수
-        add_objective_sum_unassinged_block(self)
-
-        ## <모델 탐색 파트> ##
-        self.solution_cpmodel= solve_model(self,
-                                               model=self.cpmodel,
-                                               objective_function=self.obj,
-                                               direction="maximize",
-                                               time_limit=self.config['time_limit_phase1'],
-                                               method='single_solution')
-
-        ## <모델 후처리> ##
-        postprocess_solution(self)
-
-    def get_final_result(self):
-            df_result = self.df_result
+    # def get_final_result(self):
+    #         df_result = self.df_result
 
 
 

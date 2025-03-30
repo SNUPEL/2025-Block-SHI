@@ -8,3 +8,4 @@ if __name__ == '__main__':
     model = CPmodel(config)
     model.get_data()
     model.preprocess_data()
+    model.run_model()

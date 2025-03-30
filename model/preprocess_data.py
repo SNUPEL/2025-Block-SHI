@@ -17,6 +17,7 @@ def get_work_area_list(df_work_area_group, df_work_area):
 
             filtered_df_work_area['그룹내정반위치X'] = filtered_df_work_area['그룹내정반위치X'] - min(
                 filtered_df_work_area['그룹내정반위치X'])
+
             filtered_df_work_area['그룹내정반위치Y'] = -1 * filtered_df_work_area['그룹내정반위치Y']
 
             filtered_df_work_area['정반폭'] = (filtered_df_work_area['정반폭'] + filtered_df_work_area['마진거리1'].fillna(0)
@@ -152,7 +153,7 @@ def preprocess_data(self):
     else:
         print('Sheet names do not match')
 
-    # 검증용 print 문
+    # # 검증용 print 문
     # for key, work_area in self.work_area_dict.items():
     #     for unit_id, unit in work_area.work_unit_dict.items():
     #         print(work_area.group_id, unit.unit_id, unit.x, unit.y, unit.dx, unit.dy)
