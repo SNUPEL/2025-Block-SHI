@@ -5,36 +5,38 @@ def add_constraint_area_limitation(self):
     :return:
     '''
 
-    # 1번 방법
-    for block_key, block in self.block_dict.items():
-        block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
-        # 모든 정반과 회전 각도에 대해 변수 탐색
-        for surface_group_key, work_area in self.work_area_dict.items():
-            # 정반 ID를 스트링으로 변환 (리스트일 경우 튜플로 변환)
-            surface_id = work_area.surface_id_list
-            if isinstance(surface_id, list):
-                surface_id = tuple(surface_id)
-            # 회전 각도별로 변수 생성
-            for rotate in [0, 90]:
-                # 변수 키 생성
-                var_key = (block_id, surface_group_key, surface_id, rotate)
-                # var_key 예시 : ('15000 TEU_PN1231_A110L', (1, (1, 2, 3, 4)), (1, 2, 3, 4), 0)
-
-                if self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '1':
-                    self.cpmodel.add(block.length <=10)
-                    self.cpmodel.add(block.breadth <=11)
-                    self.cpmodel.add(block.height <=8)
-                    self.cpmodel.add(block.weight <=8)
-                elif self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '2':
-                    self.cpmodel.add(block.length <=8)
-                    self.cpmodel.add(block.breadth <=11)
-                    self.cpmodel.add(block.height <=11)
-                    self.cpmodel.add(block.weight <=11)
-                elif self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '3':
-                    self.cpmodel.add(block.length <=2)
-                    self.cpmodel.add(block.breadth <=4)
-                    self.cpmodel.add(block.height <=3)
-                    self.cpmodel.add(block.weight <=3)
+    # # 1번 방법
+    # for block_key, block in self.block_dict.items():
+    #     block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
+    #     # 모든 정반과 회전 각도에 대해 변수 탐색
+    #     for surface_group_key, work_area in self.work_area_dict.items():
+    #         # 정반 ID를 스트링으로 변환 (리스트일 경우 튜플로 변환)
+    #         surface_id = work_area.surface_id_list
+    #         if isinstance(surface_id, list):
+    #             surface_id = tuple(surface_id)
+    #         # 회전 각도별로 변수 생성
+    #         for rotate in [0, 90]:
+    #             # 변수 키 생성
+    #             var_key = (block_id, surface_group_key, surface_id, rotate)
+    #             # var_key 예시 : ('15000 TEU_PN1231_A110L', (1, (1, 2, 3, 4)), (1, 2, 3, 4), 0)
+    #             # self.cpmodel.size_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])
+    #             if self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '1':
+    #                 # if bigger than 10 or 8 or 2 or 30
+    #                     # than presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key]) == 0
+    #                 self.cpmodel.add(block.length <=10)
+    #                 self.cpmodel.add(block.breadth <=11)
+    #                 self.cpmodel.add(block.height <=8)
+    #                 self.cpmodel.add(block.weight <=8)
+    #             elif self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '2':
+    #                 self.cpmodel.add(block.length <=8)
+    #                 self.cpmodel.add(block.breadth <=11)
+    #                 self.cpmodel.add(block.height <=11)
+    #                 self.cpmodel.add(block.weight <=11)
+    #             elif self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '3':
+    #                 self.cpmodel.add(block.length <=2)
+    #                 self.cpmodel.add(block.breadth <=4)
+    #                 self.cpmodel.add(block.height <=3)
+    #                 self.cpmodel.add(block.weight <=3)
                 # # 5번은 지금 당장 안쓰기에 주석 처리 해놓음
                 # elif self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '5':
                 #     self.cpmodel.add(block.length <=30)
