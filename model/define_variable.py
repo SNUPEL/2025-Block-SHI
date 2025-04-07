@@ -65,7 +65,7 @@ def define_variable(self):
 
                 # 변수 키 생성
                 var_key = (block_id, surface_group_key, surface_id, rotate)
-
+                # var_key 예시 : ('15000 TEU_PN1231_A110L', (1, (1, 2, 3, 4)), (1, 2, 3, 4), 0)
                 # 회전에 따라 블록 크기 조정
                 if rotate == 0:
                     block_length = block.length
@@ -77,8 +77,8 @@ def define_variable(self):
                 # 위치 변수 생성 (x, y, 시간축)
                 # X축 위치 변수
                 self.block_x_var_by_id_group_surf_rotate_dict[var_key] = self.cpmodel.interval_var(
-                    start=(0, work_area.L - block_length),  # 정반 내에서 가능한 x 범위
-                    size=block_length,  # 블록 길이
+                    start=(0, 1),  # 정반 내에서 가능한 x 범위
+                    size=1,  # 블록 길이
                     optional=True,
                     name=f"x_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
                 )
@@ -88,8 +88,8 @@ def define_variable(self):
 
                 # Y축 위치 변수
                 self.block_y_var_by_id_group_surf_rotate_dict[var_key] = self.cpmodel.interval_var(
-                    start=(0, work_area.B - block_breadth),  # 정반 내에서 가능한 y 범위
-                    size=block_breadth,  # 블록 폭
+                    start=(0, 1),  # 정반 내에서 가능한 y 범위
+                    size=1,  # 블록 폭
                     optional=True,
                     name=f"y_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
                 )
@@ -283,17 +283,17 @@ def define_variable(self):
                     )
                 )
 
-    # # 변수 생성 결과 확인을 위한 print문
-    # print(f"총 {len(self.block_keys)}개 블록에 대한 변수 생성 완료")
-    # for block_key in self.block_keys:
-    #     block = self.block_dict[block_key]
-    #     block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
-    #
-    #     print(f"\n블록 {block_id}:")
-    #     print(f"  위치 변수:")
-    #     print(f"    x축 변수 수: {len(self.block_x_var_list_by_id_dict[block_id])}")
-    #     print(f"    y축 변수 수: {len(self.block_y_var_list_by_id_dict[block_id])}")
-    #     print(f"    시간축 변수 수: {len(self.block_time_var_list_by_id_dict[block_id])}")
-    #     print(f"  일정 변수:")
-    #     for work in work_list:
-    #         print(f"    {work} 작업 변수 수: {len(self.block_schedule_var_list_by_id_work_dict[(block_id, work)])}")
+    # 변수 생성 결과 확인을 위한 print문
+    print(f"총 {len(self.block_keys)}개 블록에 대한 변수 생성 완료")
+    for block_key in self.block_keys:
+        block = self.block_dict[block_key]
+        block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
+
+        print(f"\n블록 {block_id}:")
+        print(f"  위치 변수:")
+        print(f"    x축 변수 수: {len(self.block_x_var_list_by_id_dict[block_id])}")
+        print(f"    y축 변수 수: {len(self.block_y_var_list_by_id_dict[block_id])}")
+        print(f"    시간축 변수 수: {len(self.block_time_var_list_by_id_dict[block_id])}")
+        print(f"  일정 변수:")
+        for work in work_list:
+            print(f"    {work} 작업 변수 수: {len(self.block_schedule_var_list_by_id_work_dict[(block_id, work)])}")

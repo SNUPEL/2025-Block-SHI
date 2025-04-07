@@ -54,27 +54,31 @@ class CPmodel:
 
         # 제약 조건 #
         # 정반 별 블록 사이즈 제한
-        # add_constraint_area_limitation(self)
-        # # 블록 간섭 제약
-        # add_constraint_block_intersection(self)
-        # # 정반 러그 방향 제한 제약
-        # add_constraint_lug_direction(self)
-        # # 크레인 단독 운용
-        # add_constraint_crane_usage(self)
-        # # 크레인 블록 순차 배치
-        # add_constraint_crane_sequence(self)
-        # # 특정 블록 동시 작업 제약
-        # add_constraint_simultaneous_block(self)
-        #
-        # # 목적 함수 #
-        # # 정반 그룹 선호도 최대화
-        # add_objective_preference(self)
+        add_constraint_area_limitation(self)
+        # 블록 간섭 제약
+        add_constraint_block_intersection(self)
+        # 정반 러그 방향 제한 제약
+        add_constraint_lug_direction(self)
+        # <- 정반그룹별 제약
+        # 블록별로 특정 정반에서는 특정 회전만 존재해야 함
 
-        # # 지연 최소화 목적함수
-        # add_objective_sum_delay(self)
-        #
-        # # 미배치 블록 최소화 목적함수
-        # add_objective_sum_unassinged_block(self)
+
+        # 크레인 단독 운용
+        add_constraint_crane_usage(self)
+        # 크레인 블록 순차 배치
+        add_constraint_crane_sequence(self)
+        # 특정 블록 동시 작업 제약
+        add_constraint_simultaneous_block(self)
+
+        # 목적 함수 #
+        # 정반 그룹 선호도 최대화
+        add_objective_preference(self)
+
+        # 지연 최소화 목적함수
+        add_objective_sum_delay(self)
+
+        # 미배치 블록 최소화 목적함수
+        add_objective_sum_unassinged_block(self)
 
         # ## <모델 탐색 파트> ##
         # self.solution_cpmodel= solve_model(self,
