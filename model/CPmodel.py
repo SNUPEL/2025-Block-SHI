@@ -13,6 +13,7 @@ from add_constraint_crane_usage import *
 from add_objective_preference import *
 from add_objective_sum_delay import *
 from add_objective_sum_unassinged_block import *
+from solve_model import *
 from postprocess_solution import *
 
 
@@ -80,13 +81,13 @@ class CPmodel:
         # 미배치 블록 최소화 목적함수
         add_objective_sum_unassinged_block(self)
 
-        # ## <모델 탐색 파트> ##
-        # self.solution_cpmodel= solve_model(self,
-        #                                        model=self.cpmodel,
-        #                                        objective_function=self.obj,
-        #                                        direction="maximize",
-        #                                        time_limit=self.config['time_limit_phase1'],
-        #                                        method='single_solution')
+        ## <모델 탐색 파트> ##
+        self.solution_cpmodel= solve_model(self,
+                                               model=self.cpmodel,
+                                               objective_function=self.obj,
+                                               direction="maximize",
+                                               time_limit=self.config['time_limit'],
+                                               method='single_solution')
 
         ## <모델 후처리> ##
         postprocess_solution(self)
