@@ -6,7 +6,7 @@ import time
 def create_config():
     config = dict()
 
-    config['data_file_path'] = 'data.xlsx'
+    config['data_file_path'] = '../data/데이터_rev.01_2025.04.04_산학용.xlsx'
 
     config['data_start_date'] = None
     config['data_duration'] = 14
