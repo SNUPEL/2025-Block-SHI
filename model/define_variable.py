@@ -9,7 +9,7 @@ def define_variable(self):
         self.block_keys.append((block.ship_type, block.project_number, block.block_number))
 
     # 작업 리스트 정의
-    work_list = ['in', 'store', 'out', 'TO', 'PE']
+    work_list = ['IN', 'STORE', 'OUT', 'TO', 'PE']
 
     # 회전 각도 리스트 정의
     rotation_list = [0, 90]
@@ -82,7 +82,7 @@ def define_variable(self):
                         block_breadth = block.length
 
                     # 각 작업별 일정 변수 생성
-                    if work == 'in':
+                    if work == 'IN':
                         # 반입 일정
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                             var_key_work_rotate] = self.cpmodel.interval_var(
@@ -91,7 +91,7 @@ def define_variable(self):
                             optional=True,
                             name=f"{work}_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
                         )
-                    elif work == 'store':
+                    elif work == 'STORE':
                         # 적치 일정
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                             var_key_work_rotate] = self.cpmodel.interval_var(
@@ -100,7 +100,7 @@ def define_variable(self):
                             optional=True,
                             name=f"{work}_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
                         )
-                    elif work == 'out':
+                    elif work == 'OUT':
                         # 반출 일정
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                             var_key_work_rotate] = self.cpmodel.interval_var(
@@ -134,7 +134,7 @@ def define_variable(self):
                     )
 
                     # 위치 변수도 여기서 생성 (회전마다 한 번씩)
-                    if work == 'store':  # store 작업에 대해서만 위치 변수 생성
+                    if work == 'STORE':  # store 작업에 대해서만 위치 변수 생성
                         var_key = (block_id, surface_group_key, surface_id, rotate)
 
                         # X축 위치 변수
@@ -183,14 +183,14 @@ def define_variable(self):
                         self.cpmodel.add(
                             self.cpmodel.presence_of(self.block_x_var_by_id_group_surf_rotate_dict[var_key]) ==
                             self.cpmodel.presence_of(self.block_schedule_var_by_id_group_surf_work_rotate_dict[
-                                                         (block_id, surface_group_key, surface_id, 'store', rotate)])
+                                                         (block_id, surface_group_key, surface_id, 'STORE', rotate)])
                         )
 
                         # 시간축 변수와 store 작업 변수 간의 시간 동기화
                         self.cpmodel.add(
                             self.cpmodel.start_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key]) ==
                             self.cpmodel.start_of(self.block_schedule_var_by_id_group_surf_work_rotate_dict[
-                                                      (block_id, surface_group_key, surface_id, 'store', rotate)])
+                                                      (block_id, surface_group_key, surface_id, 'STORE', rotate)])
                         )
 
             # 같은 정반, 회전에 대한 작업 변수들 간의 관계 설정 (하나가 선택되면 모두 선택)
@@ -258,9 +258,9 @@ def define_variable(self):
                 self.cpmodel.add(
                     self.cpmodel.end_before_start(
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
-                            (block_id, surface_group_key, surface_id, 'in', rotate)],
+                            (block_id, surface_group_key, surface_id, 'IN', rotate)],
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
-                            (block_id, surface_group_key, surface_id, 'store', rotate)]
+                            (block_id, surface_group_key, surface_id, 'STORE', rotate)]
                     )
                 )
 
@@ -268,9 +268,9 @@ def define_variable(self):
                 self.cpmodel.add(
                     self.cpmodel.end_before_start(
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
-                            (block_id, surface_group_key, surface_id, 'store', rotate)],
+                            (block_id, surface_group_key, surface_id, 'STORE', rotate)],
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
-                            (block_id, surface_group_key, surface_id, 'out', rotate)]
+                            (block_id, surface_group_key, surface_id, 'OUT', rotate)]
                     )
                 )
 
@@ -278,7 +278,7 @@ def define_variable(self):
                 self.cpmodel.add(
                     self.cpmodel.end_before_start(
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
-                            (block_id, surface_group_key, surface_id, 'out', rotate)],
+                            (block_id, surface_group_key, surface_id, 'OUT', rotate)],
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                             (block_id, surface_group_key, surface_id, 'TO', rotate)]
                     )

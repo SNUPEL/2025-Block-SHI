@@ -6,7 +6,6 @@ from preprocess_data import *
 from define_variable import *
 from add_constraint_area_limitation import *
 from add_constraint_block_intersection import *
-from add_constraint_crane_sequence import *
 from add_constraint_simultaneous_block import *
 from add_constraint_lug_direction import *
 from add_constraint_crane_usage import *
@@ -58,6 +57,7 @@ class CPmodel:
         add_constraint_area_limitation(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
+        # 중량 45 이상은 크레인에 누적하지 않도록 구현?
         # 정반 러그 방향 제한 제약
         add_constraint_lug_direction(self)
         # 크레인 단독 운용
