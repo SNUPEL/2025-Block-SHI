@@ -54,7 +54,6 @@ def define_variable(self):
 
         # 모든 정반에 대해 변수 생성
         for surface_group_key, work_area in self.work_area_dict.items():
-            print(surface_group_key)
             # 정반 ID를 스트링으로 변환 (리스트일 경우 튜플로 변환)
             surface_id = work_area.surface_id_list
             if isinstance(surface_id, list):
@@ -295,17 +294,17 @@ def define_variable(self):
                     )
                 )
 
-    # 변수 생성 결과 확인을 위한 print문
-    print(f"총 {len(self.block_keys)}개 블록에 대한 변수 생성 완료")
-    for block_key in self.block_keys:
-        block = self.block_dict[block_key]
-        block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
-
-        print(f"\n블록 {block_id}:")
-        print(f"  위치 변수:")
-        print(f"    x축 변수 수: {len(self.block_x_var_list_by_id_dict[block_id])}")
-        print(f"    y축 변수 수: {len(self.block_y_var_list_by_id_dict[block_id])}")
-        print(f"    시간축 변수 수: {len(self.block_time_var_list_by_id_dict[block_id])}")
-        print(f"  일정 변수:")
-        for work in work_list:
-            print(f"    {work} 작업 변수 수: {len(self.block_schedule_var_list_by_id_work_dict[(block_id, work)])}")
+    # # 변수 생성 결과 확인을 위한 print문
+    # print(f"총 {len(self.block_keys)}개 블록에 대한 변수 생성 완료")
+    # for block_key in self.block_keys:
+    #     block = self.block_dict[block_key]
+    #     block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
+    #
+    #     print(f"\n블록 {block_id}:")
+    #     print(f"  위치 변수:")
+    #     print(f"    x축 변수 수: {len(self.block_x_var_list_by_id_dict[block_id])}")
+    #     print(f"    y축 변수 수: {len(self.block_y_var_list_by_id_dict[block_id])}")
+    #     print(f"    시간축 변수 수: {len(self.block_time_var_list_by_id_dict[block_id])}")
+    #     print(f"  일정 변수:")
+    #     for work in work_list:
+    #         print(f"    {work} 작업 변수 수: {len(self.block_schedule_var_list_by_id_work_dict[(block_id, work)])}")

@@ -72,10 +72,10 @@ def add_constraint_area_limitation(self):
                 self.cpmodel.add(block.breadth<=breadth_limit[i]+MB*(1-self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])))
                 self.cpmodel.add(block.height<=height_limit[i]+MH*(1-self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])))
                 self.cpmodel.add(block.weight<=weight_limit[i]+MW*(1-self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])))
-                print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 length가 {length_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
-                print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 breadth가 {breadth_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
-                print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 height가 {height_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
-                print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 weight가 {weight_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
+                # print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 length가 {length_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
+                # print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 breadth가 {breadth_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
+                # print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 height가 {height_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
+                # print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 weight가 {weight_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
 
 
         # self.cpmodel.add_constraint(block.length<=10+ML*(1-x1))

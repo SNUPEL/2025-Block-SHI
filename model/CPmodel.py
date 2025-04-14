@@ -60,14 +60,8 @@ class CPmodel:
         add_constraint_block_intersection(self)
         # 정반 러그 방향 제한 제약
         add_constraint_lug_direction(self)
-        # <- 정반그룹별 제약
-        # 블록별로 특정 정반에서는 특정 회전만 존재해야 함
-
-
         # 크레인 단독 운용
         add_constraint_crane_usage(self)
-        # 크레인 블록 순차 배치
-        add_constraint_crane_sequence(self)
         # 특정 블록 동시 작업 제약
         add_constraint_simultaneous_block(self)
 
