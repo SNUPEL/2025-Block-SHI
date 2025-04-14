@@ -147,11 +147,8 @@ def preprocess_data(self):
                                  self.df_raw_data_dict['CRANE_WORK_TIME'],
                                  on=['작업종류', '크레인ID'], how='left')
         for _, work_area in self.work_area_dict.items():
-            # 현재 work_area.group_id에 해당하는 그룹만 선택
             df_group = df_crane_time.groupby('그룹ID').get_group(work_area.group_id)
-            # 작업종류별로 그룹화해서 처리
             for work, group in df_group.groupby('작업종류'):
-                # key 값을 (그룹ID, 작업종류) 튜플로 구성
                 work_area.crane_operation_dict[(work_area.group_id, work)] = (
                 sum(group['작업시간'] * 2), list(group['크레인ID']))
             # # 결과 출력
