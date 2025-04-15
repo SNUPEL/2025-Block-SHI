@@ -10,6 +10,6 @@ def create_config():
 
     config['data_start_date'] = None
     config['data_duration'] = 14
-    config['time_limit'] = 3600
+    config['time_limit'] = 1800
 
     return config

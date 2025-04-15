@@ -28,6 +28,7 @@ class CPmodel:
         self.block_dict = dict()
         self.calendar = dict()
         self.df_result = pd.DataFrame()
+        self.block_schedule_var_by_id_group_surf_work_rotate_dict=dict()
 
 
     def get_data(self):
@@ -57,7 +58,6 @@ class CPmodel:
         add_constraint_area_limitation(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
-        # 중량 45 이상은 크레인에 누적하지 않도록 구현?
         # 정반 러그 방향 제한 제약
         add_constraint_lug_direction(self)
         # 크레인 단독 운용
@@ -79,7 +79,7 @@ class CPmodel:
         self.solution_cpmodel= solve_model(self,
                                                model=self.cpmodel,
                                                objective_function=self.obj,
-                                               direction="maximize",
+                                               direction="minimize",
                                                time_limit=self.config['time_limit'],
                                                method='single_solution')
 

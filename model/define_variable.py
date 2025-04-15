@@ -86,7 +86,7 @@ def define_variable(self):
                         # 반입 일정
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                             var_key_work_rotate] = self.cpmodel.interval_var(
-                            start=(0, 10),
+                            start=(0, 30),
                             size=1,
                             optional=True,
                             name=f"{work}_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
@@ -95,7 +95,7 @@ def define_variable(self):
                         # 적치 일정
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                             var_key_work_rotate] = self.cpmodel.interval_var(
-                            start=(0, 10),
+                            start=(0, 30),
                             size=1,
                             optional=True,
                             name=f"{work}_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
@@ -104,7 +104,7 @@ def define_variable(self):
                         # 반출 일정
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                             var_key_work_rotate] = self.cpmodel.interval_var(
-                            start=(0, 10),
+                            start=(0, 30),
                             size=1,
                             optional=True,
                             name=f"{work}_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
@@ -113,7 +113,7 @@ def define_variable(self):
                         # T/O 일정
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                             var_key_work_rotate] = self.cpmodel.interval_var(
-                            start=(0, 10),
+                            start=(0, 30),
                             size=1,
                             optional=True,
                             name=f"{work}_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
@@ -122,7 +122,7 @@ def define_variable(self):
                         # PE 일정
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                             var_key_work_rotate] = self.cpmodel.interval_var(
-                            start=(0, 10),
+                            start=(0, 30),
                             size=1,
                             optional=True,
                             name=f"{work}_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
