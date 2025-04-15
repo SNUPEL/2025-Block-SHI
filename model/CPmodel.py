@@ -17,19 +17,21 @@ from solve_model import *
 from postprocess_solution import *
 
 
-
-
-
 class CPmodel:
     def __init__(self, config):
         self.config = config
+        self.start_date = pd.to_datetime(self.config['data_start_date'])
+        self.block_end_date = None
+        self.end_date = None
+        self.model_start_index = None  # 변환시 시작 시간, 0으로 정의
+        self.model_end_index = None  # 변환시 마지막 시간
         self.df_raw_data_dict = dict()
-        self.work_area_list = dict()
+        self.work_area_dict = dict()
         self.crane_dict = dict()
         self.block_dict = dict()
-        self.calendar = dict()
+        self.calendar_dict = dict()  # 날짜 -> idx
+        self.postprocess_calendar_dict = dict()  # idx -> 날짜
         self.df_result = pd.DataFrame()
-
 
     def get_data(self):
         try:
@@ -63,7 +65,6 @@ class CPmodel:
         # <- 정반그룹별 제약
         # 블록별로 특정 정반에서는 특정 회전만 존재해야 함
 
-
         # 크레인 단독 운용
         add_constraint_crane_usage(self)
         # 크레인 블록 순차 배치
@@ -82,24 +83,11 @@ class CPmodel:
         add_objective_sum_unassinged_block(self)
 
         ## <모델 탐색 파트> ##
-        self.solution_cpmodel= solve_model(self,
-                                               model=self.cpmodel,
-                                               objective_function=self.obj,
-                                               direction="maximize",
-                                               time_limit=self.config['time_limit'],
-                                               method='single_solution')
+        self.solution_cpmodel= solve_model(self, model=self.cpmodel, objective_function=self.obj, direction="maximize",
+                                           time_limit=self.config['time_limit'], method='single_solution')
 
         ## <모델 후처리> ##
         postprocess_solution(self)
 
     # def get_final_result(self):
     #         df_result = self.df_result
-
-
-
-
-
-
-
-
-

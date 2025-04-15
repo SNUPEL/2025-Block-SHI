@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 class WorkUnit:
     def __init__(self, unit_id, x, y, dx, dy):
         self.unit_id = unit_id
@@ -28,6 +31,7 @@ class WorkArea:
         self.unavailable_area_y = None
         self.unavailable_area_L = None
         self.unavailable_area_B = None
+        # key: 작업명, value: 시간
         self.crane_operation_dict = dict()
         self.work_unit_dict = dict()
 
@@ -48,7 +52,7 @@ class Crane:
 class Block:
     def __init__(self, ship_type, project_number, block_number,
                  allocation_start_date, allocation_end_date, processing_time, TO_date, PE_date,
-                 length, breadth, height, weight, indoor_outdoor_condition, lug_direction, allocate_condtion):
+                 length, spacing_x, breadth, spacing_y, height, weight, indoor_outdoor_condition, lug_direction, allocate_condtion):
         self.ship_type = ship_type
         self.project_number = project_number
         self.block_number = block_number
@@ -57,10 +61,20 @@ class Block:
         self.processing_time = processing_time
         self.TO_date = TO_date
         self.PE_date = PE_date
+        self.adjusted_allocation_start_date = self.allocation_start_date
+        self.allocation_index = None
+        self.adjusted_TO_date = self.TO_date
+        self.TO_index = None
+        self.adjusted_PE_date = self.PE_date
+        self.PE_index = None
         self.length = length
+        self.adjusted_length = int((self.length + spacing_x) * 10)
         self.breadth = breadth
+        self.adjusted_breadth = int((self.breadth + spacing_y) * 10)
         self.height = height
+        self.adjsted_height = int(self.height * 10)
         self.weight = weight
+        self.adjusted_weight = int(self.weight * 10)
         self.indoor_outdoor_condition = indoor_outdoor_condition
         self.lug_direction = lug_direction
         self.allocate_condtion = allocate_condtion
@@ -69,8 +83,17 @@ class Block:
         self.x_location = None
         self.y_location = None
 
-    def adjust_time(self, calendar):
-        pass
+    def datetime_to_idx(self, calendar):
+        # working day로 delay 및 index로 변환
+        while self.adjusted_allocation_start_date not in calendar.keys():
+            self.adjusted_allocation_start_date += pd.Timedelta(days=1)
+        self.allocation_index = calendar[self.adjusted_allocation_start_date]
+        while self.adjusted_TO_date not in calendar.keys():
+            self.adjusted_TO_date += pd.Timedelta(days=1)
+        self.TO_index = calendar[self.adjusted_TO_date]
+        while self.adjusted_PE_date not in calendar.keys():
+            self.adjusted_PE_date += pd.Timedelta(days=1)
+        self.PE_index = calendar[self.adjusted_PE_date]
 
     def get_location(self, group_id, x_location, y_location):
         # 향후 배치 확정 블록 데이터 존재 시 좌표를 정반 그룹과 위치에 맞춰 변환하는 코드 추가 구현

@@ -81,7 +81,7 @@ def get_work_area_list(df_work_area_group, df_work_area):
 
                     combined_length = x_vals[-1] - x_vals[0]
                     combined_breadth = y_vals[-1] - y_vals[0]
-                    temp_work_area\
+                    temp_work_area \
                         = WorkArea(group_id=row['그룹ID'], surface_id_list=list(group['정반ID']), priority=row['우선순위'],
                                    indoor_outdoor_condition=row['옥내외'], lug_condition=row['러그고려'],
                                    L_limit_of_block=row['사이즈제한LTH'], B_limit_of_block=row['사이즈제한BTH'],
@@ -94,7 +94,7 @@ def get_work_area_list(df_work_area_group, df_work_area):
                         f" L={temp_work_area.L}, B={temp_work_area.B}")
 
                     for _, rect in group.iterrows():
-                        temp_work_area.work_unit_dict[rect['정반ID']]\
+                        temp_work_area.work_unit_dict[rect['정반ID']] \
                             = WorkUnit(unit_id=rect['정반ID'], x=rect['그룹내정반위치X'], y=rect['그룹내정반위치Y'],
                                        dx=rect['정반길이'], dy=rect['정반폭'])
 
@@ -123,7 +123,6 @@ def get_work_area_list(df_work_area_group, df_work_area):
                     work_area_dict[(row['그룹ID'], tuple(group['정반ID']))] = temp_work_area
         else:
             continue
-    print('Work area definition is complete')
     return work_area_dict
 
 
@@ -133,6 +132,7 @@ def preprocess_data(self):
         df_work_area_group = self.df_raw_data_dict['WORKAREA_GROUP']
         df_work_area = self.df_raw_data_dict['WORKAREA']
         self.work_area_dict = get_work_area_list(df_work_area_group, df_work_area)
+        print('WorkArea class has been defined')
     else:
         print('Sheet names do not match')
 
@@ -141,7 +141,8 @@ def preprocess_data(self):
                                  on=['작업종류', '크레인ID'], how='left')
         for _, work_area in self.work_area_dict.items():
             for key, group in df_crane_time.groupby('그룹ID').get_group(work_area.group_id).groupby('작업종류'):
-                work_area.crane_operation_dict[key] = (sum(group['작업시간']), list(group['크레인ID']))
+                work_area.crane_operation_dict[key] = (int(sum(group['작업시간'] * 2)), list(group['크레인ID']))
+        print('Crane operation dictionary has been defined')
     else:
         print('Sheet names do not match')
 
@@ -150,38 +151,94 @@ def preprocess_data(self):
             self.crane_dict[row['크레인ID']] = Crane(Crane_id=row['크레인ID'], condition=row['사용여부'])
 
         # 향후 크레인 별 예약 작업 list 추가하는 코드 구현
+        # 더미 변수 생성해 step function에 pulse 추가
+        print('Crane class has been defined')
     else:
         print('Sheet names do not match')
 
-    # # 검증용 print 문
-    # for key, work_area in self.work_area_dict.items():
-    #     for unit_id, unit in work_area.work_unit_dict.items():
-    #         print(work_area.group_id, unit.unit_id, unit.x, unit.y, unit.dx, unit.dy)
-    #     print(work_area.crane_operation_dict)
-    #     print(key, work_area.surface_id_list)
-
     if 'UNAL_WORKDAY' in sheet_name_list:
         # 향후 추가해 일정으로 활용
+        df_calendar = self.df_raw_data_dict['UNAL_WORKDAY']
+        while True:
+            row = df_calendar[df_calendar['달력일자'] == self.start_date]
+            if row.empty or row.iloc[0]['휴일여부'] == 0:
+                break
+            self.start_date += pd.Timedelta(days=1)
+        df_after_start = df_calendar[df_calendar['달력일자'] >= self.start_date].copy()
+        if self.config['only_workingday']:
+            df_after_start = df_after_start[df_after_start['휴일여부'] == 0]
+        # end_date 계산
+        if len(df_after_start) < self.config['data_duration']:
+            raise ValueError("달력 데이터가 부족합니다.")
+        self.block_end_date = df_after_start.iloc[self.config['data_duration'] - 1]['달력일자']
+        while True:
+            row = df_calendar[df_calendar['달력일자'] == self.block_end_date]
+            if row.empty or row.iloc[0]['휴일여부'] == 0:
+                break
+            self.block_end_date += pd.Timedelta(days=1)
 
-        pass
+        df_block = self.df_raw_data_dict['BLK']
+        df_block[['착수일', '완료일', 'TO일정', 'PE일정']] \
+            = df_block[['착수일', '완료일', 'TO일정', 'PE일정']].apply(pd.to_datetime, errors='coerce')
+        df_block_filtered = df_block[(df_block['착수일'] >= self.start_date) & (df_block['착수일'] <= self.block_end_date)]
+        self.end_date = df_block_filtered['PE일정'].max()
+        df_after_pe = df_calendar[df_calendar['달력일자'] >= self.end_date]
+        df_after_pe = df_after_pe[df_after_pe['휴일여부'] == 0]
+        if len(df_after_pe) < 4:
+            raise ValueError("PE일정 이후 평일이 부족하여 end_date 계산 불가")
+        self.end_date = df_after_pe.iloc[3]['달력일자']
+
+        date = self.start_date
+        idx = 0
+        while True:
+            # 평일이면 기록
+            if df_calendar.loc[df_calendar['달력일자'] == date, '휴일여부'].iloc[0] == 0:
+                self.calendar_dict[date] = idx
+                self.postprocess_calendar_dict[idx] = date
+                idx += 1
+            # end_date면 기록 후 종료
+            if date == self.end_date:
+                break
+            date += pd.Timedelta(days=1)
+        self.model_start_index = self.calendar_dict[self.start_date]
+        self.model_end_index = self.calendar_dict[self.end_date]
+        print(self.start_date, self.end_date)
+        print(self.model_start_index, self.model_end_index)
+        print('Time index has been defined')
     else:
         print('Sheet names do not match')
 
     if 'BLK' in sheet_name_list:
         df_block = self.df_raw_data_dict['BLK']
-        df_block[['착수일', '완료일', 'TO일정', 'PE일정']]\
+        df_block[['착수일', '완료일', 'TO일정', 'PE일정']] \
             = df_block[['착수일', '완료일', 'TO일정', 'PE일정']].apply(pd.to_datetime, errors='coerce')
-        for _, row in df_block.iterrows():
+        df_block_filtered = df_block[(df_block['착수일'] >= self.start_date) & (df_block['착수일'] <= self.block_end_date)]
+        for _, row in df_block_filtered.iterrows():
             temp_block = Block(ship_type=row['선종'], project_number=row['호선'], block_number=row['블록'],
                                allocation_start_date=row['착수일'], allocation_end_date=row['완료일'],
                                processing_time=row['공기'], TO_date=row['TO일정'], PE_date=row['PE일정'],
-                               length=row['블록길이'], breadth=row['블록폭'], height=row['블록높이'], weight=row['블록중량'],
+                               length=row['블록길이'], spacing_x=self.config['block_spacing_x'], breadth=row['블록폭'],
+                               spacing_y=self.config['block_spacing_y'], height=row['블록높이'], weight=row['블록중량'],
                                indoor_outdoor_condition=row['옥내외'], lug_direction=row['러그방향'],
                                allocate_condtion=row['배치확정여부'])
-            temp_block.adjust_time(self.calendar)
             if temp_block.allocate_condtion == 'Y':
                 temp_block.get_location(row['그룹ID'], row['블록위치X'], row['블록위치Y'])
+
+            temp_block.datetime_to_idx(self.calendar_dict)
+
+            for key, value in self.block_dict.items():
+                if row['선종'] == key[0] and row['호선'] == key[1] and row['블록'][:-1] == key[2][:-1]:
+                    if abs(value.allocation_index - temp_block.allocation_index) < 3:
+                        value.allocation_index = max(value.allocation_index, temp_block.allocation_index)
+                        temp_block.allocation_index = max(value.allocation_index, temp_block.allocation_index)
+                    value.TO_index = max(value.TO_index, temp_block.TO_index)
+                    temp_block.TO_index = max(value.TO_index, temp_block.TO_index)
+                    value.PE_index = max(value.PE_index, temp_block.PE_index)
+                    temp_block.PE_index = max(value.PE_index, temp_block.PE_index)
+                    break
+
             self.block_dict[(row['선종'], row['호선'], row['블록'])] = temp_block
+        print('Block class has been defined')
     else:
         print('Sheet names do not match')
 
@@ -190,6 +247,3 @@ def preprocess_data(self):
         pass
     else:
         print('Sheet names do not match')
-
-
-

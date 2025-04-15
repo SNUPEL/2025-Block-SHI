@@ -31,13 +31,13 @@ def add_constraint_lug_direction(self):
                     if block.lug_direction == 'L': # 정반은 L, 블록은 L일 때는 rotate가 90이면 안됨
                         if rotate == 90:
                             self.cpmodel.add(0 == self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key]))
-                            print(f"Block {block_id}이 Work Area {work_area.group_id}에 갈 경우, work_area.lug_condition={work_area.lug_condition}, block.lug_direction={block.lug_direction} 이므로 rotate={rotate} 이면 안 된다는 제약이 추가되었습니다.")
+                            # print(f"Block {block_id}이 Work Area {work_area.group_id}에 갈 경우, work_area.lug_condition={work_area.lug_condition}, block.lug_direction={block.lug_direction} 이므로 rotate={rotate} 이면 안 된다는 제약이 추가되었습니다.")
                         else:
                             pass
                     elif block.lug_direction == 'B': # 정반은 L, 블록은 B일 때는 rotate가 0이면 안됨
                         if rotate == 0:
                             self.cpmodel.add(0 == self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key]))
-                            print(f"Block {block_id}이 Work Area {work_area.group_id}에 갈 경우, work_area.lug_condition = {work_area.lug_condition}, block.lug_direction={block.lug_direction} 이므로 rotate={rotate} 이면 안 된다는 제약이 추가되었습니다.")
+                            # print(f"Block {block_id}이 Work Area {work_area.group_id}에 갈 경우, work_area.lug_condition = {work_area.lug_condition}, block.lug_direction={block.lug_direction} 이므로 rotate={rotate} 이면 안 된다는 제약이 추가되었습니다.")
                         else:
                             pass
                 else: # 블록 정반 조건이 L이 아닌 경우는 따로 없기에 만들지 않음
