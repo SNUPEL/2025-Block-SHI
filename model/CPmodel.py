@@ -75,21 +75,21 @@ class CPmodel:
         # 변수 정의 #
         define_variable(self)
 
-        # # 제약 조건 #
-        # # 정반 별 블록 사이즈 제한
-        # add_constraint_area_limitation(self)
-        # # 블록 간섭 제약
-        # add_constraint_block_intersection(self)
-        # # 정반 러그 방향 제한 제약
-        # add_constraint_lug_direction(self)
-        # # 크레인 단독 운용
+        # 제약 조건 #
+        # 정반 별 블록 사이즈 제한
+        add_constraint_area_limitation(self)
+        # 블록 간섭 제약
+        add_constraint_block_intersection(self)
+        # 정반 러그 방향 제한 제약
+        add_constraint_lug_direction(self)
+        # 크레인 단독 운용
         # add_constraint_crane_usage(self)
-        # # 특정 블록 동시 작업 제약
-        # add_constraint_simultaneous_block(self)
+        # 특정 블록 동시 작업 제약
+        add_constraint_simultaneous_block(self)
 
         # 목적 함수 #
-        # # 정반 그룹 선호도 최대화
-        # add_objective_preference(self)
+        # 정반 그룹 선호도 최대화
+        add_objective_preference(self)
         #
         # # 지연 최소화 목적함수
         # add_objective_sum_delay(self)

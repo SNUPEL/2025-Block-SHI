@@ -25,11 +25,7 @@ def add_objective_preference(self):
             if isinstance(surface_id, list):
                 surface_id = tuple(surface_id)
 
-            # 회전 옵션 결정
-            rotation_options = [0] if (isinstance(surface_group_key, tuple) and surface_group_key[
-                0] == 4) or surface_group_key == 4 else [0, 90]
-
-            for rotate in rotation_options:
+            for rotate in self.rotation_list:
                 var_key = (block_id, surface_group_key, surface_id, 'STORE', rotate)
                 if var_key in self.block_schedule_var_by_id_group_surf_work_rotate_dict:
                     var = self.block_schedule_var_by_id_group_surf_work_rotate_dict[var_key]

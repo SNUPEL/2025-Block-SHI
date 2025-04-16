@@ -136,13 +136,41 @@ def preprocess_data(self):
     else:
         print('Sheet names do not match')
 
+    # if 'WORKAREA_CRANE_REL' in sheet_name_list and 'CRANE_WORK_TIME' in sheet_name_list:
+    #     df_crane_time = pd.merge(self.df_raw_data_dict['WORKAREA_CRANE_REL'], self.df_raw_data_dict['CRANE_WORK_TIME'],
+    #                              on=['작업종류', '크레인ID'], how='left')
+    #     for _, work_area in self.work_area_dict.items():
+    #         for key, group in df_crane_time.groupby('그룹ID').get_group(work_area.group_id).groupby('작업종류'):
+    #             work_area.crane_operation_dict[key] = (int(sum(group['작업시간'] * 2)), list(group['크레인ID']))
+    #     print('Crane operation dictionary has been defined')
+    # else:
+    #     print('Sheet names do not match')
+    # TO와 OUT을 합치기 위해 수정
     if 'WORKAREA_CRANE_REL' in sheet_name_list and 'CRANE_WORK_TIME' in sheet_name_list:
         df_crane_time = pd.merge(self.df_raw_data_dict['WORKAREA_CRANE_REL'], self.df_raw_data_dict['CRANE_WORK_TIME'],
                                  on=['작업종류', '크레인ID'], how='left')
+
+        out_to_types = ['OUT', 'TO']
+
         for _, work_area in self.work_area_dict.items():
-            for key, group in df_crane_time.groupby('그룹ID').get_group(work_area.group_id).groupby('작업종류'):
+            # 그룹ID로 먼저 필터링
+            group_df = df_crane_time[df_crane_time['그룹ID'] == work_area.group_id]
+
+            # 일반 작업종류 처리
+            for key, group in group_df[~group_df['작업종류'].isin(out_to_types)].groupby('작업종류'):
                 work_area.crane_operation_dict[key] = (int(sum(group['작업시간'] * 2)), list(group['크레인ID']))
-        print('Crane operation dictionary has been defined')
+
+            # PE와 TO 작업을 합쳐서 처리
+            pe_to_df = group_df[group_df['작업종류'].isin(out_to_types)]
+            if not pe_to_df.empty:
+                # 합쳐진 작업시간 계산
+                combined_time = int(sum(pe_to_df['작업시간'] * 2))
+                # 두 작업에 사용된 크레인ID 리스트 (중복 제거)
+                combined_cranes = list(pe_to_df['크레인ID'].unique())
+                # TO 키 값으로 저장
+                work_area.crane_operation_dict['TO'] = (combined_time, combined_cranes)
+
+        print('Crane operation dictionary has been defined with PE and TO combined')
     else:
         print('Sheet names do not match')
 

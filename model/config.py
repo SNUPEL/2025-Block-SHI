@@ -8,14 +8,14 @@ def create_config():
 
     config['data_file_path'] = '../data/data_rev0.2.xlsx'
 
-    config['data_start_date'] = '2019-06-04'
+    config['data_start_date'] = '2019-08-04'
     config['data_duration'] = 28
     config['only_workingday'] = True  # True: workingday 기준 duration의 기간을 셈, False: 단순히 duration의 기간을 더함
     config['block_spacing_x'] = 0.5
     config['block_spacing_y'] = 0.5
 
-    config['time_limit'] = 60
-    config['possible_delay_day'] = 2
+    config['time_limit'] = 3600
+    config['possible_delay_day'] = 10
 
     # 결과 저장
     config['ymd'] = time.strftime('%Y%m%d')
