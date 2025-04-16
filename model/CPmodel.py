@@ -33,7 +33,8 @@ class CPmodel:
         self.df_result = pd.DataFrame()
         self.rotation_list = [0, 90]
         self.work_list = ['IN', 'STORE', 'TO', 'PE']
-        self.delay_day = self.config['possible_delay_day']
+        self.possible_delay_day = self.config['possible_delay_day']
+
         # 일정 변수
         self.block_schedule_var_by_id_work_dict = {}  # 블록 ID별, 작업별 일정 변수(대표 변수)
         self.block_schedule_var_list_by_id_work_dict = {}  # 블록 ID별, 작업별 가능한 일정 변수 리스트
@@ -83,7 +84,7 @@ class CPmodel:
         # 정반 러그 방향 제한 제약
         add_constraint_lug_direction(self)
         # 크레인 단독 운용
-        # add_constraint_crane_usage(self)
+        add_constraint_crane_usage(self)
         # 특정 블록 동시 작업 제약
         add_constraint_simultaneous_block(self)
 
@@ -103,7 +104,7 @@ class CPmodel:
                                             objective_function=self.obj,
                                             direction="minimize",
                                             time_limit=self.config['time_limit'],
-                                            method='single_solution')
+                                            method='single_solutions')
 
         ## <모델 후처리> ##
         postprocess_solution(self)

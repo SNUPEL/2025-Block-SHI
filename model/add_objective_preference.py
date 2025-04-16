@@ -5,7 +5,6 @@ def add_objective_preference(self):
     """
 
     """
-
     # 역전 패널티값 누적
     penalty_exprs = []
 
