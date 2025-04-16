@@ -15,6 +15,7 @@ def create_config():
     config['block_spacing_y'] = 0.5
 
     config['time_limit'] = 60
+    config['possible_delay_day'] = 2
 
     # 결과 저장
     config['ymd'] = time.strftime('%Y%m%d')

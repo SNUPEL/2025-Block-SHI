@@ -6,7 +6,6 @@ from preprocess_data import *
 from define_variable import *
 from add_constraint_area_limitation import *
 from add_constraint_block_intersection import *
-from add_constraint_crane_sequence import *
 from add_constraint_simultaneous_block import *
 from add_constraint_lug_direction import *
 from add_constraint_crane_usage import *
@@ -32,6 +31,27 @@ class CPmodel:
         self.calendar_dict = dict()  # 날짜 -> idx
         self.postprocess_calendar_dict = dict()  # idx -> 날짜
         self.df_result = pd.DataFrame()
+        self.rotation_list = [0, 90]
+        self.work_list = ['IN', 'STORE', 'TO', 'PE']
+        self.delay_day = self.config['possible_delay_day']
+        # 일정 변수
+        self.block_schedule_var_by_id_work_dict = {}  # 블록 ID별, 작업별 일정 변수(대표 변수)
+        self.block_schedule_var_list_by_id_work_dict = {}  # 블록 ID별, 작업별 가능한 일정 변수 리스트
+        self.block_schedule_var_by_id_group_surf_work_rotate_dict = {}  # 블록 ID, 그룹, 정반, 작업, 회전별 일정 변수
+
+        # 위치 변수
+        self.block_x_var_by_id_dict = {}  # 블록 ID별 x축 위치 변수
+        self.block_x_var_list_by_id_dict = {}  # 블록 ID별 가능한 x축 위치 변수 리스트
+        self.block_x_var_by_id_group_surf_rotate_dict = {}  # 블록 ID, 그룹, 정반, 회전별 x축 위치 변수
+
+        self.block_y_var_by_id_dict = {}  # 블록 ID별 y축 위치 변수
+        self.block_y_var_list_by_id_dict = {}  # 블록 ID별 가능한 y축 위치 변수 리스트
+        self.block_y_var_by_id_group_surf_rotate_dict = {}  # 블록 ID, 그룹, 정반, 회전별 y축 위치 변수
+
+        self.block_time_var_by_id_dict = {}  # 블록 ID별 시간축 변수
+        self.block_time_var_list_by_id_dict = {}  # 블록 ID별 가능한 시간축 변수 리스트
+        self.block_time_var_by_id_group_surf_rotate_dict = {}  # 블록 ID, 그룹, 정반, 회전별 시간축 위치 변수
+
 
     def get_data(self):
         try:
@@ -50,41 +70,40 @@ class CPmodel:
 
         ## < 최적화 모델 구성> ##
         # CP 모델 생성
-        self.cpmodel=CpoModel()
+        self.cpmodel = CpoModel()
 
         # 변수 정의 #
         define_variable(self)
 
-        # 제약 조건 #
-        # 정반 별 블록 사이즈 제한
-        add_constraint_area_limitation(self)
-        # 블록 간섭 제약
-        add_constraint_block_intersection(self)
-        # 정반 러그 방향 제한 제약
-        add_constraint_lug_direction(self)
-        # <- 정반그룹별 제약
-        # 블록별로 특정 정반에서는 특정 회전만 존재해야 함
-
-        # 크레인 단독 운용
-        add_constraint_crane_usage(self)
-        # 크레인 블록 순차 배치
-        add_constraint_crane_sequence(self)
-        # 특정 블록 동시 작업 제약
-        add_constraint_simultaneous_block(self)
+        # # 제약 조건 #
+        # # 정반 별 블록 사이즈 제한
+        # add_constraint_area_limitation(self)
+        # # 블록 간섭 제약
+        # add_constraint_block_intersection(self)
+        # # 정반 러그 방향 제한 제약
+        # add_constraint_lug_direction(self)
+        # # 크레인 단독 운용
+        # add_constraint_crane_usage(self)
+        # # 특정 블록 동시 작업 제약
+        # add_constraint_simultaneous_block(self)
 
         # 목적 함수 #
-        # 정반 그룹 선호도 최대화
-        add_objective_preference(self)
-
-        # 지연 최소화 목적함수
-        add_objective_sum_delay(self)
-
-        # 미배치 블록 최소화 목적함수
-        add_objective_sum_unassinged_block(self)
+        # # 정반 그룹 선호도 최대화
+        # add_objective_preference(self)
+        #
+        # # 지연 최소화 목적함수
+        # add_objective_sum_delay(self)
+        #
+        # # 미배치 블록 최소화 목적함수
+        # add_objective_sum_unassinged_block(self)
 
         ## <모델 탐색 파트> ##
-        self.solution_cpmodel= solve_model(self, model=self.cpmodel, objective_function=self.obj, direction="maximize",
-                                           time_limit=self.config['time_limit'], method='single_solution')
+        self.solution_cpmodel = solve_model(self,
+                                            model=self.cpmodel,
+                                            objective_function=self.obj,
+                                            direction="minimize",
+                                            time_limit=self.config['time_limit'],
+                                            method='single_solution')
 
         ## <모델 후처리> ##
         postprocess_solution(self)
