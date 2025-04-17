@@ -89,18 +89,6 @@ def define_variable(self):
                     if block_length > work_area.L or block_breadth > work_area.B:
 
                         continue
-                    # # 전체 함수 시작 부분에 카운터 초기화
-                    # too_large_count = 0
-                    #
-                    # # 중간의 블록 처리 코드에서
-                    # if block_length > work_area.L or block_breadth > work_area.B:
-                    #     too_large_count += 1
-                    #     print(
-                    #         f"블록 {block_id}, 정반 {surface_group_key}, 회전 {rotate}: 크기 초과 (블록 {block_length}x{block_breadth}, 정반 {work_area.L}x{work_area.B})")
-                    #     continue
-                    #
-                    # # 모든 루프가 끝난 후 함수 끝 부분에서만 총 개수 출력
-                    # print(f"\n총 {too_large_count}개 블록-정반-회전 조합이 크기 제한으로 제외됨")
 
                     # 각 작업별 일정 변수 생성
                     if work == 'IN':
