@@ -5,7 +5,6 @@ def add_objective_preference(self):
     """
 
     """
-    # 역전 패널티값 누적
     penalty_exprs = []
 
     block_info = []
@@ -46,11 +45,9 @@ def add_objective_preference(self):
     # 2. 목적함수 구현: 패널티 구현
     for i, block1 in enumerate(block_info):
         for block2 in block_info[i + 1:]:
-            # 숫자가 같으면 비교하지 않음
             if block1['block_num'] == block2['block_num']:
                 continue
 
-            # 숫자 크기에 따라 블록 정렬
             if block1['block_num'] < block2['block_num']:
                 smaller_block = block1
                 larger_block = block2
@@ -67,7 +64,5 @@ def add_objective_preference(self):
                             placement_larger['var'])
                         penalty_exprs.append(penalty_expr)
 
-    # 패널티 누적값을 목적함수로 설정 (최소화)
-    if penalty_exprs:
-        penalty_sum = self.cpmodel.sum(penalty_exprs)
-        self.obj = penalty_sum
+    penalty_sum = self.cpmodel.sum(penalty_exprs)
+    self.obj_sum_preference = penalty_sum

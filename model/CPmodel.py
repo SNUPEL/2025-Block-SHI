@@ -33,7 +33,10 @@ class CPmodel:
         self.df_result = pd.DataFrame()
         self.rotation_list = [0, 90]
         self.work_list = ['IN', 'STORE', 'TO', 'PE']
+        self.max_delay_day = self.config['max_delay_day']
         self.possible_delay_day = self.config['possible_delay_day']
+
+
 
         # 일정 변수
         self.block_schedule_var_by_id_work_dict = {}  # 블록 ID별, 작업별 일정 변수(대표 변수)
@@ -67,7 +70,9 @@ class CPmodel:
     def run_model(self):
 
         # 탐색을 위한 데이터 준비
-        self.obj = 0
+        self.obj_sum_preference = 0
+        self.obj_sum_delay = 0
+        self.obj_sum_unassinged_block = 0
 
         ## < 최적화 모델 구성> ##
         # CP 모델 생성
@@ -90,13 +95,21 @@ class CPmodel:
 
         # 목적 함수 #
         # 정반 그룹 선호도 최대화
-        add_objective_preference(self)
-        #
-        # # 지연 최소화 목적함수
-        # add_objective_sum_delay(self)
-        #
-        # # 미배치 블록 최소화 목적함수
-        # add_objective_sum_unassinged_block(self)
+        if self.config['obj_preference'] == True:
+            add_objective_preference(self)
+
+        # 지연 최소화 목적함수
+        if self.config['obj_delay'] == True:
+            add_objective_sum_delay(self)
+
+        # 미배치 블록 최소화 목적함수
+        if self.config['obj_unassigned_block'] == True:
+            add_objective_sum_unassinged_block(self)
+
+        # 목적함수 계산
+        self.obj = (self.config['weight_preference'] * self.obj_sum_preference +
+                    self.config['weight_delay'] * self.obj_sum_delay +
+                    self.config['weight_unassigned_block'] * self.obj_sum_unassinged_block)
 
         ## <모델 탐색 파트> ##
         self.solution_cpmodel = solve_model(self,
@@ -104,7 +117,7 @@ class CPmodel:
                                             objective_function=self.obj,
                                             direction="minimize",
                                             time_limit=self.config['time_limit'],
-                                            method='single_solutions')
+                                            method='single_solution')
 
         ## <모델 후처리> ##
         postprocess_solution(self)

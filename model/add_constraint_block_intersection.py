@@ -1,7 +1,6 @@
 def add_constraint_block_intersection(self):
     """
-    블록 간 겹침 방지 제약
-    같은 정반에 배치된 블록들이 공간적으로나 시간적으로 겹치지 않도록 제약 설정
+        블록 간섭 금지 제약 조건
     """
     # 모든 블록 쌍에 대해 반복
     for i, block_key1 in enumerate(self.block_keys):
@@ -22,7 +21,7 @@ def add_constraint_block_intersection(self):
                     surface_id = tuple(surface_id)
 
                 # 회전 옵션 결정 (work_area가 4인 경우 회전 없이 0도만 고려)
-                if surface_group_key[0] == 4 if isinstance(surface_group_key, tuple) else surface_group_key == 4:
+                if surface_group_key[0] == 4:
                     rotation_options = [0]  # 회전 없이 0도만 고려
                 else:
                     rotation_options = [0, 90]  # 다른 정반은 모든 회전 고려
@@ -51,7 +50,6 @@ def add_constraint_block_intersection(self):
                         y_var2 = self.block_y_var_by_id_group_surf_rotate_dict[var_key2]
                         time_var2 = self.block_time_var_by_id_group_surf_rotate_dict[var_key2]
 
-                        # 두 블록이 같은 정반에 있을 경우 공간적으로나 시간적으로 겹치지 않도록 제약 추가
                         self.cpmodel.add(
                             # 두 블록이 동시에 존재할 경우에만 제약 적용
                             (self.cpmodel.presence_of(x_var1) * self.cpmodel.presence_of(x_var2) == 0) |

@@ -1,16 +1,9 @@
 from docplex.cp.model import *
-
-
 def add_constraint_crane_usage(self):
     """
-    일별 크레인 사용량 제약 조건 추가 - 모든 작업 유형 포함
-    :param self:
-    :return:
     """
-    # 일별 크레인 사용량 변수 초기화
     crane_usage = self.cpmodel.step_at(0, 0)
 
-    # 모든 스케줄 변수 순회
     for (block_id, surface_group_key, surface_id, work,
          rotate), schedule_var in self.block_schedule_var_by_id_group_surf_work_rotate_dict.items():
 
@@ -19,7 +12,6 @@ def add_constraint_crane_usage(self):
         operation_info = work_area.crane_operation_dict.get(work, (0, []))
         crane_time = int(operation_info[0])
 
-        # 블록 정보 구성
         block_found = None
         for block in self.block_dict.values():
             current_block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
@@ -33,7 +25,7 @@ def add_constraint_crane_usage(self):
         if block_found.weight > 45 and work in ['TO', 'PE']:
             continue
 
-        # 크레인 사용량 누적 (모든 작업 유형 포함)
+        # 크레인 사용량 누적
         crane_usage += self.cpmodel.pulse(schedule_var, crane_time)
 
     self.cpmodel.add(crane_usage <= 16)

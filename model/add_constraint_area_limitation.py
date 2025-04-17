@@ -68,6 +68,12 @@ def add_constraint_area_limitation(self):
             # var_key 예시 : ('15000 TEU_PN1231_A110L', (1, (1, 2, 3, 4)), (1, 2, 3, 4), 0)
             for i, group in enumerate(range(1,4)):
                 var_key = (block_id, (group, (1, 2, 3, 4)), (1, 2, 3, 4), rotate)
+                # 정반크기로 존재하지 않는 경우 제외하도록 추가
+                if var_key not in self.block_time_var_by_id_group_surf_rotate_dict:
+                    continue
+                time_var = self.block_time_var_by_id_group_surf_rotate_dict[var_key]
+
+                var_key = (block_id, (group, (1, 2, 3, 4)), (1, 2, 3, 4), rotate)
                 self.cpmodel.add(block.length<=length_limit[i]+ML*(1-self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])))
                 self.cpmodel.add(block.breadth<=breadth_limit[i]+MB*(1-self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])))
                 self.cpmodel.add(block.height<=height_limit[i]+MH*(1-self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])))
