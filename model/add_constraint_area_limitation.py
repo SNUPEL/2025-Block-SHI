@@ -17,17 +17,21 @@ def add_constraint_area_limitation(self):
     sizeinfo = sizeinfo.apply(pd.to_numeric, errors='coerce')
 
     # 3. 최대값 계산
-    max_length = sizeinfo['블록길이'].max()
-
     ML = sizeinfo['블록길이'].max()
     MB = sizeinfo['블록폭'].max()
     MH = sizeinfo['블록높이'].max()
     MW = sizeinfo['블록중량'].max()
 
-    length_limit = [10, 11, 8]
-    breadth_limit = [8, 11, 11]
-    height_limit = [2, 4, 3]
-    weight_limit = [30, 38, 38]
+    # 1. 데이터프레임에서 '사용여부'가 'Y'인 행만 필터
+    groupinfo = self.df_raw_data_dict['WORKAREA_GROUP']
+    groupinfo = groupinfo[(groupinfo['사용여부'] == 'Y') & (pd.to_numeric(groupinfo['사이즈제한LTH'], errors='coerce') != 0)]
+
+    # 2. '사이즈제한LTH' 열만 리스트로 추출 (숫자형 변환 포함)
+    length_limit = pd.to_numeric(groupinfo['사이즈제한LTH'], errors='coerce').tolist()
+    breadth_limit = pd.to_numeric(groupinfo['사이즈제한BTH'], errors='coerce').tolist()
+    height_limit = pd.to_numeric(groupinfo['사이즈제한HGT'], errors='coerce').tolist()
+    weight_limit = pd.to_numeric(groupinfo['사이즈제한WGT'], errors='coerce').tolist()
+
     for block_key, block in self.block_dict.items():
         block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
         # 모든 정반과 회전 각도에 대해 변수 탐색
@@ -39,35 +43,8 @@ def add_constraint_area_limitation(self):
                 # 정반크기로 존재하지 않는 경우 제외하도록 추가
                 if var_key not in self.block_time_var_by_id_group_surf_rotate_dict:
                     continue
-                time_var = self.block_time_var_by_id_group_surf_rotate_dict[var_key]
-
                 var_key = (block_id, (group, (1, 2, 3, 4)), (1, 2, 3, 4), rotate)
                 self.cpmodel.add(block.length<=length_limit[i]+ML*(1-self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])))
                 self.cpmodel.add(block.breadth<=breadth_limit[i]+MB*(1-self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])))
                 self.cpmodel.add(block.height<=height_limit[i]+MH*(1-self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])))
                 self.cpmodel.add(block.weight<=weight_limit[i]+MW*(1-self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])))
-                # print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 length가 {length_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
-                # print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 breadth가 {breadth_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
-                # print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 height가 {height_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
-                # print(f"Block {block_id.split('_')[-1]}에 대해 Group {group}에 속한 경우 weight가 {weight_limit[i]} 이하여야 한다는 제약이 추가되었습니다.")
-
-
-        # self.cpmodel.add_constraint(block.length<=10+ML*(1-x1))
-        # self.cpmodel.add_constraint(block.length<=11+ML*(1-x2))
-        # self.cpmodel.add_constraint(block.length<=8+ML*(1-x3))
-        # self.cpmodel.add_constraint(block.length<=8+ML*(1-x5))
-        #
-        # self.cpmodel.add_constraint(block.breadth<=8+MB*(1-x1))
-        # self.cpmodel.add_constraint(block.breadth<=11+MB*(1-x2))
-        # self.cpmodel.add_constraint(block.breadth<=11+MB*(1-x3))
-        # self.cpmodel.add_constraint(block.breadth<=11+MB*(1-x5))
-        #
-        # self.cpmodel.add_constraint(block.height<=2+MH*(1-x1))
-        # self.cpmodel.add_constraint(block.height<=4+MH*(1-x2))
-        # self.cpmodel.add_constraint(block.height<=3+MH*(1-x3))
-        # self.cpmodel.add_constraint(block.height<=3+MH*(1-x5))
-        #
-        # self.cpmodel.add_constraint(block.weight<=30+MW*(1-x1))
-        # self.cpmodel.add_constraint(block.weight<=38+MW*(1-x2))
-        # self.cpmodel.add_constraint(block.weight<=38+MW*(1-x3))
-        # self.cpmodel.add_constraint(block.weight<=38+MW*(1-x5))
