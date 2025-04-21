@@ -9,7 +9,7 @@ def create_config():
     config['data_file_path'] = '../data/data_rev0.2.xlsx'
 
     config['data_start_date'] = '2019-04-03' # 시작일자 (착수일 기준)
-    config['data_duration'] = 10
+    config['data_duration'] = 20
     config['only_workingday'] = True  # True: workingday 기준 duration의 기간을 셈, False: 단순히 duration의 기간을 더함
     config['time_limit'] = 10 # 탐색 시간
 
