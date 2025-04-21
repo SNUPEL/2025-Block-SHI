@@ -20,15 +20,9 @@ def add_constraint_block_intersection(self):
                 if isinstance(surface_id, list):
                     surface_id = tuple(surface_id)
 
-                # 회전 옵션 결정 (work_area가 4인 경우 회전 없이 0도만 고려)
-                if surface_group_key[0] == 4:
-                    rotation_options = [0]  # 회전 없이 0도만 고려
-                else:
-                    rotation_options = [0, 90]  # 다른 정반은 모든 회전 고려
-
                 # 각 회전 조합에 대해 반복
-                for rotate1 in rotation_options:
-                    for rotate2 in rotation_options:
+                for rotate1 in self.rotation_list:
+                    for rotate2 in self.rotation_list:
                         # 첫 번째 블록 변수 키
                         var_key1 = (block_id1, surface_group_key, surface_id, rotate1)
 
@@ -55,14 +49,18 @@ def add_constraint_block_intersection(self):
                             (self.cpmodel.presence_of(x_var1) * self.cpmodel.presence_of(x_var2) == 0) |
 
                             # X축 비겹침: 블록1 오른쪽 끝 ≤ 블록2 왼쪽 또는 블록2 오른쪽 끝 ≤ 블록1 왼쪽
-                            (self.cpmodel.end_of(x_var1) <= self.cpmodel.start_of(x_var2)) |
-                            (self.cpmodel.end_of(x_var2) <= self.cpmodel.start_of(x_var1)) |
+                            (((self.cpmodel.end_of(x_var1) <= self.cpmodel.start_of(x_var2)) |
+                            (self.cpmodel.end_of(x_var2) <= self.cpmodel.start_of(x_var1))))
+
+                            &
 
                             # Y축 비겹침: 블록1 위쪽 끝 ≤ 블록2 아래쪽 또는 블록2 위쪽 끝 ≤ 블록1 아래쪽
-                            (self.cpmodel.end_of(y_var1) <= self.cpmodel.start_of(y_var2)) |
-                            (self.cpmodel.end_of(y_var2) <= self.cpmodel.start_of(y_var1)) |
+                            ((self.cpmodel.end_of(y_var1) <= self.cpmodel.start_of(y_var2)) |
+                            (self.cpmodel.end_of(y_var2) <= self.cpmodel.start_of(y_var1)))
+
+                            &
 
                             # 시간 비겹침: 블록1 적치 종료 ≤ 블록2 적치 시작 또는 블록2 적치 종료 ≤ 블록1 적치 시작
-                            (self.cpmodel.end_of(time_var1) <= self.cpmodel.start_of(time_var2)) |
-                            (self.cpmodel.end_of(time_var2) <= self.cpmodel.start_of(time_var1))
+                            ((self.cpmodel.end_of(time_var1) <= self.cpmodel.start_of(time_var2)) |
+                            (self.cpmodel.end_of(time_var2) <= self.cpmodel.start_of(time_var1)))
                         )

@@ -209,7 +209,7 @@ def preprocess_data(self):
         df_block[['착수일', '완료일', 'TO일정', 'PE일정']] \
             = df_block[['착수일', '완료일', 'TO일정', 'PE일정']].apply(pd.to_datetime, errors='coerce')
         df_block_filtered = df_block[(df_block['착수일'] >= self.start_date) & (df_block['착수일'] <= self.block_end_date)]
-        self.end_date = df_block_filtered['PE일정'].max()
+        self.end_date = df_block_filtered['PE일정'].max() + pd.Timedelta(days=self.config['max_delay_day'])
         df_after_pe = df_calendar[df_calendar['달력일자'] >= self.end_date]
         df_after_pe = df_after_pe[df_after_pe['휴일여부'] == 0]
         if len(df_after_pe) < 4:

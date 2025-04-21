@@ -35,6 +35,12 @@ class CPmodel:
         self.work_list = ['IN', 'STORE', 'TO', 'PE']
         self.max_delay_day = self.config['max_delay_day']
         self.possible_delay_day = self.config['possible_delay_day']
+        self.obj_weight_preference = self.config['weight_preference']
+        self.obj_weight_delay = self.config['weight_delay']
+        self.obj_weight_unassigned_block = self.config['weight_unassigned_block']
+        self.obj_sum_preference = 0
+        self.obj_sum_delay = 0
+        self.obj_sum_unassigned_block = 0
 
 
 
@@ -69,10 +75,10 @@ class CPmodel:
 
     def run_model(self):
 
-        # 탐색을 위한 데이터 준비
-        self.obj_sum_preference = 0
-        self.obj_sum_delay = 0
-        self.obj_sum_unassinged_block = 0
+        # # 탐색을 위한 데이터 준비
+        # self.obj_sum_preference = 0
+        # self.obj_sum_delay = 0
+        # self.obj_sum_unassinged_block = 0
 
         ## < 최적화 모델 구성> ##
         # CP 모델 생성
@@ -84,14 +90,14 @@ class CPmodel:
         # 제약 조건 #
         # 정반 별 블록 사이즈 제한
         add_constraint_area_limitation(self)
-        # 블록 간섭 제약
-        add_constraint_block_intersection(self)
         # 정반 러그 방향 제한 제약
         add_constraint_lug_direction(self)
         # 크레인 단독 운용
         add_constraint_crane_usage(self)
-        # 특정 블록 동시 작업 제약
-        add_constraint_simultaneous_block(self)
+        # # 특정 블록 동시 작업 제약
+        # add_constraint_simultaneous_block(self)
+        # 블록 간섭 제약
+        add_constraint_block_intersection(self)
 
         # 목적 함수 #
         # 정반 그룹 선호도 최대화
@@ -107,9 +113,9 @@ class CPmodel:
             add_objective_sum_unassinged_block(self)
 
         # 목적함수 계산
-        self.obj = (self.config['weight_preference'] * self.obj_sum_preference +
-                    self.config['weight_delay'] * self.obj_sum_delay +
-                    self.config['weight_unassigned_block'] * self.obj_sum_unassinged_block)
+        self.obj = (self.obj_weight_preference * self.obj_sum_preference +
+                    self.obj_weight_delay * self.obj_sum_delay +
+                    self.obj_weight_unassigned_block * self.obj_sum_unassigned_block)
 
         ## <모델 탐색 파트> ##
         self.solution_cpmodel = solve_model(self,

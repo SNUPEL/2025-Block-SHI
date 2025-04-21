@@ -58,7 +58,7 @@ def add_objective_preference(self):
             for placement_smaller in smaller_block['placements']:
                 for placement_larger in larger_block['placements']:
                     # 역전 조건: 숫자가 작은 블록이 우선순위가 높은 정반에, 숫자가 큰 블록이 우선순위가 낮은 정반에 배치될 경우
-                    if placement_smaller['priority'] > placement_larger['priority']:
+                    if placement_smaller['priority'] >= placement_larger['priority']:
                         # 두 블록이 모두 해당 위치에 배치될 경우의 표현식
                         penalty_expr = self.cpmodel.presence_of(placement_smaller['var']) * self.cpmodel.presence_of(
                             placement_larger['var'])
