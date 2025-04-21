@@ -1,3 +1,4 @@
+import pandas as pd
 def add_constraint_area_limitation(self):
     '''
     정반그룹 별 최대 size 제한
@@ -5,56 +6,23 @@ def add_constraint_area_limitation(self):
     :return:
     '''
 
-    # # 1번 방법
-    # for block_key, block in self.block_dict.items():
-    #     block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
-    #     # 모든 정반과 회전 각도에 대해 변수 탐색
-    #     for surface_group_key, work_area in self.work_area_dict.items():
-    #         # 정반 ID를 스트링으로 변환 (리스트일 경우 튜플로 변환)
-    #         surface_id = work_area.surface_id_list
-    #         if isinstance(surface_id, list):
-    #             surface_id = tuple(surface_id)
-    #         # 회전 각도별로 변수 생성
-    #         for rotate in [0, 90]:
-    #             # 변수 키 생성
-    #             var_key = (block_id, surface_group_key, surface_id, rotate)
-    #             # var_key 예시 : ('15000 TEU_PN1231_A110L', (1, (1, 2, 3, 4)), (1, 2, 3, 4), 0)
-    #             # self.cpmodel.size_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key])
-    #             if self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '1':
-    #                 # if bigger than 10 or 8 or 2 or 30
-    #                     # than presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key]) == 0
-    #                 self.cpmodel.add(block.length <=10)
-    #                 self.cpmodel.add(block.breadth <=11)
-    #                 self.cpmodel.add(block.height <=8)
-    #                 self.cpmodel.add(block.weight <=8)
-    #             elif self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '2':
-    #                 self.cpmodel.add(block.length <=8)
-    #                 self.cpmodel.add(block.breadth <=11)
-    #                 self.cpmodel.add(block.height <=11)
-    #                 self.cpmodel.add(block.weight <=11)
-    #             elif self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '3':
-    #                 self.cpmodel.add(block.length <=2)
-    #                 self.cpmodel.add(block.breadth <=4)
-    #                 self.cpmodel.add(block.height <=3)
-    #                 self.cpmodel.add(block.weight <=3)
-                # # 5번은 지금 당장 안쓰기에 주석 처리 해놓음
-                # elif self.block_time_var_by_id_group_surf_rotate_dict[var_key].name.split('_')[-3][1] == '5':
-                #     self.cpmodel.add(block.length <=30)
-                #     self.cpmodel.add(block.breadth <=38)
-                #     self.cpmodel.add(block.height <=38)
-                #     self.cpmodel.add(block.weight <=38)
-
     # 2번 방법
     # self.cpmodel.presence_of(block_id,(1,(1,2,3,4)),surface_id,rotate): 1번 정반그룹에 배치되었는지의 여부 (1 if True, 0 if False)
+    cols = ['블록길이', '블록폭', '블록높이', '블록중량']
 
-    ML = 100
-    MB = 100
-    MH = 100
-    MW = 100
-    # ML = MAX_BLOCK_LENGTH
-    # MB = MAX_BLOCK_BREADTH
-    # MH = MAX_BLOCK_HEIGHT
-    # MW = MAX_BLOCK_WEIGHT
+    # 1. 열 선택
+    sizeinfo = self.df_raw_data_dict['BLK'][cols]
+
+    # 2. 열마다 숫자로 변환 (DataFrame 전체에 적용)
+    sizeinfo = sizeinfo.apply(pd.to_numeric, errors='coerce')
+
+    # 3. 최대값 계산
+    max_length = sizeinfo['블록길이'].max()
+
+    ML = sizeinfo['블록길이'].max()
+    MB = sizeinfo['블록폭'].max()
+    MH = sizeinfo['블록높이'].max()
+    MW = sizeinfo['블록중량'].max()
 
     length_limit = [10, 11, 8]
     breadth_limit = [8, 11, 11]
