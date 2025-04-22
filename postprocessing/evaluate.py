@@ -7,9 +7,12 @@ import io
 import numpy as np
 
 class ScheduleChecker:
-    def __init__(self, filename):
-        self.filename = filename
-        self.raw_schedule = pd.read_excel(filename)
+    def __init__(self, schedule_path, block_path, save_gif):
+        self.schedule_path = schedule_path
+        self.block_path = block_path
+        self.block_info = pd.read_excel(self.block_path, sheet_name='BLK', skiprows=[1])
+        self.workarea_info = pd.read_excel(self.block_path, sheet_name='WORKAREA_GROUP', skiprows=[1])
+        self.raw_schedule = pd.read_excel(self.schedule_path)
         print("Schedule loaded successfully!")
 
         self.scheduled = self.raw_schedule[self.raw_schedule['착수일'].notna()]
@@ -22,7 +25,6 @@ class ScheduleChecker:
         # 전체 연속 날짜 리스트로 생성 (중간 날짜 포함)
         self.time_horizon = pd.date_range(start=self.min_date, end=self.max_date).date.tolist()
         self.summary = {}
-
 
         ######### I. 목적함수 확인 #########
         ### I-1. 미배치 블록 확인
@@ -50,7 +52,8 @@ class ScheduleChecker:
         ######### III. 완료 보고서 #########
 
         ######### IV. GIF 만들기 #########
-        self.create_GIF()
+        if save_gif:
+            self.create_GIF()
 
     def check_obj_unscheduled(self):
         # 전체 블록 : self.raw_schedule.shape[0]
@@ -60,12 +63,56 @@ class ScheduleChecker:
         pass
 
     def check_obj_adjustments(self):
+        
         pass
 
     def check_obj_preference(self):
         pass
 
     def check_cnstr_size(self):
+        # length_violence = 0
+        # breadth_violence = 0
+        # height_violence = 0
+        # weight_violence = 0
+
+        # 1. '사용여부'가 'Y'이고 '사이즈제한LTH'가 0이 아닌 경우만 필터
+        groupinfo = self.workarea_info.copy()
+        groupinfo = groupinfo[
+            (groupinfo['사용여부'] == 'Y') &
+            (pd.to_numeric(groupinfo['사이즈제한LTH'], errors='coerce') != 0)
+            ]
+
+        # 2. 숫자형 변환
+        groupinfo['사이즈제한LTH'] = pd.to_numeric(groupinfo['사이즈제한LTH'], errors='coerce')
+        groupinfo['사이즈제한BTH'] = pd.to_numeric(groupinfo['사이즈제한BTH'], errors='coerce')
+        groupinfo['사이즈제한HGT'] = pd.to_numeric(groupinfo['사이즈제한HGT'], errors='coerce')
+        groupinfo['사이즈제한WGT'] = pd.to_numeric(groupinfo['사이즈제한WGT'], errors='coerce')
+
+        # 3. 그룹ID를 key로 하는 제한 사전 생성
+        length_limit_dict = dict(zip(groupinfo['그룹ID'], groupinfo['사이즈제한LTH']))
+        breadth_limit_dict = dict(zip(groupinfo['그룹ID'], groupinfo['사이즈제한BTH']))
+        height_limit_dict = dict(zip(groupinfo['그룹ID'], groupinfo['사이즈제한HGT']))
+        weight_limit_dict = dict(zip(groupinfo['그룹ID'], groupinfo['사이즈제한WGT']))
+        for idx, row in self.scheduled.iterrows():
+            length = row['길이']
+            breadth = row['폭']
+            # height = row['높이']
+            weight = row['중량']
+
+            # 회전 고려
+            if row['회전']>0: # row['회전'] : numpy.float64
+                length, breadth = breadth, length
+            # 정반 : row['그룹ID'] (float)
+            if row['그룹ID'] in length_limit_dict.keys():
+                if length>length_limit_dict[row['그룹ID']]:
+                    print(f"(4-1) {row['블록']} 의 길이 제약 위반 - (회전 후) 길이: {length}, 제한:{length_limit_dict[row['그룹ID']]}")
+                if breadth > breadth_limit_dict[row['그룹ID']]:
+                    print(f"(4-2) {row['블록']} 의 폭 제약 위반 - (회전 후) 폭: {breadth}, 제한:{breadth_limit_dict[row['그룹ID']]}")
+                # if height > height_limit_dict[row['그룹ID']]:
+                #     print(f"(4-3) {row['블록']} 의 높이 제약 위반 - 높이: {height}, 제한:{height_limit_dict[row['그룹ID']]}")
+                if weight > weight_limit_dict[row['그룹ID']]:
+                    print(f"(4-3) {row['블록']} 의 중량 제약 위반 - 중량: {weight}, 제한:{weight_limit_dict[row['그룹ID']]}")
+
         pass
 
     def check_cnstr_interference(self):
@@ -123,5 +170,6 @@ class ScheduleChecker:
 
 
 if __name__ == "__main__":
-    filename = "../results/block_allocation_result_3.xlsx"
-    checker = ScheduleChecker(filename)
+    schedule_path = "../results/block_allocation_result_1.xlsx"
+    block_path = "../data/data_rev0.2.xlsx"
+    checker = ScheduleChecker(schedule_path, block_path, save_gif=False)
