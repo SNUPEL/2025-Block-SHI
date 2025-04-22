@@ -31,9 +31,9 @@ def create_config():
     config['block_spacing_y'] = 0.5
 
     # 최대 허용 가능 지연
-    config['max_delay_day'] = 20
+    config['max_delay_day'] = 2
     # 최대 패널티 불가 지연
-    config['possible_delay_day'] = 2
+    config['possible_delay_day'] = 0
 
     # 결과 저장
     config['ymd'] = time.strftime('%Y%m%d')
