@@ -20,6 +20,7 @@ class CPmodel:
     def __init__(self, config):
         self.config = config
         self.start_date = pd.to_datetime(self.config['data_start_date'])
+        self.time_limit = self.config['time_limit']
         self.block_end_date = None
         self.end_date = None
         self.model_start_index = None  # 변환시 시작 시간, 0으로 정의
@@ -94,8 +95,8 @@ class CPmodel:
         add_constraint_lug_direction(self)
         # 크레인 단독 운용
         add_constraint_crane_usage(self)
-        # # 특정 블록 동시 작업 제약
-        # add_constraint_simultaneous_block(self)
+        # 특정 블록 동시 작업 제약
+        add_constraint_simultaneous_block(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
 
@@ -122,7 +123,7 @@ class CPmodel:
                                             model=self.cpmodel,
                                             objective_function=self.obj,
                                             direction="minimize",
-                                            time_limit=self.config['time_limit'],
+                                            time_limit=self.time_limit,
                                             method='single_solution')
 
         ## <모델 후처리> ##
