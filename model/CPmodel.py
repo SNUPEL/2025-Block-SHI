@@ -39,6 +39,8 @@ class CPmodel:
         self.obj_weight_preference = self.config['weight_preference']
         self.obj_weight_delay = self.config['weight_delay']
         self.obj_weight_unassigned_block = self.config['weight_unassigned_block']
+        self.crane_usage = self.config['crane_usage']
+
         self.obj_sum_preference = 0
         self.obj_sum_delay = 0
         self.obj_sum_unassigned_block = 0
@@ -76,11 +78,6 @@ class CPmodel:
 
     def run_model(self):
 
-        # # 탐색을 위한 데이터 준비
-        # self.obj_sum_preference = 0
-        # self.obj_sum_delay = 0
-        # self.obj_sum_unassinged_block = 0
-
         ## < 최적화 모델 구성> ##
         # CP 모델 생성
         self.cpmodel = CpoModel()
@@ -94,7 +91,8 @@ class CPmodel:
         # 정반 러그 방향 제한 제약
         add_constraint_lug_direction(self)
         # 크레인 단독 운용
-        add_constraint_crane_usage(self)
+        if self.crane_usage == True:
+            add_constraint_crane_usage(self)
         # 특정 블록 동시 작업 제약
         add_constraint_simultaneous_block(self)
         # 블록 간섭 제약
@@ -126,8 +124,5 @@ class CPmodel:
                                             time_limit=self.time_limit,
                                             method='single_solution')
 
-        ## <모델 후처리> ##
+        ## <모델 출력 및 후처리> ##
         postprocess_solution(self)
-
-    # def get_final_result(self):
-    #         df_result = self.df_result

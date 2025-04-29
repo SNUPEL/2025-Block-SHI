@@ -28,4 +28,4 @@ def add_constraint_crane_usage(self):
         # 크레인 사용량 누적
         crane_usage += self.cpmodel.pulse(schedule_var, crane_time)
 
-    self.cpmodel.add(crane_usage <= 16)
+    self.cpmodel.add(crane_usage <= 24)
