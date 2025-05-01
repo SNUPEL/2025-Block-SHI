@@ -63,32 +63,33 @@ def define_variable(self):
 
                     # 회전에 따라 블록 크기 조정 (위치 변수용)
                     if rotate == 0:
-                        block_length = block.adjusted_length / 2
-                        block_breadth = block.adjusted_breadth / 2
+                        block_length = block.adjusted_length
+                        block_breadth = block.adjusted_breadth
                     else:  # 90도 회전
-                        block_length = block.adjusted_breadth / 2
-                        block_breadth = block.adjusted_length / 2
-                    #
-                    # if surface_group_key[0] == 4:
-                    #
-                    #     # 둘 다 11m 이하인 경우: 최소값을 11로 변경
-                    #     if block_length <= 110 and block_breadth <= 110:
-                    #         if block_length <= block_breadth:
-                    #             block_length = 110
-                    #         else:
-                    #             block_breadth = 110
-                    #
-                    #     # 하나만 11m 초과인 경우: 최소값을 11m로 변경
-                    #     elif (block_length > 110 and block_breadth <= 110) or (block_length <= 110 and block_breadth > 110):
-                    #         if block_length <= block_breadth:
-                    #             block_length = 110
-                    #         else:
-                    #             block_breadth = 110
-                    #
-                    # # 정반에 들어갈 수 없는 블록은 변수 생성 제외
-                    # if block_length > work_area.L or block_breadth > work_area.B:
-                    #
-                    #     continue
+                        block_length = block.adjusted_breadth
+                        block_breadth = block.adjusted_length
+
+                    # 정반그룹 4의 경우 (TP 활용)
+                    if surface_group_key[0] == 4:
+
+                        # 둘 다 11m 이하인 경우: 최소값을 11로 변경
+                        if block_length <= 110 and block_breadth <= 110:
+                            if block_length <= block_breadth:
+                                block_length = 110
+                            else:
+                                block_breadth = 110
+
+                        # 하나만 11m 초과인 경우: 최소값을 11m로 변경
+                        elif (block_length > 110 and block_breadth <= 110) or (block_length <= 110 and block_breadth > 110):
+                            if block_length <= block_breadth:
+                                block_length = 110
+                            else:
+                                block_breadth = 110
+
+                    # 정반에 들어갈 수 없는 블록은 변수 생성 제외
+                    if block_length > work_area.L or block_breadth > work_area.B:
+
+                        continue
 
                     # 각 작업별 일정 변수 생성
                     if work == 'IN':
