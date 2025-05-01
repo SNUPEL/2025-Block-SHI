@@ -93,7 +93,7 @@ class CPmodel:
         # 크레인 단독 운용
         if self.crane_usage == True:
             add_constraint_crane_usage(self)
-        # 특정 블록 동시 작업 제약
+        # 특정 블록(L/R) 동시 작업 제약
         add_constraint_simultaneous_block(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
@@ -102,14 +102,22 @@ class CPmodel:
         # 정반 그룹 선호도 최대화
         if self.config['obj_preference'] == True:
             add_objective_preference(self)
+        else:
+            self.obj_sum_preference = 0
+
 
         # 지연 최소화 목적함수
         if self.config['obj_delay'] == True:
             add_objective_sum_delay(self)
+        else:
+            self.obj_sum_delay = 0
 
         # 미배치 블록 최소화 목적함수
         if self.config['obj_unassigned_block'] == True:
             add_objective_sum_unassinged_block(self)
+        else:
+            self.obj_sum_unassigned_block = 0
+
 
         # 목적함수 계산
         self.obj = (self.obj_weight_preference * self.obj_sum_preference +

@@ -8,10 +8,10 @@ def create_config():
 
     config['data_file_path'] = '../data/data_rev0.2.xlsx'
 
-    config['data_start_date'] = '2019-06-03' # 시작일자 (착수일 기준)
-    config['data_duration'] = 20
+    config['data_start_date'] = '2019-02-03' # 시작일자 (착수일 기준)
+    config['data_duration'] = 14
     config['only_workingday'] = True  # True: workingday 기준 duration의 기간을 셈, False: 단순히 duration의 기간을 더함
-    config['time_limit'] = 1800 # 탐색 시간
+    config['time_limit'] = 600 # 탐색 시간
 
     # 정반그룹 선호도 최소화 목적함수
     config['obj_preference'] = True # True: 실행, False: 미실행
@@ -23,9 +23,9 @@ def create_config():
 
     # 미배치 최소화 목적함수
     config['obj_unassigned_block'] = True # True: 실행, False: 미실행
-    config['weight_unassigned_block'] = 1 # 가중치
+    config['weight_unassigned_block'] = 1000 # 가중치
 
-    # 크레인 제약
+    # 크레인 제약 활용 여부
     config['crane_usage'] = True # True: 실행, False: 미실행
 
     # 이격거리 조정
@@ -34,7 +34,8 @@ def create_config():
 
     # 최대 허용 가능 지연
     config['max_delay_day'] = 2
-    # 최대 패널티 불가 지연
+
+    # 패널티 기준 지연 (possible delay day 이후는 지연으로 패널티를 주도록 함)
     config['possible_delay_day'] = 0
 
     # 결과 저장

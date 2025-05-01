@@ -87,15 +87,15 @@ def postprocess_solution(self):
                     total_key = (block_id, selected_group, selected_surface, key, selected_rotation)
 
                     if key == 'IN':
-                        IN_crane_time = value[0]
+                        IN_crane_time = value[0] / 2
                         IN_crane_id = value[1]
 
                     elif key == 'TO':
-                        TO_crane_time = value[0]
+                        TO_crane_time = value[0] / 2
                         TO_crane_id = value[1]
 
                     elif key == 'PE':
-                        PE_crane_time = value[0]
+                        PE_crane_time = value[0] / 2
                         PE_crane_id = value[1]
 
 
