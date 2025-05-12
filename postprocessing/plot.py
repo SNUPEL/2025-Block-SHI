@@ -1,7 +1,7 @@
 from shapely.geometry import Polygon
 import pandas as pd
 
-def generate_polygon_from_anchor(x1: float, y1: float, dx: float, dy: float, groupidx=0) -> Polygon:
+def generate_polygon_from_anchor(x1: float, y1: float, dx: float, dy: float) -> Polygon:
     """
     주어진 좌하단 점 (x1, y1)과 가로 길이 dx, 세로 길이 dy를 기반으로 사각형 Polygon을 생성합니다.
 
@@ -44,8 +44,8 @@ def plot_block_and_margin(fig, axes, groupidx, workareaidx, x, y, dx, dy, rotate
             raise Exception("Invalid work area index for GROUP 4")
     if rotate:
         dx, dy = dy, dx
-    block_polygon = generate_polygon_from_anchor(x, y, dx, dy, groupidx=groupidx)
-    margin_polygon = generate_polygon_from_anchor(x-15, y-15, dx+30, dy+30, groupidx=groupidx)
+    block_polygon = generate_polygon_from_anchor(x, y, dx, dy)
+    margin_polygon = generate_polygon_from_anchor(x-15, y-15, dx+30, dy+30)
     # 면 색 지정
     axes[groupidx-1].fill(*block_polygon.exterior.xy, color='grey')
     axes[groupidx-1].plot(*block_polygon.exterior.xy, color='black')
@@ -60,7 +60,7 @@ def plot_workarea_group(fig, axes):
     #
     # # [model.work_area_dict[(1,(1,2,3,4))].work_unit_dict[i].y for i in range(1,5)]
     for index, row in available.iterrows():
-        group[row['그룹ID']].append(generate_polygon_from_anchor(row['X'], row['Y'], row['길이']*10, row['폭']*10, groupidx=row['그룹ID']))
+        group[row['그룹ID']].append(generate_polygon_from_anchor(row['X'], row['Y'], row['길이']*10, row['폭']*10))
 
     for idx, workarea_list in group.items():
         for workarea in workarea_list:
@@ -74,6 +74,40 @@ def plot_workarea_group(fig, axes):
     axes[2].set_ylim([-50, 300])
     axes[3].set_xlim([-50, 800])
     axes[3].set_ylim([-50, 300])
+
+def generate_polygon(groupidx, workareaidx, x, y, dx, dy, rotate = False):
+    groupidx = int(groupidx)
+    if groupidx == 4:
+        if workareaidx == '(1,)':
+            pass
+        elif workareaidx == '(2, 3, 4)':
+            x += 120
+        elif workareaidx == '(5, 6, 7)':
+            x += 335
+        elif workareaidx == '(8, 9, 10)':
+            x += 445
+        elif workareaidx == '(11, 12, 13)':
+            x += 660
+        else:
+            raise Exception("Invalid work area index for GROUP 4")
+    if rotate:
+        dx, dy = dy, dx
+    block_polygon = generate_polygon_from_anchor(x, y, dx, dy)
+    return block_polygon
+
+def plot_block_polygon(fig, axes, _groupidx, _polygon, with_margin=True, color=None):
+    if color is not None:
+        axes[_groupidx - 1].fill(*_polygon.exterior.xy, color=color)
+    else:
+        axes[_groupidx - 1].fill(*_polygon.exterior.xy, color='grey')
+    axes[_groupidx - 1].plot(*_polygon.exterior.xy, color='black')
+    if with_margin:
+        margin_polygon = generate_polygon_from_anchor(_polygon.bounds[0] - 15,
+                                                      _polygon.bounds[1] - 15,
+                                                      _polygon.bounds[2] - _polygon.bounds[0] + 30,
+                                                      _polygon.bounds[3] - _polygon.bounds[1] + 30)
+        axes[_groupidx - 1].fill(*margin_polygon.exterior.xy, color='yellow', alpha=0.2)
+        axes[_groupidx - 1].plot(*margin_polygon.exterior.xy, color='black', alpha=0.2)
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
