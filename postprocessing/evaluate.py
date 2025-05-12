@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import imageio
 import io
 import numpy as np
+from datetime import datetime
 
 class ScheduleChecker:
     def __init__(self, schedule_path, block_path, save_gif):
@@ -14,6 +15,7 @@ class ScheduleChecker:
         self.workarea_info = pd.read_excel(self.block_path, sheet_name='WORKAREA_GROUP', skiprows=[1])
         self.raw_schedule = pd.read_excel(self.schedule_path)
         print("Schedule loaded successfully!")
+        self.prefix = datetime.now().strftime("%m%d%H%M%S-")
 
         self.scheduled = self.raw_schedule[self.raw_schedule['착수일'].notna()]
         dates = pd.concat([self.scheduled['착수일'].dt.date, self.scheduled['완료일'].dt.date]).dropna().unique()
@@ -139,8 +141,8 @@ class ScheduleChecker:
 
             for idx, row in presence.iterrows():
                 plot_block_and_margin(fig, axes, groupidx=row['그룹ID'], workareaidx = row['정반명'],
-                                      x=row['블록위치X']*0.1, y=row['블록위치Y']*0.1,
-                                      dx=row['길이'], dy=row['폭'], rotate=row['회전']>0, show_margin=True)
+                                      x=row['블록위치X'], y=row['블록위치Y'],
+                                      dx=row['길이']*10, dy=row['폭']*10, rotate=row['회전']>0, show_margin=True)
 
             for ax in axes:
                 ax.set_aspect('equal')
@@ -164,12 +166,12 @@ class ScheduleChecker:
 
         # 3. GIF 저장 (마지막 프레임만 길게 보여줌)
         durations = [0.5] * len(image_list)  # 마지막 검은 프레임을 1.5초 보여줌
-        imageio.mimsave("output.gif", image_list, duration=durations, loop=0)  # duration은 프레임 간 시간(초)
+        imageio.mimsave(self.prefix + "output.gif", image_list, duration=durations, loop=0)  # duration은 프레임 간 시간(초)
         # 저장된 이미지들로 GIF 생성
         pass
 
 
 if __name__ == "__main__":
-    schedule_path = "../results/block_allocation_result_1.xlsx"
+    schedule_path = "../results/block_allocation_result_2.xlsx"
     block_path = "../data/data_rev0.2.xlsx"
-    checker = ScheduleChecker(schedule_path, block_path, save_gif=False)
+    checker = ScheduleChecker(schedule_path, block_path, save_gif=True)

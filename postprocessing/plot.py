@@ -3,7 +3,7 @@ import pandas as pd
 
 def generate_polygon_from_anchor(x1: float, y1: float, dx: float, dy: float, groupidx=0) -> Polygon:
     """
-    주어진 좌상단 점 (x1, y1)과 가로 길이 dx, 세로 길이 dy를 기반으로 사각형 Polygon을 생성합니다.
+    주어진 좌하단 점 (x1, y1)과 가로 길이 dx, 세로 길이 dy를 기반으로 사각형 Polygon을 생성합니다.
 
     :param x1: 좌상단 x 좌표
     :param y1: 좌상단 y 좌표
@@ -12,7 +12,7 @@ def generate_polygon_from_anchor(x1: float, y1: float, dx: float, dy: float, gro
     :return: shapely.geometry.Polygon 객체
     """
 
-    x2, y2 = x1 + dx, y1 - dy  # 우하단 점 계산 (y 좌표는 아래 방향이 -)
+    x2, y2 = x1 + dx, y1 + dy  # 우상단 점 계산 (y 좌표는 아래 방향이 -)
 
     # 사각형의 꼭짓점 정의 (시계방향 또는 반시계방향으로 닫힌 경로)
     corners = [(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]
@@ -33,19 +33,19 @@ def plot_block_and_margin(fig, axes, groupidx, workareaidx, x, y, dx, dy, rotate
         if workareaidx == '(1,)':
             pass
         elif workareaidx == '(2, 3, 4)':
-            x += 11
+            x += 120
         elif workareaidx == '(5, 6, 7)':
-            x += 33.5
+            x += 335
         elif workareaidx == '(8, 9, 10)':
-            x += 43.5
+            x += 445
         elif workareaidx == '(11, 12, 13)':
-            x += 66
+            x += 660
         else:
             raise Exception("Invalid work area index for GROUP 4")
     if rotate:
         dx, dy = dy, dx
     block_polygon = generate_polygon_from_anchor(x, y, dx, dy, groupidx=groupidx)
-    margin_polygon = generate_polygon_from_anchor(x-1.5, y+1.5, dx+3.0, dy+3.0, groupidx=groupidx)
+    margin_polygon = generate_polygon_from_anchor(x-15, y-15, dx+30, dy+30, groupidx=groupidx)
     # 면 색 지정
     axes[groupidx-1].fill(*block_polygon.exterior.xy, color='grey')
     axes[groupidx-1].plot(*block_polygon.exterior.xy, color='black')
@@ -54,24 +54,26 @@ def plot_block_and_margin(fig, axes, groupidx, workareaidx, x, y, dx, dy, rotate
 
 def plot_workarea_group(fig, axes):
     group = {1:[], 2:[], 3:[], 4:[]}
-    data = pd.read_excel("../data/data_rev0.2.xlsx", sheet_name='WORKAREA', skiprows=[1])
-    # available = data
-    available = data[data['정반사용여부'] == 'Y']
+    data = pd.read_excel("../data/revised_workarea_position.xlsx")
+    # # available = data
+    available = data.dropna(axis=0)
+    #
+    # # [model.work_area_dict[(1,(1,2,3,4))].work_unit_dict[i].y for i in range(1,5)]
     for index, row in available.iterrows():
-        group[row['그룹ID']].append(generate_polygon_from_anchor(row['그룹내정반위치X'], row['그룹내정반위치Y'], row['정반길이'], row['정반폭'], groupidx=row['그룹ID']))
+        group[row['그룹ID']].append(generate_polygon_from_anchor(row['X'], row['Y'], row['길이']*10, row['폭']*10, groupidx=row['그룹ID']))
 
     for idx, workarea_list in group.items():
         for workarea in workarea_list:
             axes[idx-1].plot(*workarea.exterior.xy, color='grey')
 
-    axes[0].set_xlim([-35, 15])
-    axes[0].set_ylim([-10, 10])
-    axes[1].set_xlim([-35, 15])
-    axes[1].set_ylim([-10, 10])
-    axes[2].set_xlim([-10, 10])
-    axes[2].set_ylim([-30, 5])
-    axes[3].set_xlim([-5, 80])
-    axes[3].set_ylim([-30, 5])
+    axes[0].set_xlim([-50, 450])
+    axes[0].set_ylim([-50, 150])
+    axes[1].set_xlim([-50, 450])
+    axes[1].set_ylim([-50, 150])
+    axes[2].set_xlim([-50, 200])
+    axes[2].set_ylim([-50, 300])
+    axes[3].set_xlim([-50, 800])
+    axes[3].set_ylim([-50, 300])
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
@@ -81,8 +83,8 @@ if __name__ == "__main__":
     fig, axes = plt.subplots(nrows=2, ncols=2)
     axes = axes.flatten()
     plot_workarea_group(fig, axes)
-    plot_block_and_margin(fig, axes, groupidx=2, workareaidx=None, x=6.1, y=4.3, dx=3.8, dy=5.6, rotate=True, show_margin=True)
-    plot_block_and_margin(fig, axes, groupidx=2, workareaidx=None, x=0.0, y=0.0, dx=3.8, dy=5.6, rotate=True, show_margin=True)
+    plot_block_and_margin(fig, axes, groupidx=2, workareaidx=None, x=61, y=43, dx=38, dy=56, rotate=True, show_margin=True)
+    plot_block_and_margin(fig, axes, groupidx=2, workareaidx=None, x=0.0, y=0.0, dx=38, dy=56, rotate=True, show_margin=True)
 
     for ax in axes:
         ax.set_aspect('equal')
