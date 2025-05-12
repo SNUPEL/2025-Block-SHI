@@ -8,11 +8,12 @@ class WorkUnit:
         self.y = int(y * 10)
         self.dx = int(dx * 10)
         self.dy = int(dy * 10)
+        self.unavailable_duration_list = list()
 
 
 class WorkArea:
     def __init__(self, group_id, surface_id_list, priority, lug_condition, indoor_outdoor_condition, L_limit_of_block,
-                 B_limit_of_block, H_limit_of_block, W_limit_of_block, TP_condition, TP_direction, L, B):
+                 B_limit_of_block, H_limit_of_block, W_limit_of_block, TP_condition, TP_direction, L, B, min_x_of_work_area):
         self.group_id = group_id
         self.surface_id_list = surface_id_list
         self.priority = priority
@@ -27,6 +28,8 @@ class WorkArea:
         self.TP_direction = TP_direction
         self.L = int(L * 10)
         self.B = int(B * 10)
+        self.min_x_of_work_area = min_x_of_work_area
+
         self.unavailable_area_x = None
         self.unavailable_area_y = None
         self.unavailable_area_L = None
@@ -46,7 +49,7 @@ class Crane:
     def __init__(self, Crane_id, condition):
         self.Crane_id = Crane_id
         self.condition = condition
-        self.unavailable_time_list = list()
+        self.unavailable_time_dict = dict()
 
 
 class Block:
@@ -79,7 +82,6 @@ class Block:
         self.lug_direction = lug_direction
         self.allocate_condtion = allocate_condtion
         self.group_id = None
-        self.surface_id_list = None
         self.x_location = None
         self.y_location = None
 
@@ -97,7 +99,8 @@ class Block:
 
     def get_location(self, group_id, x_location, y_location):
         # 향후 배치 확정 블록 데이터 존재 시 좌표를 정반 그룹과 위치에 맞춰 변환하는 코드 추가 구현
-        self.surface_id_list = None
-        pass
+        self.group_id = group_id
+        self.x_location = x_location
+        self.y_location = y_location
 
 

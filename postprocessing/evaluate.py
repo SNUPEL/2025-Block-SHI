@@ -1,5 +1,8 @@
 import pandas as pd
 from matplotlib import pyplot as plt
+from shapely import intersection_all
+from shapely import intersection
+
 from postprocessing.plot import *
 import matplotlib.pyplot as plt
 import imageio
@@ -15,7 +18,7 @@ class ScheduleChecker:
         self.workarea_info = pd.read_excel(self.block_path, sheet_name='WORKAREA_GROUP', skiprows=[1])
         self.raw_schedule = pd.read_excel(self.schedule_path)
         print("Schedule loaded successfully!")
-        self.prefix = datetime.now().strftime("%m%d%H%M%S-")
+        self.prefix = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
         self.scheduled = self.raw_schedule[self.raw_schedule['착수일'].notna()]
         dates = pd.concat([self.scheduled['착수일'].dt.date, self.scheduled['완료일'].dt.date]).dropna().unique()
@@ -26,7 +29,14 @@ class ScheduleChecker:
 
         # 전체 연속 날짜 리스트로 생성 (중간 날짜 포함)
         self.time_horizon = pd.date_range(start=self.min_date, end=self.max_date).date.tolist()
+
+        self.image_list = []
+        self.blocks_by_time_dict = {}
+        self.intersections_by_time_dict = {}
         self.summary = {}
+
+        self._create_polygon()
+        self._check_intersection_area()
 
         ######### I. 목적함수 확인 #########
         ### I-1. 미배치 블록 확인
@@ -65,8 +75,42 @@ class ScheduleChecker:
         pass
 
     def check_obj_adjustments(self):
-        
-        pass
+        # 누적 점수 초기화
+        sum_adjustments = 0
+        block_adjustments = {}
+        # 날짜 컬럼 이름 목록
+        date_columns = ["착수일", "완료일", "TO일정", "PE일정"]
+
+        # scheduled DataFrame 반복
+        for idx, block in self.scheduled.iterrows():
+            key = (block['선종'], block['호선'], block['블록'])
+
+            # key 조건에 맞는 block_info 검색
+            reference = self.block_info[
+                (self.block_info['선종'] == key[0]) &
+                (self.block_info['호선'] == key[1]) &
+                (self.block_info['블록'] == key[2])
+                ]
+
+            # 매칭되는 데이터가 없으면 건너뜀
+            if reference.empty:
+                raise Exception(f"Schedule 결과 Excel 파일의 {block['블록']}블록의 원본 블록을 찾을 수 없습니다.")
+
+            # 첫 번째 매칭된 row 사용
+            reference = reference.iloc[0]
+
+            # 날짜 차이 계산
+            diff = []
+            for col in date_columns:
+                ref_date = pd.to_datetime(reference[col])
+                blk_date = pd.to_datetime(block[col])
+                diff.append((blk_date - ref_date).days)
+
+            # 누적 합산
+            sum_adjustments += sum(diff)
+            block_adjustments[key] = diff
+        self.summary['2. date adjustments'] = block_adjustments
+        return sum_adjustments
 
     def check_obj_preference(self):
         pass
@@ -98,7 +142,7 @@ class ScheduleChecker:
         for idx, row in self.scheduled.iterrows():
             length = row['길이']
             breadth = row['폭']
-            # height = row['높이']
+            height = row['높이']
             weight = row['중량']
 
             # 회전 고려
@@ -110,8 +154,8 @@ class ScheduleChecker:
                     print(f"(4-1) {row['블록']} 의 길이 제약 위반 - (회전 후) 길이: {length}, 제한:{length_limit_dict[row['그룹ID']]}")
                 if breadth > breadth_limit_dict[row['그룹ID']]:
                     print(f"(4-2) {row['블록']} 의 폭 제약 위반 - (회전 후) 폭: {breadth}, 제한:{breadth_limit_dict[row['그룹ID']]}")
-                # if height > height_limit_dict[row['그룹ID']]:
-                #     print(f"(4-3) {row['블록']} 의 높이 제약 위반 - 높이: {height}, 제한:{height_limit_dict[row['그룹ID']]}")
+                if height > height_limit_dict[row['그룹ID']]:
+                    print(f"(4-3) {row['블록']} 의 높이 제약 위반 - 높이: {height}, 제한:{height_limit_dict[row['그룹ID']]}")
                 if weight > weight_limit_dict[row['그룹ID']]:
                     print(f"(4-3) {row['블록']} 의 중량 제약 위반 - 중량: {weight}, 제한:{weight_limit_dict[row['그룹ID']]}")
 
@@ -126,8 +170,7 @@ class ScheduleChecker:
     def check_cnstr_crane(self):
         pass
 
-    def create_GIF(self):
-        image_list = []
+    def _create_polygon(self):
         for t in self.time_horizon:
             timestamp_t = pd.Timestamp(t)
             presence = self.scheduled[
@@ -135,43 +178,66 @@ class ScheduleChecker:
                 (self.scheduled['완료일'] >= timestamp_t)
                 ]
 
-            fig, axes = plt.subplots(nrows=2, ncols=2)
-            axes = axes.flatten()
-            plot_workarea_group(fig, axes)
-
+            self.blocks_by_time_dict[t] = []
             for idx, row in presence.iterrows():
-                plot_block_and_margin(fig, axes, groupidx=row['그룹ID'], workareaidx = row['정반명'],
+                poly = generate_polygon(groupidx=row['그룹ID'], workareaidx=row['정반명'],
                                       x=row['블록위치X'], y=row['블록위치Y'],
-                                      dx=row['길이']*10, dy=row['폭']*10, rotate=row['회전']>0, show_margin=True)
+                                      dx=row['길이'] * 10, dy=row['폭'] * 10, rotate=row['회전'] > 0)
+                self.blocks_by_time_dict[t].append((row['그룹ID'],poly))
 
-            for ax in axes:
-                ax.set_aspect('equal')
+    def _check_intersection_area(self):
+        for t in self.time_horizon:
+            self.intersections_by_time_dict[t] = []
+            polygons = [self.blocks_by_time_dict[t][i] for i in range(len(self.blocks_by_time_dict[t]))]
+            for idx, blockA in enumerate(polygons[:-1]):
+                for blockB in polygons[idx+1:]:
+                    if blockA[0] == blockB[0]: # groupidx 가 같은 경우
+                        intersections = intersection(blockA[1], blockB[1], grid_size=1)
+                        if not intersections.is_empty:
+                            self.intersections_by_time_dict[t].append((blockA[0], intersections))
+            if len(self.intersections_by_time_dict[t])!=0:
+                print(t.strftime("%Y-%m-%d"),"에 겹치는 블록들이 있습니다.")
 
-            fig.suptitle(t)
-            # 4. fig를 메모리 상의 이미지로 저장
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png')
-            buf.seek(0)
-            image = imageio.v2.imread(buf)
-            image_list.append(image)
-            plt.close(fig)  # 메모리 누수 방지
+    def _create_image(self, t):
+        fig, axes = plt.subplots(nrows=2, ncols=2)
+        axes = axes.flatten()
+        plot_workarea_group(fig, axes)
+        for ax in axes:
+            ax.set_aspect('equal')
+
+        for idx, (groupidx, block_polygon) in enumerate(self.blocks_by_time_dict[t]):
+            plot_block_polygon(fig, axes, int(groupidx), block_polygon, with_margin=True)
+
+        for idx, (groupidx, intersection_polygon) in enumerate(self.intersections_by_time_dict[t]):
+            plot_block_polygon(fig, axes, int(groupidx), intersection_polygon, with_margin=False,color='red')
+
+        fig.suptitle(t)
+        # 4. fig를 메모리 상의 이미지로 저장
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        image = imageio.v2.imread(buf)
+        self.image_list.append(image)
+        plt.close(fig)  # 메모리 누수 방지
+
+    def create_GIF(self):
+        for t in self.blocks_by_time_dict.keys():
+            self._create_image(t=t)
 
         # 5. GIF 저장
-
-        height, width, _ = image_list[0].shape
+        height, width, _ = self.image_list[0].shape
         black_frame = np.zeros((height, width, 4), dtype=np.uint8)
 
         # 2. 검은 화면 삽입
-        image_list.append(black_frame)
+        self.image_list.append(black_frame)
 
         # 3. GIF 저장 (마지막 프레임만 길게 보여줌)
-        durations = [0.5] * len(image_list)  # 마지막 검은 프레임을 1.5초 보여줌
-        imageio.mimsave(self.prefix + "output.gif", image_list, duration=durations, loop=0)  # duration은 프레임 간 시간(초)
+        durations = [0.5] * len(self.image_list)  # 마지막 검은 프레임을 1.5초 보여줌
+        imageio.mimsave(self.prefix + ".gif", self.image_list, duration=durations, loop=0)  # duration은 프레임 간 시간(초)
         # 저장된 이미지들로 GIF 생성
-        pass
 
 
 if __name__ == "__main__":
-    schedule_path = "../results/block_allocation_result_2.xlsx"
+    schedule_path = "../results/5월_intersect.xlsx"
     block_path = "../data/data_rev0.2.xlsx"
     checker = ScheduleChecker(schedule_path, block_path, save_gif=True)
