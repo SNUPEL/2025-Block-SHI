@@ -4,6 +4,7 @@ import config
 
 
 def define_variable(self):
+
     # 블록 변수 딕셔너리 초기화
     self.block_keys = []
     for block_key, block in self.block_dict.items():
@@ -55,7 +56,6 @@ def define_variable(self):
 
             # 각 작업별 일정 변수 생성 (회전 각도별 변수 생성)
             for work in self.work_list:
-                # var_key_work = (block_id, surface_group_key, surface_id, work)
 
                 # 각 회전 각도별 변수 생성
                 for rotate in self.rotation_list:
@@ -72,19 +72,10 @@ def define_variable(self):
                     # 정반그룹 4의 경우 (TP 활용)
                     if surface_group_key[0] == 4:
 
-                        # 둘 다 11m 이하인 경우: 최소값을 11로 변경
-                        if block_length <= 110 and block_breadth <= 110:
-                            if block_length <= block_breadth:
-                                block_length = 110
-                            else:
-                                block_breadth = 110
-
-                        # 하나만 11m 초과인 경우: 최소값을 11m로 변경
-                        elif (block_length > 110 and block_breadth <= 110) or (block_length <= 110 and block_breadth > 110):
-                            if block_length <= block_breadth:
-                                block_length = 110
-                            else:
-                                block_breadth = 110
+                        if block_length <= block_breadth and block_length <= 110:
+                            block_length = 110
+                        else:
+                            continue
 
                     # 정반에 들어갈 수 없는 블록은 변수 생성 제외
                     if block_length > work_area.L or block_breadth > work_area.B:
@@ -107,8 +98,7 @@ def define_variable(self):
                         self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                             var_key_work_rotate] = self.cpmodel.interval_var(
                             start=(block.allocation_index, block.PE_index + self.max_delay_day),
-                            size=(block.TO_index - block.allocation_index - 2, block.TO_index - block.allocation_index -2 + self.max_delay_day),
-                            # size=block.TO_index - block.allocation_index - 2,
+                            size=(block.TO_index - block.allocation_index - 1, block.TO_index - block.allocation_index - 1 + self.max_delay_day),
                             optional=True,
                             name=f"{work}_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
                         )
@@ -166,8 +156,7 @@ def define_variable(self):
 
                         # 시간축 변수 (적치 기간)
                         self.block_time_var_by_id_group_surf_rotate_dict[var_key] = self.cpmodel.interval_var(
-                            size=(block.TO_index - block.allocation_index - 2, block.TO_index - block.allocation_index -2 + self.max_delay_day),
-                            # size=block.TO_index - block.allocation_index - 2,
+                            size=(block.TO_index - block.allocation_index - 1, block.TO_index - block.allocation_index - 1 + self.max_delay_day),
                             optional=True,
                             name=f"time_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
                         )

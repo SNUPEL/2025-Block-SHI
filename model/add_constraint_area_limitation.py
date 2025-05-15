@@ -1,13 +1,6 @@
 import pandas as pd
 def add_constraint_area_limitation(self):
-    '''
-    정반그룹 별 최대 size 제한
-    :param self:
-    :return:
-    '''
 
-    # 2번 방법
-    # self.cpmodel.presence_of(block_id,(1,(1,2,3,4)),surface_id,rotate): 1번 정반그룹에 배치되었는지의 여부 (1 if True, 0 if False)
     cols = ['블록길이', '블록폭', '블록높이', '블록중량']
 
     # 1. 열 선택

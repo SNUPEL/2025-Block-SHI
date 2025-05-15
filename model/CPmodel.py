@@ -120,9 +120,13 @@ class CPmodel:
 
 
         # 목적함수 계산
-        self.obj = (self.obj_weight_preference * self.obj_sum_preference +
-                    self.obj_weight_delay * self.obj_sum_delay +
-                    self.obj_weight_unassigned_block * self.obj_sum_unassigned_block)
+        self.obj = (
+                    self.obj_weight_preference * self.obj_sum_preference
+                    +
+                    self.obj_weight_delay * self.obj_sum_delay
+                    +
+                    self.obj_weight_unassigned_block * self.obj_sum_unassigned_block
+                    )
 
         ## <모델 탐색 파트> ##
         self.solution_cpmodel = solve_model(self,

@@ -1,7 +1,5 @@
 def add_constraint_block_intersection(self):
-    """
-        블록 간섭 금지 제약 조건
-    """
+
     # 모든 블록 쌍에 대해 반복
     for i, block_key1 in enumerate(self.block_keys):
         block1 = self.block_dict[block_key1]
@@ -52,13 +50,13 @@ def add_constraint_block_intersection(self):
                             (((self.cpmodel.end_of(x_var1) <= self.cpmodel.start_of(x_var2)) |
                             (self.cpmodel.end_of(x_var2) <= self.cpmodel.start_of(x_var1))))
 
-                            &
+                            |
 
                             # Y축 비겹침: 블록1 위쪽 끝 ≤ 블록2 아래쪽 또는 블록2 위쪽 끝 ≤ 블록1 아래쪽
                             ((self.cpmodel.end_of(y_var1) <= self.cpmodel.start_of(y_var2)) |
                             (self.cpmodel.end_of(y_var2) <= self.cpmodel.start_of(y_var1)))
 
-                            &
+                            |
 
                             # 시간 비겹침: 블록1 적치 종료 ≤ 블록2 적치 시작 또는 블록2 적치 종료 ≤ 블록1 적치 시작
                             ((self.cpmodel.end_of(time_var1) <= self.cpmodel.start_of(time_var2)) |

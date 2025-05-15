@@ -72,7 +72,7 @@ class Block:
         self.breadth = breadth
         self.adjusted_breadth = int((self.breadth + spacing_y) * 10)
         self.height = height
-        self.adjsted_height = int(self.height * 10)
+        self.adjusted_height = int(self.height * 10)
         self.weight = weight
         self.adjusted_weight = int(self.weight * 10)
         self.indoor_outdoor_condition = indoor_outdoor_condition
