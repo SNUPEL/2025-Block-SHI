@@ -99,7 +99,20 @@ def postprocess_solution(self):
                         PE_crane_time = value[0] / 2
                         PE_crane_id = value[1]
 
-                
+                if selected_rotation == 90:
+                    breadth = block.adjusted_length
+                    length = block.adjusted_breadth
+                else:
+                    length = block.adjusted_length
+                    breadth = block.adjusted_breadth
+
+                if selected_group[0] == 4:
+                    if length <= breadth and length <= 110:
+                        length = 110
+                    else:
+                        pass
+
+
 
                 # 결과 행 추가
                 results.append({
@@ -111,8 +124,8 @@ def postprocess_solution(self):
                     '공기': block.processing_time,
                     'TO일정': TO_date,
                     'PE일정': PE_date,
-                    '블록길이': block.adjusted_length / 10,
-                    '블록폭': block.adjusted_breadth / 10,
+                    '블록길이': length / 10,
+                    '블록폭': breadth / 10,
                     '블록높이': block.adjusted_height / 10,
                     '블록중량': block.weight,
                     '옥내외': None,
@@ -120,7 +133,7 @@ def postprocess_solution(self):
                     '배치확정여부': 'Y',
                     '그룹ID': selected_group,
                     '블록위치X': x_sol.get_start() / 10,
-                    '블록위치Y': y_sol.get_start() / 10,
+                    '블록위치Y': y_sol.get_start() / 10
                 })
 
                 crane_results.append({
@@ -129,10 +142,22 @@ def postprocess_solution(self):
                     '블록': block.block_number,
                     '착수일': IN_date,
                     '완료일': OUT_date,
+                    '공기': block.processing_time,
                     'TO일정': TO_date,
                     'PE일정': PE_date,
+                    '블록길이': block.length,
+                    '블록폭': block.breadth,
+                    '블록높이': block.height,
+                    '블록중량': block.weight,
+                    '옥내외': None,
+                    '러그방향': block.lug_direction,
+                    '배치확정여부': 'Y',
                     '그룹ID': selected_group,
+                    '블록위치X': x_sol.get_start() / 10,
+                    '블록위치Y': y_sol.get_start() / 10,
                     '회전': selected_rotation,
+                    '변환 블록길이': length / 10,
+                    '변환 블록폭': breadth / 10,
                     'IN_크레인_소요시간': IN_crane_time,
                     'TO_크레인_소요시간': TO_crane_time,
                     'PE_크레인_소요시간': PE_crane_time,
@@ -151,16 +176,16 @@ def postprocess_solution(self):
                     '공기': block.processing_time,
                     'TO일정': None,
                     'PE일정': None,
-                    '블록길이': block.adjusted_length / 10,
-                    '블록폭': block.adjusted_breadth / 10,
-                    '블록높이': block.adjusted_height / 10,
+                    '블록길이': block.length,
+                    '블록폭': block.breadth,
+                    '블록높이': block.height,
                     '블록중량': block.weight,
                     '옥내외': None,
                     '러그방향': block.lug_direction,
                     '배치확정여부': 'N',
                     '그룹ID': None,
                     '블록위치X': None,
-                    '블록위치Y': None,
+                    '블록위치Y': None
                 })
 
                 crane_results.append({
@@ -169,10 +194,22 @@ def postprocess_solution(self):
                     '블록': block.block_number,
                     '착수일': None,
                     '완료일': None,
+                    '공기': block.processing_time,
                     'TO일정': None,
                     'PE일정': None,
                     '그룹ID': None,
+                    '블록길이': block.length,
+                    '블록폭': block.breadth,
+                    '블록높이': block.height,
+                    '블록중량': block.weight,
+                    '옥내외': None,
+                    '러그방향': block.lug_direction,
+                    '배치확정여부': 'N',
+                    '블록위치X': None,
+                    '블록위치Y': None,
                     '회전': None,
+                    '변환 블록길이': block.adjusted_length / 10,
+                    '변환 블록폭': block.adjusted_breadth / 10,
                     'IN_크레인_소요시간': None,
                     'TO_크레인_소요시간': None,
                     'PE_크레인_소요시간': None,
