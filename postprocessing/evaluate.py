@@ -142,8 +142,8 @@ class ScheduleChecker:
         for idx, row in self.scheduled.iterrows():
             length = row['길이']
             breadth = row['폭']
-            height = row['높이']
-            weight = row['중량']
+            # height = row['높이']
+            # weight = row['중량']
 
             # 회전 고려
             if row['회전']>0: # row['회전'] : numpy.float64
@@ -154,10 +154,10 @@ class ScheduleChecker:
                     print(f"(4-1) {row['블록']} 의 길이 제약 위반 - (회전 후) 길이: {length}, 제한:{length_limit_dict[row['그룹ID']]}")
                 if breadth > breadth_limit_dict[row['그룹ID']]:
                     print(f"(4-2) {row['블록']} 의 폭 제약 위반 - (회전 후) 폭: {breadth}, 제한:{breadth_limit_dict[row['그룹ID']]}")
-                if height > height_limit_dict[row['그룹ID']]:
-                    print(f"(4-3) {row['블록']} 의 높이 제약 위반 - 높이: {height}, 제한:{height_limit_dict[row['그룹ID']]}")
-                if weight > weight_limit_dict[row['그룹ID']]:
-                    print(f"(4-3) {row['블록']} 의 중량 제약 위반 - 중량: {weight}, 제한:{weight_limit_dict[row['그룹ID']]}")
+                # if height > height_limit_dict[row['그룹ID']]:
+                #     print(f"(4-3) {row['블록']} 의 높이 제약 위반 - 높이: {height}, 제한:{height_limit_dict[row['그룹ID']]}")
+                # if weight > weight_limit_dict[row['그룹ID']]:
+                #     print(f"(4-3) {row['블록']} 의 중량 제약 위반 - 중량: {weight}, 제한:{weight_limit_dict[row['그룹ID']]}")
 
         pass
 
