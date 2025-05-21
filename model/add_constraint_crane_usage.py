@@ -1,4 +1,3 @@
-from docplex.cp.model import *
 def add_constraint_crane_usage(self):
 
     crane_usage = self.cpmodel.step_at(0, 0)

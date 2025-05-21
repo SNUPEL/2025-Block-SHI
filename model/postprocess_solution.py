@@ -2,7 +2,6 @@ from class_definition import *
 import matplotlib.pyplot as plt
 
 
-
 def postprocess_solution(self):
     if self.solution_cpmodel:
         results = []
@@ -59,22 +58,25 @@ def postprocess_solution(self):
                 )
 
                 # 인덱스를 날짜로 변환 (범위 체크 추가)
-                def get_date_from_index(index):
-                    if index in self.postprocess_calendar_dict:
-                        return self.postprocess_calendar_dict[index]
-                    else:
-                        # 범위를 벗어난 경우, 가장 가까운 유효한 날짜 반환
-                        valid_indices = sorted(self.postprocess_calendar_dict.keys())
-                        if index < valid_indices[0]:
-                            return self.postprocess_calendar_dict[valid_indices[0]]
-                        else:
-                            return self.postprocess_calendar_dict[valid_indices[-1]]
+                # def get_date_from_index(index):
+                #     if index in self.postprocess_calendar_dict:
+                #         return self.postprocess_calendar_dict[index]
+                #     else:
+                #         # 범위를 벗어난 경우, 가장 가까운 유효한 날짜 반환
+                #         valid_indices = sorted(self.postprocess_calendar_dict.keys())
+                #         if index < valid_indices[0]:
+                #             return self.postprocess_calendar_dict[valid_indices[0]]
+                #         else:
+                #             return self.postprocess_calendar_dict[valid_indices[-1]]
 
-                IN_date = get_date_from_index(in_sol.get_start())
-                OUT_date = get_date_from_index(time_sol.get_end())
-                TO_date = get_date_from_index(to_sol.get_end())
-                PE_date = get_date_from_index(pe_sol.get_end())
-
+                IN_date = self.postprocess_calendar_dict[in_sol.get_start()]
+                OUT_date = self.postprocess_calendar_dict[time_sol.get_end()]
+                TO_date = self.postprocess_calendar_dict[to_sol.get_end()]
+                PE_date = self.postprocess_calendar_dict[pe_sol.get_end()]
+                # IN_date = in_sol.get_start()
+                # OUT_date = time_sol.get_end()
+                # TO_date = to_sol.get_end()
+                # PE_date = pe_sol.get_end()
 
                 IN_crane_time = None
                 TO_crane_time = None
@@ -111,8 +113,6 @@ def postprocess_solution(self):
                         length = 110
                     else:
                         pass
-
-
 
                 # 결과 행 추가
                 results.append({
@@ -249,7 +249,6 @@ def postprocess_solution(self):
                     # 작업 시간 (분 단위로 변환)
                     work_time_minutes = int((result['IN_크레인_소요시간'] or 0) * 60)
 
-
                     # 작업 종료 시간 계산
                     end_minute = current_minute + work_time_minutes
                     end_hour = current_hour + end_minute // 60
@@ -278,7 +277,6 @@ def postprocess_solution(self):
                     current_minute = day_time_tracker[day]['minute']
 
                     work_time_minutes = int((result['TO_크레인_소요시간'] or 0) * 60)
-
 
                     end_minute = current_minute + work_time_minutes
                     end_hour = current_hour + end_minute // 60

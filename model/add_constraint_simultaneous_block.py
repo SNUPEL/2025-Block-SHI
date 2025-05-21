@@ -54,9 +54,6 @@
 #                                     self.block_schedule_var_by_id_group_surf_work_rotate_dict[interval_key2]
 #                                 )
 #                             )
-
-
-
 def add_constraint_simultaneous_block(self):
     """
     L/R 블록 동일 정반 배치 제약 조건
@@ -139,5 +136,3 @@ def add_constraint_simultaneous_block(self):
                             (self.cpmodel.sum(self.cpmodel.presence_of(var) for var in all_store_vars1) >= 1) ==
                             (self.cpmodel.sum(self.cpmodel.presence_of(var) for var in all_store_vars2) >= 1)
                         )
-
-

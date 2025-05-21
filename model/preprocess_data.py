@@ -88,7 +88,7 @@ def get_work_area_list(df_work_area_group, df_work_area):
                                    L_limit_of_block=row['사이즈제한LTH'], B_limit_of_block=row['사이즈제한BTH'],
                                    H_limit_of_block=row['사이즈제한HGT'], W_limit_of_block=row['사이즈제한WGT'],
                                    TP_condition=row['TP운송여부'], TP_direction=direction,
-                                   L=combined_length, B=combined_breadth, min_x_of_work_area = min_x_of_work_area)
+                                   L=combined_length, B=combined_breadth, min_x_of_work_area=min_x_of_work_area)
 
                     print(
                         f"work_area {temp_work_area.group_id}-{temp_work_area.surface_id_list}:"

@@ -19,4 +19,3 @@ def add_objective_sum_unassinged_block(self):
         total_unassigned_blocks = 0
 
     self.obj_sum_unassigned_block = total_unassigned_blocks
-

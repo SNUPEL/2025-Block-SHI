@@ -87,9 +87,9 @@ class CPmodel:
 
         # 제약 조건 #
         # 정반 별 블록 사이즈 제한
-        add_constraint_area_limitation(self)
+        # add_constraint_area_limitation(self)
         # 정반 러그 방향 제한 제약
-        add_constraint_lug_direction(self)
+        # add_constraint_lug_direction(self)
         # 크레인 단독 운용
         if self.crane_usage == True:
             add_constraint_crane_usage(self)

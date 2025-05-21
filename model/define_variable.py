@@ -71,7 +71,6 @@ def define_variable(self):
 
                     # 정반그룹 4의 경우 (TP 활용)
                     if surface_group_key[0] == 4:
-
                         if block_length <= block_breadth and block_length <= 110:
                             block_length = 110
                         else:
@@ -79,8 +78,24 @@ def define_variable(self):
 
                     # 정반에 들어갈 수 없는 블록은 변수 생성 제외
                     if block_length > work_area.L or block_breadth > work_area.B:
-
                         continue
+
+                    if rotate == 0:
+                        if block.length > work_area.L_limit_of_block or block.breadth > work_area.B_limit_of_block or \
+                                block.height > work_area.H_limit_of_block or block.weight > work_area.W_limit_of_block:
+                            continue
+                    else:
+                        if block.breadth > work_area.L_limit_of_block or block.length > work_area.B_limit_of_block or \
+                                block.height > work_area.H_limit_of_block or block.weight > work_area.W_limit_of_block:
+                            continue
+
+                    if work_area.lug_condition != 'N':
+                        if rotate == 0 and work_area.lug_condition == block.lug_direction:
+                            pass
+                        elif rotate == 90 and work_area.lug_condition != block.lug_direction:
+                            pass
+                        else:
+                            continue
 
                     # 각 작업별 일정 변수 생성
                     if work == 'IN':
@@ -156,7 +171,8 @@ def define_variable(self):
 
                         # 시간축 변수 (적치 기간)
                         self.block_time_var_by_id_group_surf_rotate_dict[var_key] = self.cpmodel.interval_var(
-                            size=(block.TO_index - block.allocation_index - 1, block.TO_index - block.allocation_index - 1 + self.max_delay_day),
+                            # size=(block.TO_index - block.allocation_index - 1, block.TO_index - block.allocation_index - 1 + self.max_delay_day),
+                            size=(block.TO_index - block.allocation_index, block.TO_index - block.allocation_index + self.max_delay_day),
                             optional=True,
                             name=f"time_{block_id}_{surface_group_key}_{surface_id}_{rotate}"
                         )
@@ -189,8 +205,11 @@ def define_variable(self):
                         )
                         # 시간축 변수와 store 작업 변수 간의 시간 동기화
                         self.cpmodel.add(
-                            self.cpmodel.size_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key]) ==
-                            self.cpmodel.size_of(self.block_schedule_var_by_id_group_surf_work_rotate_dict[
+                            self.cpmodel.size_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key]) *
+                            self.cpmodel.presence_of(self.block_time_var_by_id_group_surf_rotate_dict[var_key]) ==
+                            (self.cpmodel.size_of(self.block_schedule_var_by_id_group_surf_work_rotate_dict[
+                                                      (block_id, surface_group_key, surface_id, 'STORE', rotate)]) + 1) *
+                            self.cpmodel.presence_of(self.block_schedule_var_by_id_group_surf_work_rotate_dict[
                                                       (block_id, surface_group_key, surface_id, 'STORE', rotate)])
                         )
 

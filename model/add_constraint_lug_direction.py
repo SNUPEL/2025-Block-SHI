@@ -29,10 +29,3 @@ def add_constraint_lug_direction(self):
                         if rotate == 0:
                             self.cpmodel.add(0 == self.cpmodel.presence_of(
                                 self.block_time_var_by_id_group_surf_rotate_dict[var_key]))
-
-
-
-
-
-
-

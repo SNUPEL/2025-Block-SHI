@@ -19,10 +19,10 @@ class WorkArea:
         self.priority = priority
         self.indoor_outdoor_condition = indoor_outdoor_condition
         self.lug_condition = lug_condition
-        self.L_limit_of_block = int(L_limit_of_block * 10)
-        self.B_limit_of_block = int(B_limit_of_block * 10)
-        self.H_limit_of_block = int(H_limit_of_block * 10)
-        self.W_limit_of_block = int(W_limit_of_block * 10)
+        self.L_limit_of_block = L_limit_of_block if L_limit_of_block else 99999
+        self.B_limit_of_block = B_limit_of_block if B_limit_of_block else 99999
+        self.H_limit_of_block = H_limit_of_block if H_limit_of_block else 99999
+        self.W_limit_of_block = W_limit_of_block if W_limit_of_block else 99999
         self.TP_condition = TP_condition
         # [방향1, 방향2, 방향3, 방향4]에 대한 boolean
         self.TP_direction = TP_direction
@@ -102,5 +102,3 @@ class Block:
         self.group_id = group_id
         self.x_location = x_location
         self.y_location = y_location
-
-
