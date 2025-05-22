@@ -69,11 +69,15 @@ def define_variable(self):
                         block_length = block.adjusted_breadth
                         block_breadth = block.adjusted_length
 
-                    # 정반그룹 4의 경우 (TP 활용)
-                    if surface_group_key[0] == 4:
-                        if block_length <= block_breadth and block_length <= 110:
-                            block_length = 110
+                    # TP를 사용하는 경우 짧은쪽이 55가 되도록 수정
+                    if work_area.TP_condition:
+                        if block_length >= block_breadth and block_breadth - self.config['block_spacing_y'] * 10 <= 55:
+                            block_breadth = 55 + self.config['block_spacing_y'] * 10
                         else:
+                            continue
+                    else:
+                        # 중량이 45가 넘으면 TP를 사용하는 경우만 배치 가능
+                        if block.weight > 45:
                             continue
 
                     # 정반에 들어갈 수 없는 블록은 변수 생성 제외
