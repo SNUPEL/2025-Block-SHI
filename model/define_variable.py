@@ -53,7 +53,6 @@ def define_variable(self):
             if isinstance(surface_id, list):
                 surface_id = tuple(surface_id)
 
-
             # 각 작업별 일정 변수 생성 (회전 각도별 변수 생성)
             for work in self.work_list:
 
@@ -70,11 +69,9 @@ def define_variable(self):
                         block_breadth = block.adjusted_length
 
                     # TP를 사용하는 경우 짧은쪽이 55가 되도록 수정
-                    if work_area.TP_condition:
+                    if work_area.TP_condition == 'Y':
                         if block_length >= block_breadth and block_breadth - self.config['block_spacing_y'] * 10 <= 55:
                             block_breadth = 55 + self.config['block_spacing_y'] * 10
-                        else:
-                            continue
                     else:
                         # 중량이 45가 넘으면 TP를 사용하는 경우만 배치 가능
                         if block.weight > 45:

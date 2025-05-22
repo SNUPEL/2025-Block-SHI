@@ -108,9 +108,9 @@ def postprocess_solution(self):
                     length = block.adjusted_length
                     breadth = block.adjusted_breadth
 
-                if selected_group[0] == 4:
-                    if length <= breadth and length <= 110:
-                        length = 110
+                if self.work_area_dict[selected_group].TP_condition == 'Y':
+                    if length >= breadth and breadth - self.config['block_spacing_y'] * 10 <= 5.5:
+                        breadth = 55 + self.config['block_spacing_y'] * 10
                     else:
                         pass
 

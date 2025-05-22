@@ -45,8 +45,6 @@ class CPmodel:
         self.obj_sum_delay = 0
         self.obj_sum_unassigned_block = 0
 
-
-
         # 일정 변수
         self.block_schedule_var_by_id_work_dict = {}  # 블록 ID별, 작업별 일정 변수(대표 변수)
         self.block_schedule_var_list_by_id_work_dict = {}  # 블록 ID별, 작업별 가능한 일정 변수 리스트
@@ -64,7 +62,6 @@ class CPmodel:
         self.block_time_var_by_id_dict = {}  # 블록 ID별 시간축 변수
         self.block_time_var_list_by_id_dict = {}  # 블록 ID별 가능한 시간축 변수 리스트
         self.block_time_var_by_id_group_surf_rotate_dict = {}  # 블록 ID, 그룹, 정반, 회전별 시간축 위치 변수
-
 
     def get_data(self):
         try:
@@ -91,33 +88,32 @@ class CPmodel:
         # 정반 러그 방향 제한 제약
         # add_constraint_lug_direction(self)
         # 크레인 단독 운용
-        if self.crane_usage == True:
+        if self.config['crane_usage']:
             add_constraint_crane_usage(self)
         # 특정 블록(L/R) 동시 작업 제약
-        add_constraint_simultaneous_block(self)
+        if self.config['simultaneous_block']:
+            add_constraint_simultaneous_block(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
 
         # 목적 함수 #
         # 정반 그룹 선호도 최대화
-        if self.config['obj_preference'] == True:
+        if self.config['obj_preference']:
             add_objective_preference(self)
         else:
             self.obj_sum_preference = 0
 
-
         # 지연 최소화 목적함수
-        if self.config['obj_delay'] == True:
+        if self.config['obj_delay']:
             add_objective_sum_delay(self)
         else:
             self.obj_sum_delay = 0
 
         # 미배치 블록 최소화 목적함수
-        if self.config['obj_unassigned_block'] == True:
+        if self.config['obj_unassigned_block']:
             add_objective_sum_unassinged_block(self)
         else:
             self.obj_sum_unassigned_block = 0
-
 
         # 목적함수 계산
         self.obj = (
