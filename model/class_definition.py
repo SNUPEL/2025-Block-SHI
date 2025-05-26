@@ -53,9 +53,9 @@ class Crane:
 
 
 class Block:
-    def __init__(self, ship_type, project_number, block_number,
-                 allocation_start_date, allocation_end_date, processing_time, TO_date, PE_date,
-                 length, spacing_x, breadth, spacing_y, height, weight, indoor_outdoor_condition, lug_direction, allocate_condtion):
+    def __init__(self, ship_type, project_number, block_number, allocation_start_date, allocation_end_date,
+                 processing_time, TO_date, PE_date, length, spacing_x, breadth, spacing_y,
+                 height, weight, indoor_outdoor_condition, lug_direction, allocate_condition):
         self.ship_type = ship_type
         self.project_number = project_number
         self.block_number = block_number
@@ -80,7 +80,7 @@ class Block:
         self.adjusted_weight = int(self.weight * 10)
         self.indoor_outdoor_condition = indoor_outdoor_condition
         self.lug_direction = lug_direction
-        self.allocate_condtion = allocate_condtion
+        self.allocate_condtion = allocate_condition
         self.group_id = None
         self.x_location = None
         self.y_location = None
@@ -97,8 +97,15 @@ class Block:
             self.adjusted_PE_date += pd.Timedelta(days=1)
         self.PE_index = calendar[self.adjusted_PE_date]
 
-    def get_location(self, group_id, x_location, y_location):
-        # 향후 배치 확정 블록 데이터 존재 시 좌표를 정반 그룹과 위치에 맞춰 변환하는 코드 추가 구현
+    def update_allocate_condition(self, allocation_start_date, allocation_end_date, TO_date, PE_date, length, breadth,
+                                  allocate_condition, group_id, x_location, y_location):
+        self.allocation_start_date = allocation_start_date
+        self.allocation_end_date = allocation_end_date
+        self.TO_date = TO_date
+        self.PE_date = PE_date
+        self.adjusted_length = length * 10
+        self.adjusted_breadth = breadth * 10
+        self.allocate_condtion = allocate_condition
         self.group_id = group_id
         self.x_location = x_location
         self.y_location = y_location

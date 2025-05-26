@@ -19,6 +19,8 @@ from postprocess_solution import *
 class CPmodel:
     def __init__(self, config):
         self.config = config
+        self.cpmodel = CpoModel()
+
         self.start_date = pd.to_datetime(self.config['data_start_date'])
         self.time_limit = self.config['time_limit']
         self.block_end_date = None
@@ -26,6 +28,7 @@ class CPmodel:
         self.model_start_index = None  # 변환시 시작 시간, 0으로 정의
         self.model_end_index = None  # 변환시 마지막 시간
         self.df_raw_data_dict = dict()
+        self.df_raw_result_data_dict = dict()
         self.work_area_dict = dict()
         self.crane_dict = dict()
         self.block_dict = dict()
@@ -70,15 +73,19 @@ class CPmodel:
         except FileNotFoundError:
             print(f"Error: The file at {self.config['data_file_path']} was not found.")
 
+        if self.config['use_block_allocation_result']:
+            try:
+                self.df_raw_result_data_dict = pd.read_excel(self.config['result_data_file_path'], sheet_name=None)
+                print("Result data loaded successfully.")
+            except FileNotFoundError:
+                print(f"Error: The file at {self.config['result_data_file_path']} was not found.")
+
     def preprocess_data(self):
         preprocess_data(self)
 
     def run_model(self):
 
         ## < 최적화 모델 구성> ##
-        # CP 모델 생성
-        self.cpmodel = CpoModel()
-
         # 변수 정의 #
         define_variable(self)
 

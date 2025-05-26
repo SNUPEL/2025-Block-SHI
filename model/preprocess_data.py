@@ -236,7 +236,6 @@ def preprocess_data(self):
         for _, row in df_unavailable_crane.iterrows():
             self.crane_dict[row['크레인ID']].unavailable_time_dict[row['예약작업이름']] =\
                 self.calendar_dict[pd.to_datetime(row['예약작업시간'])]
-        # 향후 크레인 별 예약 작업 list 추가하는 코드 구현
         # 더미 변수 생성해 step function에 pulse 추가
         print('Crane class has been defined')
     else:
@@ -247,6 +246,11 @@ def preprocess_data(self):
         df_block[['착수일', '완료일', 'TO일정', 'PE일정']] \
             = df_block[['착수일', '완료일', 'TO일정', 'PE일정']].apply(pd.to_datetime, errors='coerce')
         df_block_filtered = df_block[(df_block['착수일'] >= self.start_date) & (df_block['착수일'] <= self.block_end_date)]
+        if self.config['use_block_allocation_result']:
+            df_block_allocated = self.df_raw_result_data_dict['배치결과']
+            df_block_allocated = df_block_allocated[df_block_allocated['배치확정여부'] == 'Y']
+            df_block_allocated.loc[:, ['착수일', '완료일', 'TO일정', 'PE일정']] \
+                = df_block_allocated[['착수일', '완료일', 'TO일정', 'PE일정']].apply(pd.to_datetime, errors='coerce')
         for _, row in df_block_filtered.iterrows():
             temp_block = Block(ship_type=row['선종'], project_number=row['호선'], block_number=row['블록'],
                                allocation_start_date=row['착수일'], allocation_end_date=row['완료일'],
@@ -254,9 +258,14 @@ def preprocess_data(self):
                                length=row['블록길이'], spacing_x=self.config['block_spacing_x'], breadth=row['블록폭'],
                                spacing_y=self.config['block_spacing_y'], height=row['블록높이'], weight=row['블록중량'],
                                indoor_outdoor_condition=row['옥내외'], lug_direction=row['러그방향'],
-                               allocate_condtion=row['배치확정여부'])
-            if temp_block.allocate_condtion == 'Y':
-                temp_block.get_location(row['그룹ID'], row['블록위치X'], row['블록위치Y'])
+                               allocate_condition=row['배치확정여부'])
+            if self.config['use_block_allocation_result']:
+                for _, row2 in df_block_allocated.iterrows():
+                    if row['선종'] == row2['선종'] and row['호선'] == row2['호선'] and row['블록'] == row2['블록']:
+                        temp_block.update_allocate_condition(
+                            row2['착수일'], row2['완료일'], row2['TO일정'], row2['PE일정'], row2['블록길이'], row2['블록폭'],
+                            row2['배치확정여부'], row2['그룹ID'], row2['블록위치X'], row2['블록위치Y']
+                        )
 
             temp_block.datetime_to_idx(self.calendar_dict)
 

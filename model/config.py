@@ -7,11 +7,16 @@ def create_config():
     config = dict()
 
     config['data_file_path'] = '../data/data_rev0.2.xlsx'
+    # 배치 완료된 데이터를 가진 폴더 이름을 넣어 사용
+    config['result_data_file_path'] = '../results/20250522_15h_32m_43s/block_allocation_result.xlsx'
 
     config['data_start_date'] = '2019-06-03'  # 시작일자 (착수일 기준)
     config['data_duration'] = 40
     config['only_workingday'] = True  # True: workingday 기준 duration의 기간을 셈, False: 단순히 duration의 기간을 더함
     config['time_limit'] = 60  # 탐색 시간
+
+    # 배치 확정된 블록 사용
+    config['use_block_allocation_result'] = True
 
     # 정반그룹 선호도 최소화 목적함수
     config['obj_preference'] = True  # True: 실행, False: 미실행
@@ -27,6 +32,7 @@ def create_config():
 
     # 크레인 제약 활용 여부
     config['crane_usage'] = True  # True: 실행, False: 미실행
+    config['crane_resource'] = 16  # 30분 단위이므로 시간 * 2
 
     # 짝블록 동시 배치 제약
     config['simultaneous_block'] = True

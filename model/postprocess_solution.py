@@ -254,7 +254,7 @@ def postprocess_solution(self):
                     end_hour = current_hour + end_minute // 60
                     end_minute = end_minute % 60
 
-                    datetime_str = f"{day} {current_hour:02d}:{current_minute:02d}:00"
+                    datetime_str = f"{str(day).split(' ')[0]} {current_hour:02d}:{current_minute:02d}:00"
 
                     operated_block_dict = {
                         'date': datetime_str,
@@ -282,7 +282,7 @@ def postprocess_solution(self):
                     end_hour = current_hour + end_minute // 60
                     end_minute = end_minute % 60
 
-                    datetime_str = f"{day} {current_hour:02d}:{current_minute:02d}:00"
+                    datetime_str = f"{str(day).split(' ')[0]} {current_hour:02d}:{current_minute:02d}:00"
 
                     operated_block_dict = {
                         'date': datetime_str,
@@ -310,7 +310,7 @@ def postprocess_solution(self):
                     end_hour = current_hour + end_minute // 60
                     end_minute = end_minute % 60
 
-                    datetime_str = f"{day} {current_hour:02d}:{current_minute:02d}:00"
+                    datetime_str = f"{str(day).split(' ')[0]} {current_hour:02d}:{current_minute:02d}:00"
 
                     operated_block_dict = {
                         'date': datetime_str,
@@ -336,7 +336,7 @@ def postprocess_solution(self):
             results_crane_worktime.append(crane_worktime_dict)
 
         self.df_result = pd.DataFrame(results_crane)
-        self.df_result.dropna(subset=['크레인ID'], inplace=True)  # 그룹 4  에서 in은 크레인 없어서 출력 제외
+        self.df_result.dropna(subset=['크레인ID'], inplace=True)  # 그룹 4에서 in은 크레인 없어서 출력 제외
         self.df_result_2 = pd.DataFrame(results_crane_worktime)
         output_path = f"{self.config['folderpath']}/crane_result.xlsx"
 

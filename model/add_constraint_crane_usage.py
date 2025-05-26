@@ -27,4 +27,4 @@ def add_constraint_crane_usage(self):
         crane_usage += self.cpmodel.pulse(schedule_var, crane_time)
 
     # 크레인 시간 8시간 기준 탐색(8시간: 16, 12시간: 24)
-    self.cpmodel.add(crane_usage <= 16)
+    self.cpmodel.add(crane_usage <= self.config['crane_resource'])
