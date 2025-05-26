@@ -82,6 +82,8 @@ class Block:
         self.lug_direction = lug_direction
         self.allocate_condtion = allocate_condtion
         self.group_id = None
+        self.surf_id = None
+        self.rotate = None
         self.x_location = None
         self.y_location = None
 

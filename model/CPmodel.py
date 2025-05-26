@@ -7,6 +7,7 @@ from define_variable import *
 from add_constraint_area_limitation import *
 from add_constraint_block_intersection import *
 from add_constraint_simultaneous_block import *
+from add_constraint_scheduled import *
 from add_constraint_lug_direction import *
 from add_constraint_crane_usage import *
 from add_objective_preference import *
@@ -97,6 +98,8 @@ class CPmodel:
         add_constraint_simultaneous_block(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
+        # 기 배치된 블록 제약
+        # add_constraint_scheduled(self)
 
         # 목적 함수 #
         # 정반 그룹 선호도 최대화

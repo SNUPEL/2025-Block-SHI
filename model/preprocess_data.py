@@ -176,6 +176,12 @@ def preprocess_data(self):
             date += pd.Timedelta(days=1)
         self.model_start_index = self.calendar_dict[self.start_date]
         self.model_end_index = self.calendar_dict[self.end_date]
+
+        # 대조를 위한 calendar date 저장
+        # calendar_date_df = pd.DataFrame(self.calendar_dict, index=[0]).transpose()
+        # start_date_str = str(self.start_date).split(' ')[0]
+        # calendar_date_df.to_csv(f'calender_index_from_{start_date_str}.csv')
+
         print(self.start_date, self.end_date)
         print(self.model_start_index, self.model_end_index)
         print('Time index has been defined')
