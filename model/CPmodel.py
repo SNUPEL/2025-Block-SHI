@@ -30,11 +30,13 @@ class CPmodel:
         self.work_area_dict = dict()
         self.crane_dict = dict()
         self.block_dict = dict()
+        self.all_block_dict = dict()
         self.calendar_dict = dict()  # 날짜 -> idx
         self.postprocess_calendar_dict = dict()  # idx -> 날짜
         self.df_result = pd.DataFrame()
         self.rotation_list = [0, 90]
         self.work_list = ['IN', 'STORE', 'TO', 'PE']
+        self.block_keys = list()
         self.max_delay_day = self.config['max_delay_day']
         self.possible_delay_day = self.config['possible_delay_day']
         self.obj_weight_preference = self.config['weight_preference']
