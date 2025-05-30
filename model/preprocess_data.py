@@ -130,6 +130,14 @@ def get_work_area_list(df_work_area_group, df_work_area):
 def preprocess_data(self):
     sheet_name_list = list(self.df_raw_data_dict.keys())
 
+    # if 'BLK' in sheet_name_list:
+    #     df_block = self.df_raw_data_dict['BLK']
+    #     df_block['착수일'] = pd.to_datetime(df_block['착수일'], errors='coerce')
+    #     allocated_blocks = df_block[df_block['배치확정여부'] == 'Y']
+    #     if not allocated_blocks.empty:
+    #         self.start_date = allocated_blocks['착수일'].min()
+
+
     if 'UNAL_WORKDAY' in sheet_name_list:
         # 향후 추가해 일정으로 활용
         df_calendar = self.df_raw_data_dict['UNAL_WORKDAY']

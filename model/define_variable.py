@@ -80,6 +80,7 @@ def define_variable(self):
                     if block_length > work_area.L or block_breadth > work_area.B:
                         continue
 
+                    # 확인 필요
                     if rotate == 0:
                         if block.length > work_area.L_limit_of_block or block.breadth > work_area.B_limit_of_block or \
                                 block.height > work_area.H_limit_of_block or block.weight > work_area.W_limit_of_block:

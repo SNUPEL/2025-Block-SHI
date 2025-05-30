@@ -10,6 +10,7 @@ from add_constraint_simultaneous_block import *
 from add_constraint_scheduled import *
 from add_constraint_lug_direction import *
 from add_constraint_crane_usage import *
+from add_objective_allocation import *
 from add_objective_preference import *
 from add_objective_sum_delay import *
 from add_objective_sum_unassinged_block import *
@@ -42,11 +43,13 @@ class CPmodel:
         self.obj_weight_preference = self.config['weight_preference']
         self.obj_weight_delay = self.config['weight_delay']
         self.obj_weight_unassigned_block = self.config['weight_unassigned_block']
+        self.obj_weight_allocation = self.config['weight_allocation']
         self.crane_usage = self.config['crane_usage']
 
         self.obj_sum_preference = 0
         self.obj_sum_delay = 0
         self.obj_sum_unassigned_block = 0
+        self.obj_sum_allocation = 0
 
 
 
@@ -96,14 +99,20 @@ class CPmodel:
         # 크레인 단독 운용
         if self.crane_usage == True:
             add_constraint_crane_usage(self)
-        # 특정 블록(L/R) 동시 작업 제약
-        add_constraint_simultaneous_block(self)
+        # # 특정 블록(L/R) 동시 작업 제약
+        # add_constraint_simultaneous_block(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
         # 기 배치된 블록 제약
         # add_constraint_scheduled(self)
 
         # 목적 함수 #
+        # L/R 블록 배치 최대화
+        if self.config['obj_allocation'] == True:
+            add_objective_allocation(self)
+        else:
+            self.obj_sum_allocation = 0
+
         # 정반 그룹 선호도 최대화
         if self.config['obj_preference'] == True:
             add_objective_preference(self)
@@ -126,6 +135,8 @@ class CPmodel:
 
         # 목적함수 계산
         self.obj = (
+                    self.obj_weight_allocation + self.obj_sum_allocation
+                    +
                     self.obj_weight_preference * self.obj_sum_preference
                     +
                     self.obj_weight_delay * self.obj_sum_delay

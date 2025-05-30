@@ -26,5 +26,5 @@ def add_constraint_crane_usage(self):
         # 크레인 사용량 누적
         crane_usage += self.cpmodel.pulse(schedule_var, crane_time)
 
-    # 크레인 시간 8시간 기준 탐색(8시간: 16, 12시간: 24)
-    self.cpmodel.add(crane_usage <= 16)
+    # 크레인 일별 크레인 가용 시간(시간 * 2)
+    self.cpmodel.add(crane_usage <= 2 * self.config['crane_usage_time'])
