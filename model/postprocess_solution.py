@@ -61,12 +61,10 @@ def postprocess_solution(self):
             block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
 
             if block_key in self.block_dict.keys():
-
-            # 각 블록에 대한 결과 수집
-            #for block_key in self.block_keys:
-            #    block = self.block_dict[block_key]
-            #    block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
-
+                # 각 블록에 대한 결과 수집
+                # for block_key in self.block_keys:
+                #    block = self.block_dict[block_key]
+                #    block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
                 # 선택된 정반과 회전 찾기
                 selected_group = None
                 selected_surface = None
@@ -281,30 +279,27 @@ def postprocess_solution(self):
                     #    self.df_result.to_excel(writer, index=False, sheet_name='배치결과')
                     #    self.df_crane_result.to_excel(writer, index=False, sheet_name='크레인 정보')
                     # self.df_result.to_excel(output_path, index=False)
-
-
             else:
-                results.append({
-                    '선종': block.ship_type,
-                    '호선': block.project_number,
-                    '블록': block.block_number,
-                    '착수일': block.allocation_start_date,
-                    '완료일': block.allocation_end_date,
-                    '공기': block.processing_time,
-                    'TO일정': block.TO_date,
-                    'PE일정': block.PE_date,
-                    '블록길이': block.length,
-                    '블록폭': block.breadth,
-                    '블록높이': block.height,
-                    '블록중량': block.weight,
-                    '옥내외': block.indoor_outdoor_condition,
-                    '러그방향': block.lug_direction,
-                    '배치확정여부': None,
-                    '그룹ID': None,
-                    '블록위치X': None,
-                    '블록위치Y': None
-                })
-
+                # results.append({
+                #     '선종': block.ship_type,
+                #     '호선': block.project_number,
+                #     '블록': block.block_number,
+                #     '착수일': block.allocation_start_date,
+                #     '완료일': block.allocation_end_date,
+                #     '공기': block.processing_time,
+                #     'TO일정': block.TO_date,
+                #     'PE일정': block.PE_date,
+                #     '블록길이': block.length,
+                #     '블록폭': block.breadth,
+                #     '블록높이': block.height,
+                #     '블록중량': block.weight,
+                #     '옥내외': block.indoor_outdoor_condition,
+                #     '러그방향': block.lug_direction,
+                #     '배치확정여부': None,
+                #     '그룹ID': None,
+                #     '블록위치X': None,
+                #     '블록위치Y': None
+                # })
                 crane_results.append({
                     '선종': block.ship_type,
                     '호선': block.project_number,
@@ -371,7 +366,7 @@ def postprocess_solution(self):
                         end_hour = current_hour + end_minute // 60
                         end_minute = end_minute % 60
 
-                        datetime_str = f"{day} {current_hour:02d}:{current_minute:02d}:00"
+                        datetime_str = f"{str(day).split(' ')[0]} {current_hour:02d}:{current_minute:02d}:00"
 
                         operated_block_dict = {
                             'date': datetime_str,
@@ -399,7 +394,7 @@ def postprocess_solution(self):
                         end_hour = current_hour + end_minute // 60
                         end_minute = end_minute % 60
 
-                        datetime_str = f"{day} {current_hour:02d}:{current_minute:02d}:00"
+                        datetime_str = f"{str(day).split(' ')[0]} {current_hour:02d}:{current_minute:02d}:00"
 
                         operated_block_dict = {
                             'date': datetime_str,
@@ -427,7 +422,7 @@ def postprocess_solution(self):
                         end_hour = current_hour + end_minute // 60
                         end_minute = end_minute % 60
 
-                        datetime_str = f"{day} {current_hour:02d}:{current_minute:02d}:00"
+                        datetime_str = f"{str(day).split(' ')[0]} {current_hour:02d}:{current_minute:02d}:00"
 
                         operated_block_dict = {
                             'date': datetime_str,

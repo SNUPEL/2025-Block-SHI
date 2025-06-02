@@ -8,10 +8,15 @@ def create_config():
 
     config['data_file_path'] = '../data/data_rev0.2.xlsx'
 
-    config['data_start_date'] = '2019-07-04'  # 시작일자 (착수일 기준)
-    config['data_duration'] = 40
-    config['only_workingday'] = True  # True: workingday 기준 duration의 기간을 셈, False: 단순히 duration의 기간을 더함
+    config['data_start_date'] = '2019-06-01'  # 시작일자 (착수일 기준)
+    config['only_workingday'] = False  # True: workingday 기준 duration의 기간을 셈, False: data_end_date 사용
+    config['data_duration'] = 40  # workingday
+    config['data_end_date'] = '2019-06-30'
     config['time_limit'] = 30  # 탐색 시간
+
+    # 배치 확정된 블록 사용
+    config['use_block_allocation_result'] = False  # True시 하단의 결과를 가져옴
+    config['result_data_file_path'] = '../results/20250602_14h_50m_47s/block_allocation_result.xlsx'
 
     # 정반그룹 선호도 최소화 목적함수
     config['obj_preference'] = True  # True: 실행, False: 미실행
@@ -26,12 +31,11 @@ def create_config():
     config['weight_unassigned_block'] = 1000  # 가중치
 
     # L/R 블록 배치 최대화 목적함수
-    config['obj_allocation'] = True  # True: 실행, False: 미실행
+    config['obj_allocation'] = False  # True: 실행, False: 미실행
     config['weight_allocation'] = 1  # 가중치
     config['score_position'] = 1  # 동일 정반 배치 시 위치 가중치
     config['score_same_workarea'] = 100  # 동일 정반 배치 가중치
     config['score_both_allocation'] = 1000  # 타 정반 배치 가중치
-
 
     # 크레인 제약 활용 및 시간 설정
     config['crane_usage'] = True  # True: 실행, False: 미실행

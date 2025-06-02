@@ -21,13 +21,17 @@ from postprocess_solution import *
 class CPmodel:
     def __init__(self, config):
         self.config = config
+        self.cpmodel = CpoModel()
+
         self.start_date = pd.to_datetime(self.config['data_start_date'])
         self.time_limit = self.config['time_limit']
+        self.allocate_start_date = None
         self.block_end_date = None
         self.end_date = None
         self.model_start_index = None  # 변환시 시작 시간, 0으로 정의
         self.model_end_index = None  # 변환시 마지막 시간
         self.df_raw_data_dict = dict()
+        self.df_raw_result_data_dict = dict()
         self.work_area_dict = dict()
         self.crane_dict = dict()
         self.block_dict = dict()
@@ -50,8 +54,8 @@ class CPmodel:
         self.obj_sum_delay = 0
         self.obj_sum_unassigned_block = 0
         self.obj_sum_allocation = 0
-
-
+        self.obj = 0
+        self.solution_cpmodel = None
 
         # 일정 변수
         self.block_schedule_var_by_id_work_dict = {}  # 블록 ID별, 작업별 일정 변수(대표 변수)
@@ -71,7 +75,6 @@ class CPmodel:
         self.block_time_var_list_by_id_dict = {}  # 블록 ID별 가능한 시간축 변수 리스트
         self.block_time_var_by_id_group_surf_rotate_dict = {}  # 블록 ID, 그룹, 정반, 회전별 시간축 위치 변수
 
-
     def get_data(self):
         try:
             self.df_raw_data_dict = pd.read_excel(self.config['data_file_path'], sheet_name=None, skiprows=[1])
@@ -79,15 +82,19 @@ class CPmodel:
         except FileNotFoundError:
             print(f"Error: The file at {self.config['data_file_path']} was not found.")
 
+        if self.config['use_block_allocation_result']:
+            try:
+                self.df_raw_result_data_dict = pd.read_excel(self.config['result_data_file_path'], sheet_name=None, skiprows=[1])
+                print("Result data loaded successfully.")
+            except FileNotFoundError:
+                print(f"Error: The file at {self.config['result_data_file_path']} was not found.")
+
     def preprocess_data(self):
         preprocess_data(self)
 
     def run_model(self):
 
         ## < 최적화 모델 구성> ##
-        # CP 모델 생성
-        self.cpmodel = CpoModel()
-
         # 변수 정의 #
         define_variable(self)
 
@@ -97,7 +104,7 @@ class CPmodel:
         # 정반 러그 방향 제한 제약
         # add_constraint_lug_direction(self)
         # 크레인 단독 운용
-        if self.crane_usage == True:
+        if self.crane_usage:
             add_constraint_crane_usage(self)
         # # 특정 블록(L/R) 동시 작업 제약
         # add_constraint_simultaneous_block(self)
@@ -108,30 +115,28 @@ class CPmodel:
 
         # 목적 함수 #
         # L/R 블록 배치 최대화
-        if self.config['obj_allocation'] == True:
+        if self.config['obj_allocation']:
             add_objective_allocation(self)
         else:
             self.obj_sum_allocation = 0
 
         # 정반 그룹 선호도 최대화
-        if self.config['obj_preference'] == True:
+        if self.config['obj_preference']:
             add_objective_preference(self)
         else:
             self.obj_sum_preference = 0
 
-
         # 지연 최소화 목적함수
-        if self.config['obj_delay'] == True:
+        if self.config['obj_delay']:
             add_objective_sum_delay(self)
         else:
             self.obj_sum_delay = 0
 
         # 미배치 블록 최소화 목적함수
-        if self.config['obj_unassigned_block'] == True:
+        if self.config['obj_unassigned_block']:
             add_objective_sum_unassinged_block(self)
         else:
             self.obj_sum_unassigned_block = 0
-
 
         # 목적함수 계산
         self.obj = (

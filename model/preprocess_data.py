@@ -130,15 +130,15 @@ def get_work_area_list(df_work_area_group, df_work_area):
 def preprocess_data(self):
     sheet_name_list = list(self.df_raw_data_dict.keys())
 
-    # if 'BLK' in sheet_name_list:
-    #     df_block = self.df_raw_data_dict['BLK']
-    #     df_block['착수일'] = pd.to_datetime(df_block['착수일'], errors='coerce')
-    #     allocated_blocks = df_block[df_block['배치확정여부'] == 'Y']
-    #     if not allocated_blocks.empty:
-    #         self.start_date = allocated_blocks['착수일'].min()
-
-
     if 'UNAL_WORKDAY' in sheet_name_list:
+        df_block = self.df_raw_result_data_dict['크레인 정보'] \
+            if self.config['use_block_allocation_result'] else self.df_raw_data_dict['BLK']
+        df_block[['착수일', '완료일', 'TO일정', 'PE일정']] \
+            = df_block[['착수일', '완료일', 'TO일정', 'PE일정']].apply(pd.to_datetime, errors='coerce')
+        allocated_blocks = df_block[(df_block['배치확정여부'] == 'Y') & (df_block['PE일정'] >= self.start_date)]
+        if not allocated_blocks.empty:
+            self.allocate_start_date = allocated_blocks['착수일'].min()
+
         # 향후 추가해 일정으로 활용
         df_calendar = self.df_raw_data_dict['UNAL_WORKDAY']
         while True:
@@ -149,28 +149,27 @@ def preprocess_data(self):
         df_after_start = df_calendar[df_calendar['달력일자'] >= self.start_date].copy()
         if self.config['only_workingday']:
             df_after_start = df_after_start[df_after_start['휴일여부'] == 0]
-        # end_date 계산
-        if len(df_after_start) < self.config['data_duration']:
-            raise ValueError("달력 데이터가 부족합니다.")
-        self.block_end_date = df_after_start.iloc[self.config['data_duration'] - 1]['달력일자']
+            # end_date 계산
+            if len(df_after_start) < self.config['data_duration']:
+                raise ValueError("달력 데이터가 부족합니다.")
+            self.block_end_date = df_after_start.iloc[self.config['data_duration'] - 1]['달력일자']
+        else:
+            self.block_end_date = pd.to_datetime(self.config['data_end_date'])
         while True:
             row = df_calendar[df_calendar['달력일자'] == self.block_end_date]
             if row.empty or row.iloc[0]['휴일여부'] == 0:
                 break
             self.block_end_date += pd.Timedelta(days=1)
 
-        df_block = self.df_raw_data_dict['BLK']
-        df_block[['착수일', '완료일', 'TO일정', 'PE일정']] \
-            = df_block[['착수일', '완료일', 'TO일정', 'PE일정']].apply(pd.to_datetime, errors='coerce')
         df_block_filtered = df_block[(df_block['착수일'] >= self.start_date) & (df_block['착수일'] <= self.block_end_date)]
-        self.end_date = df_block_filtered['PE일정'].max() + pd.Timedelta(days=self.config['max_delay_day'])
+        self.end_date = df_block_filtered['PE일정'].max() + pd.Timedelta(days=self.config['max_delay_day'] + 1)
         df_after_pe = df_calendar[df_calendar['달력일자'] >= self.end_date]
         df_after_pe = df_after_pe[df_after_pe['휴일여부'] == 0]
         if len(df_after_pe) < 4:
             raise ValueError("PE일정 이후 평일이 부족하여 end_date 계산 불가")
         self.end_date = df_after_pe.iloc[3]['달력일자']
 
-        date = self.start_date
+        date = self.allocate_start_date if self.allocate_start_date else self.start_date
         idx = 0
         while True:
             # 평일이면 기록
@@ -248,7 +247,7 @@ def preprocess_data(self):
         for _, row in df_crane.iterrows():
             self.crane_dict[row['크레인ID']] = Crane(Crane_id=row['크레인ID'], condition=row['사용여부'])
         for _, row in df_unavailable_crane.iterrows():
-            self.crane_dict[row['크레인ID']].unavailable_time_dict[row['예약작업이름']] =\
+            self.crane_dict[row['크레인ID']].unavailable_time_dict[row['예약작업이름']] = \
                 self.calendar_dict[pd.to_datetime(row['예약작업시간'])]
         # 향후 크레인 별 예약 작업 list 추가하는 코드 구현
         # 더미 변수 생성해 step function에 pulse 추가
@@ -257,7 +256,8 @@ def preprocess_data(self):
         print('Sheet names do not match')
 
     if 'BLK' in sheet_name_list:
-        df_block = self.df_raw_data_dict['BLK']
+        df_block = self.df_raw_result_data_dict['크레인 정보'] \
+            if self.config['use_block_allocation_result'] else self.df_raw_data_dict['BLK']
         df_block[['착수일', '완료일', 'TO일정', 'PE일정']] \
             = df_block[['착수일', '완료일', 'TO일정', 'PE일정']].apply(pd.to_datetime, errors='coerce')
         for _, row in df_block.iterrows():
@@ -272,7 +272,9 @@ def preprocess_data(self):
                                allocate_condtion=row['배치확정여부'])
             self.all_block_dict[(row['선종'], row['호선'], row['블록'])] = temp_block
 
-        df_block_filtered = df_block[(df_block['착수일'] >= self.start_date) & (df_block['착수일'] <= self.block_end_date)]
+        df_block_filtered \
+            = df_block[((df_block['배치확정여부'] == 'Y') & (df_block['PE일정'] >= self.start_date)) |
+                       ((df_block['착수일'] >= self.start_date) & (df_block['착수일'] <= self.block_end_date))]
         for _, row in df_block_filtered.iterrows():
             temp_block = Block(ship_type=row['선종'], project_number=row['호선'], block_number=row['블록'],
                                allocation_start_date=row['착수일'], allocation_end_date=row['완료일'],
@@ -282,7 +284,8 @@ def preprocess_data(self):
                                indoor_outdoor_condition=row['옥내외'], lug_direction=row['러그방향'],
                                allocate_condtion=row['배치확정여부'])
             if temp_block.allocate_condtion == 'Y':
-                temp_block.get_location(row['그룹ID'], row['블록위치X'], row['블록위치Y'])
+                temp_block.update_allocate_condition(row['변환 블록길이'], row['변환 블록폭'], row['그룹ID'],
+                                                     row['회전'], row['블록위치X'], row['블록위치Y'])
 
             temp_block.datetime_to_idx(self.calendar_dict)
 
