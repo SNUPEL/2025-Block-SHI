@@ -8,6 +8,11 @@ def create_config():
 
     config['data_file_path'] = '../data/data_rev0.2.xlsx'
 
+    # 기존 스케줄 반영 여부
+    config['consider_schedule'] = True
+    config['scheduled_file_path'] = '../data/block_allocation_result_ref.xlsx' # 지원 연습경로
+    # config['data_file_path'] = '../data/data_rev0.2.xlsx'
+
     config['data_start_date'] = '2019-07-04'  # 시작일자 (착수일 기준)
     config['data_duration'] = 40
     config['only_workingday'] = True  # True: workingday 기준 duration의 기간을 셈, False: 단순히 duration의 기간을 더함
@@ -26,7 +31,7 @@ def create_config():
     config['weight_unassigned_block'] = 1000  # 가중치
 
     # L/R 블록 배치 최대화 목적함수
-    config['obj_allocation'] = True  # True: 실행, False: 미실행
+    config['obj_allocation'] = False  # True: 실행, False: 미실행
     config['weight_allocation'] = 1  # 가중치
     config['score_position'] = 1  # 동일 정반 배치 시 위치 가중치
     config['score_same_workarea'] = 100  # 동일 정반 배치 가중치

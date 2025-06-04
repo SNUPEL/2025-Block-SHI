@@ -268,9 +268,28 @@ def preprocess_data(self):
                                processing_time=row['공기'], TO_date=row['TO일정'], PE_date=row['PE일정'],
                                length=row['블록길이'], spacing_x=self.config['block_spacing_x'], breadth=row['블록폭'],
                                spacing_y=self.config['block_spacing_y'], height=row['블록높이'], weight=row['블록중량'],
-                               indoor_outdoor_condition=row['옥내외'], lug_direction=row['러그방향'],
-                               allocate_condtion=row['배치확정여부'])
+                               indoor_outdoor_condition=row['옥내외'], lug_direction=row['러그방향'])
             self.all_block_dict[(row['선종'], row['호선'], row['블록'])] = temp_block
+            if self.df_scheduled_dict is not None and self.config['consider_schedule']:  # partial schedule을 고려함
+                matched_rows = self.df_scheduled_dict[
+                    (self.df_scheduled_dict['선종'] == row['선종']) &
+                    (self.df_scheduled_dict['호선'] == row['호선']) &
+                    (self.df_scheduled_dict['블록'] == row['블록'])
+                    ]
+                if len(matched_rows) == 1:
+                    schedule_row = matched_rows.iloc[0]
+                elif len(matched_rows) == 0:
+                    raise ValueError("No matching row found in df_scheduled.")
+                else:
+                    raise ValueError("Multiple matching rows found in df_scheduled.")
+
+                if schedule_row['배치확정여부'] == 'Y':
+                    temp_block.get_schedule_data(
+                        allocation_index=self.calendar_dict[schedule_row['착수일']],
+                        group_id=schedule_row['그룹ID'],
+                        rotate=schedule_row['회전'],
+                        x_location=schedule_row['블록위치X'],
+                        y_location=schedule_row['블록위치Y'])
 
         df_block_filtered = df_block[(df_block['착수일'] >= self.start_date) & (df_block['착수일'] <= self.block_end_date)]
         for _, row in df_block_filtered.iterrows():
@@ -279,10 +298,28 @@ def preprocess_data(self):
                                processing_time=row['공기'], TO_date=row['TO일정'], PE_date=row['PE일정'],
                                length=row['블록길이'], spacing_x=self.config['block_spacing_x'], breadth=row['블록폭'],
                                spacing_y=self.config['block_spacing_y'], height=row['블록높이'], weight=row['블록중량'],
-                               indoor_outdoor_condition=row['옥내외'], lug_direction=row['러그방향'],
-                               allocate_condtion=row['배치확정여부'])
-            if temp_block.allocate_condtion == 'Y':
-                temp_block.get_location(row['그룹ID'], row['블록위치X'], row['블록위치Y'])
+                               indoor_outdoor_condition=row['옥내외'], lug_direction=row['러그방향'])
+
+            if self.df_scheduled_dict is not None and self.config['consider_schedule']:  # partial schedule을 고려함
+                matched_rows = self.df_scheduled_dict[
+                    (self.df_scheduled_dict['선종'] == row['선종']) &
+                    (self.df_scheduled_dict['호선'] == row['호선']) &
+                    (self.df_scheduled_dict['블록'] == row['블록'])
+                    ]
+                if len(matched_rows) == 1:
+                    schedule_row = matched_rows.iloc[0]
+                elif len(matched_rows) == 0:
+                    raise ValueError("No matching row found in df_scheduled.")
+                else:
+                    raise ValueError("Multiple matching rows found in df_scheduled.")
+
+                if schedule_row['배치확정여부'] == 'Y':
+                    temp_block.get_schedule_data(
+                        allocation_index=self.calendar_dict[schedule_row['착수일']],
+                        group_id=schedule_row['그룹ID'],
+                        rotate=schedule_row['회전'],
+                        x_location=schedule_row['블록위치X'],
+                        y_location=schedule_row['블록위치Y'])
 
             temp_block.datetime_to_idx(self.calendar_dict)
 

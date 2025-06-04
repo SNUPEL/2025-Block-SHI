@@ -6,49 +6,55 @@ def add_constraint_scheduled(self):
     for block_key in self.block_keys:
         block = self.block_dict[block_key]
         block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
-
-        if block.allocate_condtion == 'Y':
+        print(block.allocate_condition)
+        if block.allocate_condition == True:
 
             '''1. self.block_schedule_var_by_id_group_surf_work_rotate_dict 에서 변수 찾기'''
             for key, val in self.block_schedule_var_by_id_group_surf_work_rotate_dict.items():
                 # 기본 흐름
                 if key[0] == block_id:
-                    if key[1] == (block.group_id,block.surf_id) and key[4] == block.rotate:
+                    if str(key[1]) == block.group_id and key[4] == block.rotate:
+
+
+                        '''2. 해당 정반으로 스케줄 변수 고정'''
                         # 1. 해당 정반으로 스케줄 변수 고정
                         self.cpmodel.add(
                             self.cpmodel.presence_of(
                                 self.block_schedule_var_by_id_group_surf_work_rotate_dict[key]) == 1
                             )
 
-                        '''2. 해당 정반에 x, y, 시간축 변수 고정'''
+                        '''3. 해당 정반에 x, y, 시간축 변수 고정'''
+                        # (key : 선종, 호선, 블록, 정반그룹, 그룹, 회전)
+                        newkey = (key[0], key[1], key[2], key[4])
+
                         # 2-1. X축
                         self.cpmodel.add(
                             self.cpmodel.presence_of(
-                                self.block_x_var_by_id_group_surf_rotate_dict[key]) == 1
+                                self.block_x_var_by_id_group_surf_rotate_dict[newkey]) == 1
                         )
                         self.cpmodel.add(
                             self.cpmodel.start_of(
-                                self.block_x_var_by_id_group_surf_rotate_dict[key]) == block.x_location
+                                self.block_x_var_by_id_group_surf_rotate_dict[newkey]) == int(block.x_location * 10)
                         )
 
                         # 2-2. Y축
                         self.cpmodel.add(
                             self.cpmodel.presence_of(
-                                self.block_y_var_by_id_group_surf_rotate_dict[key]) == 1
+                                self.block_y_var_by_id_group_surf_rotate_dict[newkey]) == 1
                         )
                         self.cpmodel.add(
                             self.cpmodel.start_of(
-                                self.block_y_var_by_id_group_surf_rotate_dict[key]) == block.y_location
+                                self.block_y_var_by_id_group_surf_rotate_dict[newkey]) == int(block.y_location * 10)
                         )
 
                         # 2-1. 시간축
                         self.cpmodel.add(
                             self.cpmodel.presence_of(
-                                self.block_time_var_by_id_group_surf_rotate_dict[key]) == 1
+                                self.block_time_var_by_id_group_surf_rotate_dict[newkey]) == 1
                         )
                         self.cpmodel.add(
                             self.cpmodel.start_of(
-                                self.block_time_var_by_id_group_surf_rotate_dict[key]) == block.allocation_index
+                                self.block_time_var_by_id_group_surf_rotate_dict[newkey]) == block.allocation_index + 1
                         )
 
             pass

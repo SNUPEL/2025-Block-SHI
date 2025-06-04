@@ -55,7 +55,7 @@ class Crane:
 class Block:
     def __init__(self, ship_type, project_number, block_number,
                  allocation_start_date, allocation_end_date, processing_time, TO_date, PE_date,
-                 length, spacing_x, breadth, spacing_y, height, weight, indoor_outdoor_condition, lug_direction, allocate_condtion):
+                 length, spacing_x, breadth, spacing_y, height, weight, indoor_outdoor_condition, lug_direction):
         self.ship_type = ship_type
         self.project_number = project_number
         self.block_number = block_number
@@ -80,9 +80,8 @@ class Block:
         self.adjusted_weight = int(self.weight * 10)
         self.indoor_outdoor_condition = indoor_outdoor_condition
         self.lug_direction = lug_direction
-        self.allocate_condtion = allocate_condtion
+        self.allocate_condition = False
         self.group_id = None
-        self.surf_id = None
         self.rotate = None
         self.x_location = None
         self.y_location = None
@@ -99,8 +98,11 @@ class Block:
             self.adjusted_PE_date += pd.Timedelta(days=1)
         self.PE_index = calendar[self.adjusted_PE_date]
 
-    def get_location(self, group_id, x_location, y_location):
+    def get_schedule_data(self, allocation_index, group_id, rotate, x_location, y_location):
         # 향후 배치 확정 블록 데이터 존재 시 좌표를 정반 그룹과 위치에 맞춰 변환하는 코드 추가 구현
+        self.allocate_condition = True
+        self.allocation_index = allocation_index
         self.group_id = group_id
+        self.rotate = rotate
         self.x_location = x_location
         self.y_location = y_location

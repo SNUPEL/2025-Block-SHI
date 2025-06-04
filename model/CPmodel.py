@@ -28,6 +28,7 @@ class CPmodel:
         self.model_start_index = None  # 변환시 시작 시간, 0으로 정의
         self.model_end_index = None  # 변환시 마지막 시간
         self.df_raw_data_dict = dict()
+        self.df_scheduled_dict = dict()
         self.work_area_dict = dict()
         self.crane_dict = dict()
         self.block_dict = dict()
@@ -79,6 +80,13 @@ class CPmodel:
         except FileNotFoundError:
             print(f"Error: The file at {self.config['data_file_path']} was not found.")
 
+        try:
+            self.df_scheduled_dict = pd.read_excel(self.config['scheduled_file_path'], sheet_name="크레인 정보", skiprows=[1])
+            print("Partial Schedule Data loaded successfully.")
+        except FileNotFoundError:
+            print("Partial Schedule file not found. Proceeding with None.")
+            self.df_scheduled_dict = None
+
     def preprocess_data(self):
         preprocess_data(self)
 
@@ -92,9 +100,9 @@ class CPmodel:
         define_variable(self)
 
         # 제약 조건 #
-        # 정반 별 블록 사이즈 제한
+        # # 정반 별 블록 사이즈 제한
         # add_constraint_area_limitation(self)
-        # 정반 러그 방향 제한 제약
+        # # 정반 러그 방향 제한 제약
         # add_constraint_lug_direction(self)
         # 크레인 단독 운용
         if self.crane_usage == True:
@@ -103,8 +111,10 @@ class CPmodel:
         # add_constraint_simultaneous_block(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
+
         # 기 배치된 블록 제약
-        # add_constraint_scheduled(self)
+        if self.config['consider_schedule']:
+            add_constraint_scheduled(self)
 
         # 목적 함수 #
         # L/R 블록 배치 최대화
