@@ -318,6 +318,8 @@ def preprocess_data(self):
                 if row['그룹ID'] == key[0] and row['정반ID'] in list(key[1]):
                     day1 = pd.to_datetime(row['정반불가시작일'])
                     day2 = pd.to_datetime(row['정반불가종료일'])
+                    if day2 <= self.start_date or self.day1 >= self.end_date:
+                        continue
                     if day1 <= self.start_date:
                         day1 = self.start_date
                     if day2 >= self.end_date:
