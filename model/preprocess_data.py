@@ -275,7 +275,7 @@ def preprocess_data(self):
                                length=row['블록길이'], spacing_x=self.config['block_spacing_x'], breadth=row['블록폭'],
                                spacing_y=self.config['block_spacing_y'], height=row['블록높이'], weight=row['블록중량'],
                                indoor_outdoor_condition=row['옥내외'], lug_direction=row['러그방향'],
-                               allocate_condtion=row['배치확정여부'])
+                               allocate_condition=row['배치확정여부'])
             self.all_block_dict[(row['선종'], row['호선'], row['블록'])] = temp_block
 
         df_block_filtered \
@@ -288,8 +288,8 @@ def preprocess_data(self):
                                length=row['블록길이'], spacing_x=self.config['block_spacing_x'], breadth=row['블록폭'],
                                spacing_y=self.config['block_spacing_y'], height=row['블록높이'], weight=row['블록중량'],
                                indoor_outdoor_condition=row['옥내외'], lug_direction=row['러그방향'],
-                               allocate_condtion=row['배치확정여부'])
-            if temp_block.allocate_condtion == 'Y':
+                               allocate_condition=row['배치확정여부'])
+            if temp_block.allocate_condition == 'Y':
                 temp_block.update_allocate_condition(row['변환 블록길이'], row['변환 블록폭'], row['그룹ID'],
                                                      row['회전'], row['블록위치X'], row['블록위치Y'])
 
@@ -318,6 +318,8 @@ def preprocess_data(self):
                 if row['그룹ID'] == key[0] and row['정반ID'] in list(key[1]):
                     day1 = pd.to_datetime(row['정반불가시작일'])
                     day2 = pd.to_datetime(row['정반불가종료일'])
+                    if day2 <= self.start_date or self.day1 >= self.end_date:
+                        continue
                     if day1 <= self.start_date:
                         day1 = self.start_date
                     if day2 >= self.end_date:

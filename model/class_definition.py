@@ -57,7 +57,7 @@ class Crane:
 class Block:
     def __init__(self, ship_type, project_number, block_number, allocation_start_date, allocation_end_date,
                  processing_time, TO_date, PE_date, length, spacing_x, breadth, spacing_y, height, weight,
-                 indoor_outdoor_condition, lug_direction, allocate_condtion):
+                 indoor_outdoor_condition, lug_direction, allocate_condition):
         self.ship_type = ship_type
         self.project_number = project_number
         self.block_number = block_number
@@ -82,7 +82,7 @@ class Block:
         self.adjusted_weight = int(self.weight * 10)
         self.indoor_outdoor_condition = indoor_outdoor_condition
         self.lug_direction = lug_direction
-        self.allocate_condtion = allocate_condtion
+        self.allocate_condition = allocate_condition
         self.group_id = None
         self.surf_id = None
         self.rotate = None

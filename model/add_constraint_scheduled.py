@@ -7,7 +7,7 @@ def add_constraint_scheduled(self):
         block = self.block_dict[block_key]
         block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
 
-        if block.allocate_condtion == 'Y':
+        if block.allocate_condition == 'Y':
 
             '''1. self.block_schedule_var_by_id_group_surf_work_rotate_dict 에서 변수 찾기'''
             for key, val in self.block_schedule_var_by_id_group_surf_work_rotate_dict.items():
