@@ -102,9 +102,9 @@ class Block:
         self.PE_index = calendar[self.adjusted_PE_date]
 
     def update_allocate_condition(self, length, breadth, group_id, rotate, x_location, y_location):
-        self.adjusted_length = length * 10
-        self.adjusted_breadth = breadth * 10
+        # self.adjusted_length = int(length * 10)
+        # self.adjusted_breadth = int(breadth * 10)
         self.group_id = group_id
         self.rotate = rotate
-        self.x_location = x_location
-        self.y_location = y_location
+        self.x_location = int(x_location * 10)
+        self.y_location = int(y_location * 10)

@@ -103,6 +103,8 @@ class CPmodel:
         define_variable(self)
 
         # 제약 조건 #
+        # 기 배치된 블록 제약
+        add_constraint_scheduled(self)
         # 정반 별 블록 사이즈 제한
         # add_constraint_area_limitation(self)
         # 정반 러그 방향 제한 제약
@@ -114,8 +116,7 @@ class CPmodel:
         # add_constraint_simultaneous_block(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
-        # 기 배치된 블록 제약
-        # add_constraint_scheduled(self)
+
 
         # 목적 함수 #
         # L/R 블록 배치 최대화

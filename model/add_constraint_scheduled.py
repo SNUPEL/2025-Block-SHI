@@ -13,7 +13,9 @@ def add_constraint_scheduled(self):
             for key, val in self.block_schedule_var_by_id_group_surf_work_rotate_dict.items():
                 # 기본 흐름
                 if key[0] == block_id:
-                    if key[1] == (block.group_id,block.surf_id) and key[4] == block.rotate:
+
+                    if str(key[1]) == (block.group_id) and key[4] == block.rotate:
+
                         # 1. 해당 정반으로 스케줄 변수 고정
                         self.cpmodel.add(
                             self.cpmodel.presence_of(
@@ -21,34 +23,26 @@ def add_constraint_scheduled(self):
                             )
 
                         '''2. 해당 정반에 x, y, 시간축 변수 고정'''
+
+                        newkey = (key[0], key[1], key[2], key[4])
+                        print(block.allocation_index)
+
                         # 2-1. X축
                         self.cpmodel.add(
-                            self.cpmodel.presence_of(
-                                self.block_x_var_by_id_group_surf_rotate_dict[key]) == 1
-                        )
-                        self.cpmodel.add(
                             self.cpmodel.start_of(
-                                self.block_x_var_by_id_group_surf_rotate_dict[key]) == block.x_location
+                                self.block_x_var_by_id_group_surf_rotate_dict[newkey]) == block.x_location
                         )
 
                         # 2-2. Y축
                         self.cpmodel.add(
-                            self.cpmodel.presence_of(
-                                self.block_y_var_by_id_group_surf_rotate_dict[key]) == 1
-                        )
-                        self.cpmodel.add(
                             self.cpmodel.start_of(
-                                self.block_y_var_by_id_group_surf_rotate_dict[key]) == block.y_location
+                                self.block_y_var_by_id_group_surf_rotate_dict[newkey]) == block.y_location
                         )
 
                         # 2-1. 시간축
                         self.cpmodel.add(
-                            self.cpmodel.presence_of(
-                                self.block_time_var_by_id_group_surf_rotate_dict[key]) == 1
-                        )
-                        self.cpmodel.add(
                             self.cpmodel.start_of(
-                                self.block_time_var_by_id_group_surf_rotate_dict[key]) == block.allocation_index
+                                self.block_time_var_by_id_group_surf_rotate_dict[newkey]) == (block.allocation_index + 1)
                         )
 
             pass
