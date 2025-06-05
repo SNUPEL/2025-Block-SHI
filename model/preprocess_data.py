@@ -67,6 +67,8 @@ def get_work_area_list(df_work_area_group, df_work_area):
                         y_vals.add(r['그룹내정반위치Y'] + r['정반폭'])
                     x_vals = sorted(x_vals)
                     y_vals = sorted(y_vals)
+                    min_of_x_vals = min(x_vals)
+                    min_of_y_vals = min(y_vals)
                     grid = np.zeros((len(y_vals) - 1, len(x_vals) - 1), dtype=bool)
                     for _, r in group.iterrows():
                         left = r['그룹내정반위치X']
@@ -96,7 +98,9 @@ def get_work_area_list(df_work_area_group, df_work_area):
 
                     for _, rect in group.iterrows():
                         temp_work_area.work_unit_dict[rect['정반ID']] \
-                            = WorkUnit(unit_id=rect['정반ID'], x=rect['그룹내정반위치X'], y=rect['그룹내정반위치Y'],
+                            = WorkUnit(unit_id=rect['정반ID'],
+                                       x_raw=rect['그룹내정반위치X'], y_raw=rect['그룹내정반위치Y'],
+                                       x=rect['그룹내정반위치X'] - min_of_x_vals, y=rect['그룹내정반위치Y'] - min_of_y_vals,
                                        dx=rect['정반길이'], dy=rect['정반폭'])
 
                     if not np.all(grid):
@@ -247,8 +251,10 @@ def preprocess_data(self):
         for _, row in df_crane.iterrows():
             self.crane_dict[row['크레인ID']] = Crane(Crane_id=row['크레인ID'], condition=row['사용여부'])
         for _, row in df_unavailable_crane.iterrows():
+            if pd.to_datetime(row['예약작업날짜']) not in self.calendar_dict:
+                continue
             self.crane_dict[row['크레인ID']].unavailable_time_dict[row['예약작업이름']] = \
-                self.calendar_dict[pd.to_datetime(row['예약작업시간'])]
+                (self.calendar_dict[pd.to_datetime(row['예약작업날짜'])], float(row['예약작업시간']))
         # 향후 크레인 별 예약 작업 list 추가하는 코드 구현
         # 더미 변수 생성해 step function에 pulse 추가
         print('Crane class has been defined')
@@ -310,6 +316,19 @@ def preprocess_data(self):
         for _, row in df_unavailable_workarea.iterrows():
             for key, value in self.work_area_dict.items():
                 if row['그룹ID'] == key[0] and row['정반ID'] in list(key[1]):
-                    value.work_unit_dict.unavailable_duration_list.append([row['정반불가시작일'], row['정반불가종료일']])
+                    day1 = pd.to_datetime(row['정반불가시작일'])
+                    day2 = pd.to_datetime(row['정반불가종료일'])
+                    if day1 <= self.start_date:
+                        day1 = self.start_date
+                    if day2 >= self.end_date:
+                        day2 = self.end_date
+
+                    while day1 not in self.calendar_dict:
+                        day1 += pd.Timedelta(days=1)
+                    while day2 not in self.calendar_dict:
+                        day2 += pd.Timedelta(days=1)
+                    value.work_unit_dict[row['정반ID']].unavailable_duration_list.append(
+                        [self.calendar_dict[day1], self.calendar_dict[day2]])
+
     else:
         print('Sheet names do not match')

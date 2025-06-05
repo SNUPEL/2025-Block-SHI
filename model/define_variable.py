@@ -304,3 +304,42 @@ def define_variable(self):
                             self.block_schedule_var_by_id_group_surf_work_rotate_dict[key_pe]
                         )
                     )
+
+    # key[1]은 workunit 번호를 의미하며 0은 전체 정반 그룹을 의미함
+    for surface_group_key, work_area in self.work_area_dict.items():
+        self.unavailable_work_area_x_var_by_id_dict[(surface_group_key, 0)] = self.cpmodel.interval_var(
+                            start=work_area.unavailable_area_x,
+                            size=work_area.unavailable_area_L,
+                            optional=False,
+                        )
+        self.unavailable_work_area_y_var_by_id_dict[(surface_group_key, 0)] = self.cpmodel.interval_var(
+            start=work_area.unavailable_area_y,
+            size=work_area.unavailable_area_B,
+            optional=False,
+        )
+        self.unavailable_work_area_time_var_by_id_dict[(surface_group_key, 0)] = self.cpmodel.interval_var(
+                            start=self.model_start_index,
+                            end=self.model_end_index,
+                            optional=False,
+                        )
+
+        for work_unit_number, work_unit in work_area.work_unit_dict.items():
+            for unavailable_duration_list in work_unit.unavailable_duration_list:
+                self.unavailable_work_area_x_var_by_id_dict[(surface_group_key, work_unit_number)]\
+                    = self.cpmodel.interval_var(
+                    start=work_unit.x,
+                    size=work_unit.dx,
+                    optional=False,
+                )
+                self.unavailable_work_area_y_var_by_id_dict[(surface_group_key, work_unit_number)]\
+                    = self.cpmodel.interval_var(
+                    start=work_unit.y,
+                    size=work_unit.dy,
+                    optional=False,
+                )
+                self.unavailable_work_area_time_var_by_id_dict[(surface_group_key, work_unit_number)]\
+                    = self.cpmodel.interval_var(
+                    start=unavailable_duration_list[0],
+                    end=unavailable_duration_list[1],
+                    optional=False,
+                )

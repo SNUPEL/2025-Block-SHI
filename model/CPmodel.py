@@ -75,6 +75,10 @@ class CPmodel:
         self.block_time_var_list_by_id_dict = {}  # 블록 ID별 가능한 시간축 변수 리스트
         self.block_time_var_by_id_group_surf_rotate_dict = {}  # 블록 ID, 그룹, 정반, 회전별 시간축 위치 변수
 
+        self.unavailable_work_area_x_var_by_id_dict = {}  # 불가용 정반
+        self.unavailable_work_area_y_var_by_id_dict = {}
+        self.unavailable_work_area_time_var_by_id_dict = {}
+
     def get_data(self):
         try:
             self.df_raw_data_dict = pd.read_excel(self.config['data_file_path'], sheet_name=None, skiprows=[1])

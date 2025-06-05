@@ -2,8 +2,10 @@ import pandas as pd
 
 
 class WorkUnit:
-    def __init__(self, unit_id, x, y, dx, dy):
+    def __init__(self, unit_id, x_raw, y_raw, x, y, dx, dy):
         self.unit_id = unit_id
+        self.x_raw = int(x_raw * 10)
+        self.y_raw = int(y_raw * 10)
         self.x = int(x * 10)
         self.y = int(y * 10)
         self.dx = int(dx * 10)
@@ -49,7 +51,7 @@ class Crane:
     def __init__(self, Crane_id, condition):
         self.Crane_id = Crane_id
         self.condition = condition
-        self.unavailable_time_dict = dict()
+        self.unavailable_time_dict = dict()  # key: 작업이름, value: (일자, 시간(시간 단위))
 
 
 class Block:
