@@ -92,50 +92,54 @@ def add_objective_allocation(self):
 
         ### 목적함수 계산 ###
         # 1단계: 같은 정반에 배치될 때 위치 차이 최소화
-                # 1단계: 같은 정반에 배치될 때 위치 차이 최소화
-                for workarea_1 in placements1:
-                    for workarea_2 in placements2:
-                        # 같은 정반, 같은 회전인 경우
-                        if (workarea_1['surface_group_key'] == workarea_2['surface_group_key'] and
-                                workarea_1['surface_id'] == workarea_2['surface_id'] and
-                                workarea_1['rotate'] == workarea_2['rotate']):
+        # 1단계: 같은 정반에 배치될 때 위치 차이 최소화
+        for workarea_1 in placements1:
+            for workarea_2 in placements2:
+                # 같은 정반, 같은 회전인 경우
+                if (workarea_1['surface_group_key'] == workarea_2['surface_group_key'] and
+                        workarea_1['surface_id'] == workarea_2['surface_id'] and
+                        workarea_1['rotate'] == workarea_2['rotate']):
 
-                            # 두 블록이 모두 이 정반에 배치되는 경우 체크
-                            both_placed = (self.cpmodel.presence_of(workarea_1['store_var']) *
-                                           self.cpmodel.presence_of(workarea_2['store_var']))
+                    # 두 블록이 모두 이 정반에 배치되는 경우 체크
+                    both_placed = (self.cpmodel.presence_of(workarea_1['store_var']) *
+                                   self.cpmodel.presence_of(workarea_2['store_var']))
 
-                            # x축, y축 위치 변수가 존재하는 경우만 거리 계산
-                            if (workarea_1['x_var'] is not None and workarea_1['y_var'] is not None and
-                                    workarea_2['x_var'] is not None and workarea_2['y_var'] is not None):
+                    # x축, y축 위치 변수가 존재하는 경우만 거리 계산
+                    if (workarea_1['x_var'] is not None and workarea_1['y_var'] is not None and
+                            workarea_2['x_var'] is not None and workarea_2['y_var'] is not None):
 
-                                # x축 위치 차이 계산
-                                x1_start = self.cpmodel.start_of(workarea_1['x_var'])
-                                x2_start = self.cpmodel.start_of(workarea_2['x_var'])
-                                x_diff = self.cpmodel.abs(x1_start - x2_start)
+                        # x축 위치 차이 계산
+                        x1_start = self.cpmodel.start_of(workarea_1['x_var'])
+                        x2_start = self.cpmodel.start_of(workarea_2['x_var'])
+                        x_diff = self.cpmodel.abs(x1_start - x2_start)
 
-                                # y축 위치 차이 계산
-                                y1_start = self.cpmodel.start_of(workarea_1['y_var'])
-                                y2_start = self.cpmodel.start_of(workarea_2['y_var'])
-                                y_diff = self.cpmodel.abs(y1_start - y2_start)
+                        # y축 위치 차이 계산
+                        y1_start = self.cpmodel.start_of(workarea_1['y_var'])
+                        y2_start = self.cpmodel.start_of(workarea_2['y_var'])
+                        y_diff = self.cpmodel.abs(y1_start - y2_start)
 
-                                # 맨하탄 거리 계산
-                                distance = x_diff + y_diff
+                        # 맨하탄 거리 계산
+                        distance = x_diff + y_diff
 
-                                # 거리를 최소화하기 위해 음수로 변환 (거리가 작을수록 좋음)
-                                distance_penalty = -distance
+                        # 거리를 최소화하기 위해 음수로 변환 (거리가 작을수록 좋음)
+                        distance_penalty = -distance
 
-                                # 같은 정반 배치 점수 + 위치 근접성 점수
-                                total_score = score_position * distance_penalty
-                                objective_exprs.append(total_score * both_placed)
+                        # 같은 정반 배치 점수 + 위치 근접성 점수
+                        total_score = score_position * distance_penalty
+                        objective_exprs.append(total_score * both_placed)
 
-                            else:
-                                # 위치 변수가 없는 경우 기본 점수만 부여
-                                objective_exprs.append(score_position * 0)
+                    else:
+                        # 위치 변수가 없는 경우 기본 점수만 부여
+                        objective_exprs.append(score_position * 0)
+                        pass
 
         # 2단계: 같은 정반 그룹에 배치
         # 두 블록이 배치 가능한 모든 정반 list
         all_group_keys = []
         for workarea in placements1 + placements2:
+            """
+            예를 들어, 220L블록이 2, 4-1, 4-2, 4-3, 4-4에 배치 가능하고, 220R블록이 4-1, 4-2, 4-3, 4-4에 배치 가능하면 -> 공통인 것들만 추출
+            """
             if workarea['surface_group_key'] not in all_group_keys:
                 all_group_keys.append(workarea['surface_group_key'])
 
@@ -167,7 +171,7 @@ def add_objective_allocation(self):
 
                 # Pointing 계산(둘 다 배치: (1,1), 둘 중 하나만 배치: (1,0), 둘다 배치 X: (0,0))
                 both_in_group = self.cpmodel.min(block1_in_group, block2_in_group)
-                objective_exprs.append(score_same_workarea * -both_in_group)
+                objective_exprs.append(score_same_workarea * -1 * both_in_group)
 
         # 3단계: 서로 다른 그룹이라도 둘 다 배치
         if len(placements1) > 0 and len(placements2) > 0:
@@ -185,7 +189,7 @@ def add_objective_allocation(self):
 
             # Pointing 계산(둘 다 배치: (1,1), 둘 중 하나만 배치: (1,0), 둘다 배치 X: (0,0))
             both_placed = self.cpmodel.min(block1_placed, block2_placed)
-            objective_exprs.append(score_both_allocation * -both_placed)
+            objective_exprs.append(score_both_allocation * -1 * (both_placed))
 
     # 전체 목적함수 합산
     if objective_exprs:

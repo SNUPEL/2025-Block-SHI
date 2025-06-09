@@ -25,7 +25,6 @@ def add_constraint_scheduled(self):
                         '''2. 해당 정반에 x, y, 시간축 변수 고정'''
 
                         newkey = (key[0], key[1], key[2], key[4])
-                        print(block.allocation_index)
 
                         # 2-1. X축
                         self.cpmodel.add(

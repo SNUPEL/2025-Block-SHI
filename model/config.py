@@ -16,6 +16,7 @@ def create_config():
 
     # 배치 확정된 블록 사용
     config['use_block_allocation_result'] = True  # True 시 하단의 결과를 가져옴
+    # config['result_data_file_path'] = '../data/block_allocation_result_ref.xlsx'
     config['result_data_file_path'] = '../results/20250605_18h_48m_50s/block_allocation_result.xlsx'
 
     # 정반그룹 선호도 최소화 목적함수
@@ -31,7 +32,7 @@ def create_config():
     config['weight_unassigned_block'] = 1000  # 가중치
 
     # L/R 블록 배치 최대화 목적함수
-    config['obj_allocation'] = False  # True: 실행, False: 미실행
+    config['obj_allocation'] = True  # True: 실행, False: 미실행
     config['weight_allocation'] = 1  # 가중치
     config['score_position'] = 1  # 동일 정반 배치 시 위치 가중치
     config['score_same_workarea'] = 100  # 동일 정반 배치 가중치
@@ -61,6 +62,11 @@ def create_config():
 
     if not os.path.exists(config["folderpath"]):
         os.mkdir(config["folderpath"])
+
+    # base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'results'))
+    # config["folderpath"] = os.path.join(base_dir, '{0}_{1}h_{2}m_{3}s'.format(
+    #     config['ymd'], config['hour'], config['minute'], config['second']))
+    # os.makedirs(config["folderpath"], exist_ok=True)
 
     config_df = pd.json_normalize(config, sep='_').transpose()
     config_df.to_excel(config['folderpath'] + '/configuration.xlsx', index=True)
