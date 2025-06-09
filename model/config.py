@@ -26,7 +26,7 @@ def create_config():
     config['weight_unassigned_block'] = 1000  # 가중치
 
     # L/R 블록 배치 최대화 목적함수
-    config['obj_allocation'] = True  # True: 실행, False: 미실행
+    config['obj_allocation'] = False  # True: 실행, False: 미실행
     config['weight_allocation'] = 1  # 가중치
     config['score_position'] = 1  # 동일 정반 배치 시 위치 가중치
     config['score_same_workarea'] = 100  # 동일 정반 배치 가중치

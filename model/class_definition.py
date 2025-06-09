@@ -49,7 +49,7 @@ class Crane:
     def __init__(self, Crane_id, condition):
         self.Crane_id = Crane_id
         self.condition = condition
-        self.unavailable_time_dict = dict()
+        self.unavailable_time_dict = dict()  #key: 작업명, value: 시간 index
 
 
 class Block:
