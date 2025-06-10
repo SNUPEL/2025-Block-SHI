@@ -253,8 +253,9 @@ def preprocess_data(self):
         for _, row in df_unavailable_crane.iterrows():
             if pd.to_datetime(row['예약작업날짜']) not in self.calendar_dict:
                 continue
-            self.crane_dict[row['크레인ID']].unavailable_time_dict[row['예약작업이름']] = \
-                (self.calendar_dict[pd.to_datetime(row['예약작업날짜'])], float(row['예약작업시간']))
+            self.crane_dict[row['크레인ID']].unavailable_time_list.append(
+                ([row['예약작업이름']], self.calendar_dict[pd.to_datetime(row['예약작업날짜'])], float(row['예약작업시간']))
+            )
         # 향후 크레인 별 예약 작업 list 추가하는 코드 구현
         # 더미 변수 생성해 step function에 pulse 추가
         print('Crane class has been defined')
@@ -318,7 +319,7 @@ def preprocess_data(self):
                 if row['그룹ID'] == key[0] and row['정반ID'] in list(key[1]):
                     day1 = pd.to_datetime(row['정반불가시작일'])
                     day2 = pd.to_datetime(row['정반불가종료일'])
-                    if day2 <= self.start_date or self.day1 >= self.end_date:
+                    if day2 <= self.start_date or day1 >= self.end_date:
                         continue
                     if day1 <= self.start_date:
                         day1 = self.start_date

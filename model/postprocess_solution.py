@@ -61,10 +61,12 @@ def postprocess_solution(self):
             block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
 
             if block_key in self.block_dict.keys():
-                # 각 블록에 대한 결과 수집
-                # for block_key in self.block_keys:
-                #    block = self.block_dict[block_key]
-                #    block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
+
+            # 각 블록에 대한 결과 수집
+            #for block_key in self.block_keys:
+            #    block = self.block_dict[block_key]
+            #    block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
+
                 # 선택된 정반과 회전 찾기
                 selected_group = None
                 selected_surface = None
@@ -279,27 +281,30 @@ def postprocess_solution(self):
                     #    self.df_result.to_excel(writer, index=False, sheet_name='배치결과')
                     #    self.df_crane_result.to_excel(writer, index=False, sheet_name='크레인 정보')
                     # self.df_result.to_excel(output_path, index=False)
+
+
             else:
-                # results.append({
-                #     '선종': block.ship_type,
-                #     '호선': block.project_number,
-                #     '블록': block.block_number,
-                #     '착수일': block.allocation_start_date,
-                #     '완료일': block.allocation_end_date,
-                #     '공기': block.processing_time,
-                #     'TO일정': block.TO_date,
-                #     'PE일정': block.PE_date,
-                #     '블록길이': block.length,
-                #     '블록폭': block.breadth,
-                #     '블록높이': block.height,
-                #     '블록중량': block.weight,
-                #     '옥내외': block.indoor_outdoor_condition,
-                #     '러그방향': block.lug_direction,
-                #     '배치확정여부': None,
-                #     '그룹ID': None,
-                #     '블록위치X': None,
-                #     '블록위치Y': None
-                # })
+                results.append({
+                    '선종': block.ship_type,
+                    '호선': block.project_number,
+                    '블록': block.block_number,
+                    '착수일': block.allocation_start_date,
+                    '완료일': block.allocation_end_date,
+                    '공기': block.processing_time,
+                    'TO일정': block.TO_date,
+                    'PE일정': block.PE_date,
+                    '블록길이': block.length,
+                    '블록폭': block.breadth,
+                    '블록높이': block.height,
+                    '블록중량': block.weight,
+                    '옥내외': block.indoor_outdoor_condition,
+                    '러그방향': block.lug_direction,
+                    '배치확정여부': None,
+                    '그룹ID': None,
+                    '블록위치X': None,
+                    '블록위치Y': None
+                })
+
                 crane_results.append({
                     '선종': block.ship_type,
                     '호선': block.project_number,
@@ -348,25 +353,38 @@ def postprocess_solution(self):
 
             for index, day in self.postprocess_calendar_dict.items():
                 crane_worktime = 0
-                # 날짜별 시작 시간 초기화 (8시 시작 가정)
                 if day not in day_time_tracker:
                     day_time_tracker[day] = {'hour': 9, 'minute': 0}
 
-                for result in crane_results:
-                    if result['착수일'] == day:
-                        # 현재 시간 가져오기
+                # 하루치 작업 중 해당하는 작업들만 선별
+                day_results = [r for r in crane_results if
+                               r.get('TO일정') == day or r.get('PE일정') == day or r.get('착수일') == day]
+
+                # TO → PE → IN 순서대로 작업 정렬
+                for work_type in ['TO', 'PE', 'IN']:
+                    for result in day_results:
+                        # 각 작업에 해당하는 날짜 및 시간 소요 정보 설정
+                        if work_type == 'TO' and result.get('TO일정') == day:
+                            work_time = result.get('TO_크레인_소요시간') or 0
+                            crane_id = result.get('TO_크레인ID')
+                        elif work_type == 'PE' and result.get('PE일정') == day:
+                            work_time = result.get('PE_크레인_소요시간') or 0
+                            crane_id = result.get('PE_크레인ID')
+                        elif work_type == 'IN' and result.get('착수일') == day:
+                            work_time = result.get('IN_크레인_소요시간') or 0
+                            crane_id = result.get('IN_크레인ID')
+                        else:
+                            continue
+
                         current_hour = day_time_tracker[day]['hour']
                         current_minute = day_time_tracker[day]['minute']
+                        work_time_minutes = int(work_time * 60)
 
-                        # 작업 시간 (분 단위로 변환)
-                        work_time_minutes = int((result['IN_크레인_소요시간'] or 0) * 60)
-
-                        # 작업 종료 시간 계산
                         end_minute = current_minute + work_time_minutes
                         end_hour = current_hour + end_minute // 60
                         end_minute = end_minute % 60
 
-                        datetime_str = f"{str(day).split(' ')[0]} {current_hour:02d}:{current_minute:02d}:00"
+                        datetime_str = f"{day} {current_hour:02d}:{current_minute:02d}:00"
 
                         operated_block_dict = {
                             'date': datetime_str,
@@ -374,78 +392,115 @@ def postprocess_solution(self):
                             '호선': result['호선'],
                             '블록': result['블록'],
                             '그룹ID': result['그룹ID'],
-                            'work': 'IN',
-                            '크레인ID': result['IN_크레인ID'],
-                            '크레인_소요시간': result['IN_크레인_소요시간']
+                            'work': work_type,
+                            '크레인ID': crane_id,
+                            '크레인_소요시간': work_time,
                         }
                         results_crane.append(operated_block_dict)
 
-                        crane_worktime += int(result['IN_크레인_소요시간'] or 0)
-
+                        crane_worktime += int(work_time)
                         day_time_tracker[day] = {'hour': end_hour, 'minute': end_minute}
 
-                    elif result['TO일정'] == day:
-                        current_hour = day_time_tracker[day]['hour']
-                        current_minute = day_time_tracker[day]['minute']
-
-                        work_time_minutes = int((result['TO_크레인_소요시간'] or 0) * 60)
-
-                        end_minute = current_minute + work_time_minutes
-                        end_hour = current_hour + end_minute // 60
-                        end_minute = end_minute % 60
-
-                        datetime_str = f"{str(day).split(' ')[0]} {current_hour:02d}:{current_minute:02d}:00"
-
-                        operated_block_dict = {
-                            'date': datetime_str,
-                            '선종': result['선종'],
-                            '호선': result['호선'],
-                            '블록': result['블록'],
-                            '그룹ID': result['그룹ID'],
-                            'work': 'TO',
-                            '크레인ID': result['TO_크레인ID'],
-                            '크레인_소요시간': result['TO_크레인_소요시간']
-                        }
-                        results_crane.append(operated_block_dict)
-
-                        crane_worktime += int(result['TO_크레인_소요시간'] or 0)
-
-                        day_time_tracker[day] = {'hour': end_hour, 'minute': end_minute}
-
-                    elif result['PE일정'] == day:
-                        current_hour = day_time_tracker[day]['hour']
-                        current_minute = day_time_tracker[day]['minute']
-
-                        work_time_minutes = int((result['PE_크레인_소요시간'] or 0) * 60)
-
-                        end_minute = current_minute + work_time_minutes
-                        end_hour = current_hour + end_minute // 60
-                        end_minute = end_minute % 60
-
-                        datetime_str = f"{str(day).split(' ')[0]} {current_hour:02d}:{current_minute:02d}:00"
-
-                        operated_block_dict = {
-                            'date': datetime_str,
-                            '선종': result['선종'],
-                            '호선': result['호선'],
-                            '블록': result['블록'],
-                            '그룹ID': result['그룹ID'],
-                            'work': 'PE',
-                            '크레인ID': result['PE_크레인ID'],
-                            '크레인_소요시간': result['PE_크레인_소요시간']
-                        }
-                        results_crane.append(operated_block_dict)
-
-                        crane_worktime += int(result['PE_크레인_소요시간'] or 0)
-
-                        day_time_tracker[day] = {'hour': end_hour, 'minute': end_minute}
-
-                crane_worktime_dict = {
-                    'date': day,
-                    '일별_크레인_소요시간': crane_worktime,
-                }
-
-                results_crane_worktime.append(crane_worktime_dict)
+            # for index, day in self.postprocess_calendar_dict.items():
+            #     crane_worktime = 0
+            #     # 날짜별 시작 시간 초기화 (8시 시작 가정)
+            #     if day not in day_time_tracker:
+            #         day_time_tracker[day] = {'hour': 9, 'minute': 0}
+            #
+            #     for result in crane_results:
+            #         if result['착수일'] == day:
+            #             # 현재 시간 가져오기
+            #             current_hour = day_time_tracker[day]['hour']
+            #             current_minute = day_time_tracker[day]['minute']
+            #
+            #             # 작업 시간 (분 단위로 변환)
+            #             work_time_minutes = int((result['IN_크레인_소요시간'] or 0) * 60)
+            #
+            #             # 작업 종료 시간 계산
+            #             end_minute = current_minute + work_time_minutes
+            #             end_hour = current_hour + end_minute // 60
+            #             end_minute = end_minute % 60
+            #
+            #             datetime_str = f"{day} {current_hour:02d}:{current_minute:02d}:00"
+            #
+            #             operated_block_dict = {
+            #                 'date': datetime_str,
+            #                 '선종': result['선종'],
+            #                 '호선': result['호선'],
+            #                 '블록': result['블록'],
+            #                 '그룹ID': result['그룹ID'],
+            #                 'work': 'IN',
+            #                 '크레인ID': result['IN_크레인ID'],
+            #                 '크레인_소요시간': result['IN_크레인_소요시간']
+            #             }
+            #             results_crane.append(operated_block_dict)
+            #
+            #             crane_worktime += int(result['IN_크레인_소요시간'] or 0)
+            #
+            #             day_time_tracker[day] = {'hour': end_hour, 'minute': end_minute}
+            #
+            #         elif result['TO일정'] == day:
+            #             current_hour = day_time_tracker[day]['hour']
+            #             current_minute = day_time_tracker[day]['minute']
+            #
+            #             work_time_minutes = int((result['TO_크레인_소요시간'] or 0) * 60)
+            #
+            #             end_minute = current_minute + work_time_minutes
+            #             end_hour = current_hour + end_minute // 60
+            #             end_minute = end_minute % 60
+            #
+            #             datetime_str = f"{day} {current_hour:02d}:{current_minute:02d}:00"
+            #
+            #             operated_block_dict = {
+            #                 'date': datetime_str,
+            #                 '선종': result['선종'],
+            #                 '호선': result['호선'],
+            #                 '블록': result['블록'],
+            #                 '그룹ID': result['그룹ID'],
+            #                 'work': 'TO',
+            #                 '크레인ID': result['TO_크레인ID'],
+            #                 '크레인_소요시간': result['TO_크레인_소요시간']
+            #             }
+            #             results_crane.append(operated_block_dict)
+            #
+            #             crane_worktime += int(result['TO_크레인_소요시간'] or 0)
+            #
+            #             day_time_tracker[day] = {'hour': end_hour, 'minute': end_minute}
+            #
+            #         elif result['PE일정'] == day:
+            #             current_hour = day_time_tracker[day]['hour']
+            #             current_minute = day_time_tracker[day]['minute']
+            #
+            #             work_time_minutes = int((result['PE_크레인_소요시간'] or 0) * 60)
+            #
+            #             end_minute = current_minute + work_time_minutes
+            #             end_hour = current_hour + end_minute // 60
+            #             end_minute = end_minute % 60
+            #
+            #             datetime_str = f"{day} {current_hour:02d}:{current_minute:02d}:00"
+            #
+            #             operated_block_dict = {
+            #                 'date': datetime_str,
+            #                 '선종': result['선종'],
+            #                 '호선': result['호선'],
+            #                 '블록': result['블록'],
+            #                 '그룹ID': result['그룹ID'],
+            #                 'work': 'PE',
+            #                 '크레인ID': result['PE_크레인ID'],
+            #                 '크레인_소요시간': result['PE_크레인_소요시간']
+            #             }
+            #             results_crane.append(operated_block_dict)
+            #
+            #             crane_worktime += int(result['PE_크레인_소요시간'] or 0)
+            #
+            #             day_time_tracker[day] = {'hour': end_hour, 'minute': end_minute}
+            #
+            #     crane_worktime_dict = {
+            #         'date': day,
+            #         '일별_크레인_소요시간': crane_worktime,
+            #     }
+            #
+            #     results_crane_worktime.append(crane_worktime_dict)
 
             self.df_result = pd.DataFrame(results_crane)
             self.df_result.dropna(subset=['크레인ID'], inplace=True)  # 그룹 4  에서 in은 크레인 없어서 출력 제외
@@ -454,6 +509,7 @@ def postprocess_solution(self):
 
             # 크레인별로 작업 시간순 정렬
             self.df_result['date'] = pd.to_datetime(self.df_result['date'])
+
             self.df_result = self.df_result.sort_values(['date', 'work'])
 
             with pd.ExcelWriter(output_path, engine='openpyxl', mode='w') as writer:

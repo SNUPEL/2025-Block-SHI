@@ -8,14 +8,14 @@ def create_config():
 
     config['data_file_path'] = '../data/data_rev0.2.xlsx'
 
-    config['data_start_date'] = '2019-06-01'  # 시작일자 (착수일 기준)
+    config['data_start_date'] = '2019-04-01'  # 시작일자 (착수일 기준)
     config['only_workingday'] = False  # True: workingday 기준 duration의 기간을 셈, False: data_end_date 사용
     config['data_duration'] = 40  # workingday
-    config['data_end_date'] = '2019-06-30'
+    config['data_end_date'] = '2019-04-30'
     config['time_limit'] = 20  # 탐색 시간
 
     # 배치 확정된 블록 사용
-    config['use_block_allocation_result'] = True  # True 시 하단의 결과를 가져옴
+    config['use_block_allocation_result'] = False  # True 시 하단의 결과를 가져옴
     # config['result_data_file_path'] = '../data/block_allocation_result_ref.xlsx'
     config['result_data_file_path'] = '../results/20250605_18h_48m_50s/block_allocation_result.xlsx'
 

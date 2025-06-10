@@ -2,6 +2,12 @@ def add_constraint_crane_usage(self):
 
     crane_usage = self.cpmodel.step_at(0, 0)
 
+    for crane_keys, crane in self.crane_dict.items():
+        for value in crane.unavailable_time_list:
+            name, day, time = value[0], value[1], value[2]
+            time = int(time * 2)
+            crane_usage += self.cpmodel.pulse((day, day + 1), time)
+
     for (block_id, surface_group_key, surface_id, work,
          rotate), schedule_var in self.block_schedule_var_by_id_group_surf_work_rotate_dict.items():
 

@@ -51,7 +51,7 @@ class Crane:
     def __init__(self, Crane_id, condition):
         self.Crane_id = Crane_id
         self.condition = condition
-        self.unavailable_time_dict = dict()  # key: 작업이름, value: (일자, 시간(시간 단위))
+        self.unavailable_time_list = list()  # (작업이름, 일자, 시간(시간 단위))
 
 
 class Block:
