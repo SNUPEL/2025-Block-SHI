@@ -125,9 +125,9 @@ def postprocess_solution(self):
                     #             return self.postprocess_calendar_dict[valid_indices[-1]]
 
                     IN_date = self.postprocess_calendar_dict[in_sol.get_start()]
-                    OUT_date = self.postprocess_calendar_dict[time_sol.get_end()]
-                    TO_date = self.postprocess_calendar_dict[to_sol.get_end()]
-                    PE_date = self.postprocess_calendar_dict[pe_sol.get_end()]
+                    OUT_date = self.postprocess_calendar_dict[time_sol.get_start()]
+                    TO_date = self.postprocess_calendar_dict[to_sol.get_start()]
+                    PE_date = self.postprocess_calendar_dict[pe_sol.get_start()]
                     # IN_date = in_sol.get_start()
                     # OUT_date = time_sol.get_end()
                     # TO_date = to_sol.get_end()

@@ -6,7 +6,7 @@ import time
 def create_config():
     config = dict()
 
-    config['data_file_path'] = '../data/data_rev0.2.xlsx'
+    config['data_file_path'] = '../data/data_rev0.3.xlsx'
 
     config['data_start_date'] = '2019-04-01'  # 시작일자 (착수일 기준)
     config['only_workingday'] = False  # True: workingday 기준 duration의 기간을 셈, False: data_end_date 사용

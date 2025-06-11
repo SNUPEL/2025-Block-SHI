@@ -256,6 +256,7 @@ def preprocess_data(self):
             self.crane_dict[row['크레인ID']].unavailable_time_list.append(
                 ([row['예약작업이름']], self.calendar_dict[pd.to_datetime(row['예약작업날짜'])], float(row['예약작업시간']))
             )
+            print(self.crane_dict[row['크레인ID']].unavailable_time_list)
         # 향후 크레인 별 예약 작업 list 추가하는 코드 구현
         # 더미 변수 생성해 step function에 pulse 추가
         print('Crane class has been defined')

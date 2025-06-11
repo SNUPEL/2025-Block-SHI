@@ -5,6 +5,10 @@ import config
 
 def define_variable(self):
 
+    self.crane_usage_step = self.cpmodel.step_at(0, 0)
+    # self.cpmodel.add(self.crane_usage_step <= 2 * self.config['crane_usage_time'])
+
+
     # 블록 변수 딕셔너리 초기화
     self.block_keys = []
     for block_key, block in self.block_dict.items():
