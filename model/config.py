@@ -6,7 +6,7 @@ import time
 def create_config():
     config = dict()
 
-    config['data_file_path'] = '../data/data_rev0.3.xlsx'
+    config['data_file_path'] = '../data/data_rev0.2.xlsx'
 
     config['data_start_date'] = '2019-04-01'  # 시작일자 (착수일 기준)
     config['only_workingday'] = False  # True: workingday 기준 duration의 기간을 셈, False: data_end_date 사용
@@ -29,14 +29,17 @@ def create_config():
 
     # 미배치 최소화 목적함수
     config['obj_unassigned_block'] = True  # True: 실행, False: 미실행
-    config['weight_unassigned_block'] = 1000  # 가중치
+    config['weight_unassigned_block'] = 1  # 가중치
 
-    # L/R 블록 배치 최대화 목적함수
+    # L/R 블록 배치 제약 조건
+    config['pair_block'] = False  # True: 실행, False: 미실행
+
+    # L/R 블록 배치 최대화 목적함수 (L/R 블록 배치 제약 허용 시 목적 함수 미실행 되도록 해야함)
     config['obj_allocation'] = True  # True: 실행, False: 미실행
     config['weight_allocation'] = 1  # 가중치
     config['score_position'] = 1  # 동일 정반 배치 시 위치 가중치
-    config['score_same_workarea'] = 100  # 동일 정반 배치 가중치
-    config['score_both_allocation'] = 1000  # 타 정반 배치 가중치
+    config['score_same_workarea'] = 1  # 동일 정반 배치 가중치
+    config['score_both_allocation'] = 1  # 타 정반 배치 가중치
 
     # 크레인 제약 활용 및 시간 설정
     config['crane_usage'] = True  # True: 실행, False: 미실행

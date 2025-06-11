@@ -92,7 +92,6 @@ def add_objective_allocation(self):
 
         ### 목적함수 계산 ###
         # 1단계: 같은 정반에 배치될 때 위치 차이 최소화
-        # 1단계: 같은 정반에 배치될 때 위치 차이 최소화
         for workarea_1 in placements1:
             for workarea_2 in placements2:
                 # 같은 정반, 같은 회전인 경우
@@ -122,7 +121,7 @@ def add_objective_allocation(self):
                         distance = x_diff + y_diff
 
                         # 거리를 최소화하기 위해 음수로 변환 (거리가 작을수록 좋음)
-                        distance_penalty = -distance
+                        distance_penalty = distance
 
                         # 같은 정반 배치 점수 + 위치 근접성 점수
                         total_score = score_position * distance_penalty
@@ -171,7 +170,11 @@ def add_objective_allocation(self):
 
                 # Pointing 계산(둘 다 배치: (1,1), 둘 중 하나만 배치: (1,0), 둘다 배치 X: (0,0))
                 both_in_group = self.cpmodel.min(block1_in_group, block2_in_group)
-                objective_exprs.append(score_same_workarea * -1 * both_in_group)
+                # objective_exprs.append(score_same_workarea * -1 * both_in_group)
+
+                # penalty 계산(둘 다 배치: 0, 둘 중 하나만 배치: 0, 둘 다 미배치: 0
+                penalty_2 = score_same_workarea * (1 - both_in_group)
+                objective_exprs.append(penalty_2)
 
         # 3단계: 서로 다른 그룹이라도 둘 다 배치
         if len(placements1) > 0 and len(placements2) > 0:
@@ -189,7 +192,9 @@ def add_objective_allocation(self):
 
             # Pointing 계산(둘 다 배치: (1,1), 둘 중 하나만 배치: (1,0), 둘다 배치 X: (0,0))
             both_placed = self.cpmodel.min(block1_placed, block2_placed)
-            objective_exprs.append(score_both_allocation * -1 * (both_placed))
+
+            penalty_3 = score_both_allocation * (1 - both_placed)
+            objective_exprs.append(penalty_3)
 
     # 전체 목적함수 합산
     if objective_exprs:

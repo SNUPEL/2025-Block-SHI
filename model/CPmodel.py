@@ -49,6 +49,7 @@ class CPmodel:
         self.obj_weight_unassigned_block = self.config['weight_unassigned_block']
         self.obj_weight_allocation = self.config['weight_allocation']
         self.crane_usage = self.config['crane_usage']
+        self.pair_block = self. config['pair_block']
 
         self.obj_sum_preference = 0
         self.obj_sum_delay = 0
@@ -112,8 +113,9 @@ class CPmodel:
         # 크레인 단독 운용
         if self.crane_usage:
             add_constraint_crane_usage(self)
-        # # 특정 블록(L/R) 동시 작업 제약
-        # add_constraint_simultaneous_block(self)
+        # 특정 블록(L/R) 동시 작업 제약
+        if self.pair_block:
+            add_constraint_simultaneous_block(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
 
