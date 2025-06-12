@@ -170,7 +170,6 @@ def add_objective_allocation(self):
 
                 # Pointing 계산(둘 다 배치: (1,1), 둘 중 하나만 배치: (1,0), 둘다 배치 X: (0,0))
                 both_in_group = self.cpmodel.min(block1_in_group, block2_in_group)
-                # objective_exprs.append(score_same_workarea * -1 * both_in_group)
 
                 # penalty 계산(둘 다 배치: 0, 둘 중 하나만 배치: 0, 둘 다 미배치: 0
                 penalty_2 = score_same_workarea * (1 - both_in_group)
