@@ -82,6 +82,23 @@ def define_variable(self):
                     if block_length > work_area.L or block_breadth > work_area.B:
                         continue
 
+                    # 특정 블록(TEU, 20, L/R) 정반 그룹 4에 배치
+                    block_num_str = str(block.block_number)
+                    if ("TEU" in str(block.ship_type) and
+                            "20" in block_num_str and
+                            (block_num_str.endswith("L") or block_num_str.endswith("R"))):
+                        if surface_group_key[0] != 4:
+                            continue
+
+                    # TP를 사용하는 경우 짧은쪽이 55가 되도록 수정
+                    if work_area.TP_condition == 'Y':
+                        if block_length >= block_breadth and block_breadth - self.config[
+                            'block_spacing_y'] * 10 <= 55:
+                            block_breadth = 55 + self.config['block_spacing_y'] * 10
+                    else:
+                        # 중량이 45가 넘으면 TP를 사용하는 경우만 배치 가능
+                        if block.weight > 45:
+                            continue
                     # 확인 필요
                     if rotate == 0:
                         if block.length > work_area.L_limit_of_block or block.breadth > work_area.B_limit_of_block or \

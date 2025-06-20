@@ -15,7 +15,7 @@ def create_config():
     config['time_limit'] = 60  # 탐색 시간
 
     # 배치 확정된 블록 사용
-    config['use_block_allocation_result'] = True  # True 시 하단의 결과를 가져옴
+    config['use_block_allocation_result'] = False  # True 시 하단의 결과를 가져옴
     config['result_data_file_path'] = '../results/20250611_14h_35m_8s/block_allocation_result.xlsx'
 
     # 정반그룹 선호도 최소화 목적함수
