@@ -71,13 +71,6 @@ def define_variable(self):
                         block_length = block.adjusted_breadth
                         block_breadth = block.adjusted_length
 
-                    # 정반그룹 4의 경우 (TP 활용)
-                    if surface_group_key[0] == 4:
-                        if block_length <= block_breadth and block_length <= 110:
-                            block_length = 110
-                        else:
-                            continue
-
                     # 정반에 들어갈 수 없는 블록은 변수 생성 제외
                     if block_length > work_area.L or block_breadth > work_area.B:
                         continue
@@ -90,7 +83,7 @@ def define_variable(self):
                         if surface_group_key[0] != 4:
                             continue
 
-                    # TP를 사용하는 경우 짧은쪽이 55가 되도록 수정
+                    # TP를 사용하는 경우 짧은쪽이 55가 되도록 수정(추후 수정 진행)
                     if work_area.TP_condition == 'Y':
                         if block_length >= block_breadth and block_breadth - self.config[
                             'block_spacing_y'] * 10 <= 55:
@@ -99,7 +92,8 @@ def define_variable(self):
                         # 중량이 45가 넘으면 TP를 사용하는 경우만 배치 가능
                         if block.weight > 45:
                             continue
-                    # 확인 필요
+
+                    # 정반 사이즈 제약에 따른 변수 선언
                     if rotate == 0:
                         if block.length > work_area.L_limit_of_block or block.breadth > work_area.B_limit_of_block or \
                                 block.height > work_area.H_limit_of_block or block.weight > work_area.W_limit_of_block:
@@ -109,6 +103,7 @@ def define_variable(self):
                                 block.height > work_area.H_limit_of_block or block.weight > work_area.W_limit_of_block:
                             continue
 
+                    # 러그 방향 제약에 따른 변수 선언
                     if work_area.lug_condition != 'N':
                         if rotate == 0 and work_area.lug_condition == block.lug_direction:
                             pass
