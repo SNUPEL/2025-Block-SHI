@@ -156,9 +156,19 @@ def generate_polygon(groupidx, workareaidx, x, y, dx, dy, rotate = False):
     block_polygon = generate_polygon_from_anchor(x, y, dx, dy)
     return block_polygon
 
-def plot_integrated_block_polygon(fig, ax, _polygon):
+def plot_integrated_block_polygon(fig, ax, _polygon, name = None):
     ax.fill(*_polygon.exterior.xy, color='grey')
     ax.plot(*_polygon.exterior.xy, color='black')
+    if name is not None:
+        # polygon의 중심
+        cx, cy = _polygon.centroid.xy  # shapely.geometry.Polygon.centroid → Point
+        cx, cy = cx[0], cy[0]  # (shapely는 배열(tuple) 반환)
+
+        # 텍스트 표시
+        ax.text(cx, cy, name,
+                ha='center', va='center',  # 중앙 정렬
+                fontsize=4,  # 필요하면 추가 옵션
+                fontweight='light')
 
 def plot_block_polygon(fig, axes, _groupidx, _polygon, with_margin=True, color=None):
     if color is not None:

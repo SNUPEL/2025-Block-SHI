@@ -52,30 +52,37 @@ class ScheduleChecker:
             for idx, row in presence.iterrows():
                 groupidx = int(row['그룹ID'][1:-1].split(', ')[0])
                 workareaidx = '('+row['그룹ID'][1:-1].split(', (')[1]
+                name = row['호선']+"\n"+row['블록']
+                # name = row['선종']+"\n"+row['호선']+"\n"+row['블록']
                 poly = generate_integrated_polygon(groupidx=groupidx,
                                                    workareaidx=workareaidx,
                                       x=row['블록위치X']*10, y=row['블록위치Y'] * 10,
                                       dx=row['변환 블록길이'] * 10, dy=row['변환 블록폭'] * 10)
-                self.blocks_by_time_dict[t].append(poly)
+                self.blocks_by_time_dict[t].append((name, poly))
 
 
     def _create_image(self, t):
-        fig, ax = plt.subplots()
+        # -- 원하는 해상도와 DPI 지정 --
+        W, H = 1920, 1280  # 픽셀
+        DPI = 300  # 그대로 저장할 DPI
+
+        fig, ax = plt.subplots(figsize=(W / DPI, H / DPI), dpi=DPI)  # ← 핵심
 
         plot_integrated_workarea_group(fig, ax)
         ax.set_aspect('equal')
-        for idx, block_polygon in enumerate(self.blocks_by_time_dict[t]):
-            plot_integrated_block_polygon(fig, ax, block_polygon)
+        for idx, (name, block_polygon) in enumerate(self.blocks_by_time_dict[t]):
+            plot_integrated_block_polygon(fig, ax, block_polygon, name=name)
 
         fig.suptitle(t)
         # 4. fig를 메모리 상의 이미지로 저장
         buf = io.BytesIO()
-        plt.savefig(buf, format='png')
+        fig.savefig(buf, format='png', dpi=DPI)  # dpi는 위와 동일하게 유지
         buf.seek(0)
         image = imageio.v2.imread(buf)
         self.image_list.append(image)
         plt.close(fig)  # 메모리 누수 방지
-
+        # plt.savefig(str(t)+".png",format='png')
+        # plt.close(fig)
     def create_GIF(self):
         for t in self.blocks_by_time_dict.keys():
             self._create_image(t=t)
@@ -96,7 +103,7 @@ class ScheduleChecker:
         # imageio.v3.imwrite(self.prefix + ".gif", self.image_list, duration=durations, loop=0)
 
         h, w, _ = self.image_list[0].shape
-        fps = 1  # 1 fps
+        fps = 10  # 1 fps
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # 플랫폼 호환성 ↑
         out = cv2.VideoWriter(self.prefix + ".mp4", fourcc, fps, (w, h))
 
