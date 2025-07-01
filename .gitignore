@@ -125,3 +125,5 @@ dmypy.json
 .idea/
 *.xlsx
 *.png
+*.mp4
+*.gif

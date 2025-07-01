@@ -75,6 +75,67 @@ def plot_workarea_group(fig, axes):
     axes[3].set_xlim([-50, 800])
     axes[3].set_ylim([-50, 300])
 
+def plot_integrated_workarea_group(fig, ax):
+    workarea_polygon = []
+    # 1번 정반그룹
+    workarea_polygon.append(generate_polygon_from_anchor(0, 350, 400, 75))
+
+    # 2번 정반그룹
+    workarea_polygon.append(generate_polygon_from_anchor(500, 350, 400, 100))
+
+    # 3번 정반그룹
+    workarea_polygon.append(generate_polygon_from_anchor(0, 0, 156, 250))
+
+    # 4번 정반그룹
+    neworigin_x = 250
+    workarea_polygon.append(generate_polygon_from_anchor(-10+neworigin_x, 0, 120, 100))
+    workarea_polygon.append(generate_polygon_from_anchor(110+neworigin_x, 0, 110, 245))
+    workarea_polygon.append(generate_polygon_from_anchor(325+neworigin_x, 0, 110, 260))
+    workarea_polygon.append(generate_polygon_from_anchor(435+neworigin_x, 0, 110, 260))
+    workarea_polygon.append(generate_polygon_from_anchor(660+neworigin_x, 0, 110, 255))
+    workarea_polygon.append(generate_polygon_from_anchor(740+neworigin_x, 0, 30, 70))
+
+    for workarea in workarea_polygon[:-1]:
+        ax.plot(*workarea.exterior.xy, color='grey')
+    ax.fill(*workarea_polygon[-1].exterior.xy, color='black')
+
+    margin_polygon = []
+    margin_polygon.append(generate_polygon_from_anchor(500, 435, 400, 15))
+    margin_polygon.append(generate_polygon_from_anchor(240, 0, 10, 100))
+    margin_polygon.append(generate_polygon_from_anchor(460, 0, 10, 245))
+    margin_polygon.append(generate_polygon_from_anchor(575, 0, 10, 260))
+    margin_polygon.append(generate_polygon_from_anchor(785, 0, 10, 260))
+    margin_polygon.append(generate_polygon_from_anchor(980, 0, 10, 70))
+    margin_polygon.append(generate_polygon_from_anchor(1010, 70, 10, 185))
+
+    for margin in margin_polygon:
+        ax.fill(*margin.exterior.xy, color='grey', alpha=0.5)
+
+def generate_integrated_polygon(groupidx, workareaidx, x, y, dx, dy):
+    if groupidx == 1:
+        y+=350
+    elif groupidx == 2:
+        x +=500
+        y +=350
+    elif groupidx == 3:
+        pass
+    elif groupidx == 4:
+        x+=250
+        if workareaidx == '(1,)':
+            x += -10
+        elif workareaidx == '(2, 3, 4)':
+            x += 110
+        elif workareaidx == '(5, 6, 7)':
+            x += 325
+        elif workareaidx == '(8, 9, 10)':
+            x += 435
+        elif workareaidx == '(11, 12, 13)':
+            x += 660
+
+
+    block_polygon = generate_polygon_from_anchor(x, y, dx, dy)
+    return block_polygon
+
 def generate_polygon(groupidx, workareaidx, x, y, dx, dy, rotate = False):
     groupidx = int(groupidx)
     if groupidx == 4:
@@ -95,6 +156,10 @@ def generate_polygon(groupidx, workareaidx, x, y, dx, dy, rotate = False):
     block_polygon = generate_polygon_from_anchor(x, y, dx, dy)
     return block_polygon
 
+def plot_integrated_block_polygon(fig, ax, _polygon):
+    ax.fill(*_polygon.exterior.xy, color='grey')
+    ax.plot(*_polygon.exterior.xy, color='black')
+
 def plot_block_polygon(fig, axes, _groupidx, _polygon, with_margin=True, color=None):
     if color is not None:
         axes[_groupidx - 1].fill(*_polygon.exterior.xy, color=color)
@@ -114,12 +179,18 @@ if __name__ == "__main__":
 
 
 
-    fig, axes = plt.subplots(nrows=2, ncols=2)
-    axes = axes.flatten()
-    plot_workarea_group(fig, axes)
-    plot_block_and_margin(fig, axes, groupidx=2, workareaidx=None, x=61, y=43, dx=38, dy=56, rotate=True, show_margin=True)
-    plot_block_and_margin(fig, axes, groupidx=2, workareaidx=None, x=0.0, y=0.0, dx=38, dy=56, rotate=True, show_margin=True)
+    # fig, axes = plt.subplots(nrows=2, ncols=2)
+    # axes = axes.flatten()
+    # plot_workarea_group(fig, axes)
+    # plot_block_and_margin(fig, axes, groupidx=2, workareaidx=None, x=61, y=43, dx=38, dy=56, rotate=True, show_margin=True)
+    # plot_block_and_margin(fig, axes, groupidx=2, workareaidx=None, x=0.0, y=0.0, dx=38, dy=56, rotate=True, show_margin=True)
+    #
+    # for ax in axes:
+    #     ax.set_aspect('equal')
+    # plt.show()
+    fig, ax = plt.subplots()
+    plot_integrated_workarea_group(fig, ax)
+    ax.set_aspect('equal')
 
-    for ax in axes:
-        ax.set_aspect('equal')
     plt.show()
+
