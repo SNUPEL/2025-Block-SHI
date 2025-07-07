@@ -404,8 +404,15 @@ def save_result(self, sol, solution_index):
                 }
                 results_crane.append(operated_block_dict)
 
-                crane_worktime += int(work_time)
+                crane_worktime += work_time
                 day_time_tracker[day] = {'hour': end_hour, 'minute': end_minute}
+
+        crane_worktime_dict = {
+            'date': day,
+            '일별_크레인_소요시간': crane_worktime,
+        }
+
+        results_crane_worktime.append(crane_worktime_dict)
 
         # for index, day in self.postprocess_calendar_dict.items():
         #     crane_worktime = 0
@@ -501,12 +508,7 @@ def save_result(self, sol, solution_index):
         #
         #             day_time_tracker[day] = {'hour': end_hour, 'minute': end_minute}
 
-            # crane_worktime_dict = {
-            #     'date': day,
-            #     '일별_크레인_소요시간': crane_worktime,
-            # }
-            #
-            # results_crane_worktime.append(crane_worktime_dict)
+
 
     self.df_result = pd.DataFrame(results_crane)
     self.df_result.dropna(subset=['크레인ID'], inplace=True)  # 그룹 4에서 in은 크레인 없어서 출력 제외
