@@ -31,3 +31,4 @@ def add_constraint_crane_usage(self):
         self.crane_usage_step += self.cpmodel.pulse(schedule_var, crane_time)
 
     self.cpmodel.add(self.crane_usage_step <= 2 * self.config['crane_usage_time'])
+
