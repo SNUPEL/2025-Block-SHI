@@ -11,6 +11,9 @@ def add_objective_allocation(self):
     score_both_allocation = self.config['score_both_allocation']  # 3단계: 둘 다 배치
 
     objective_exprs = []
+    objective_exprs1 = []
+    objective_exprs2 = []
+    objective_exprs3 = []
 
     # L/R 블록 쌍 찾기
     lr_block_pairs = []
@@ -31,10 +34,10 @@ def add_objective_allocation(self):
             if (ship_type1 == ship_type2 and project_number1 == project_number2 and
                     base_number1 == base_number2 and block_number1 != block_number2):
                 lr_block_pairs.append({
-                    'block_id1': block_id1, #'A110L'
-                    'block_id2': block_id2, #'A110R'
-                    'block1': block1, # A110L: 블록 정보
-                    'block2': block2 # A110R: 블록 정보
+                    'block_id1': block_id1,  # 'A110L'
+                    'block_id2': block_id2,  # 'A110R'
+                    'block1': block1,  # A110L: 블록 정보
+                    'block2': block2  # A110R: 블록 정보
                 })
 
     # 각 L/R 쌍에 대해 목적함수 계산
@@ -126,10 +129,12 @@ def add_objective_allocation(self):
                         # 같은 정반 배치 점수 + 위치 근접성 점수
                         total_score = score_position * distance_penalty
                         objective_exprs.append(total_score * both_placed)
+                        objective_exprs1.append(total_score * both_placed)
 
                     else:
                         # 위치 변수가 없는 경우 기본 점수만 부여
                         objective_exprs.append(score_position * 0)
+                        objective_exprs1.append(score_position * 0)
                         pass
 
         # 2단계: 같은 정반 그룹에 배치
@@ -174,6 +179,7 @@ def add_objective_allocation(self):
                 # penalty 계산(둘 다 배치: 0, 둘 중 하나만 배치: 0, 둘 다 미배치: 0
                 penalty_2 = score_same_workarea * (1 - both_in_group)
                 objective_exprs.append(penalty_2)
+                objective_exprs2.append(penalty_2)
 
         # 3단계: 서로 다른 그룹이라도 둘 다 배치
         if len(placements1) > 0 and len(placements2) > 0:
@@ -194,9 +200,13 @@ def add_objective_allocation(self):
 
             penalty_3 = score_both_allocation * (1 - both_placed)
             objective_exprs.append(penalty_3)
+            objective_exprs3.append(penalty_3)
 
     # 전체 목적함수 합산
     if objective_exprs:
         self.obj_sum_allocation = self.cpmodel.sum(objective_exprs)
+        self.obj_sum_allocation1 = self.cpmodel.sum(objective_exprs1)
+        self.obj_sum_allocation2 = self.cpmodel.sum(objective_exprs2)
+        self.obj_sum_allocation3 = self.cpmodel.sum(objective_exprs3)
     else:
         self.obj_sum_allocation = 0

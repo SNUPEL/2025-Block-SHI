@@ -12,7 +12,8 @@ def create_config():
     config['only_workingday'] = False  # True: workingday 기준 duration의 기간을 셈, False: data_end_date 사용
     config['data_duration'] = 40  # workingday
     config['data_end_date'] = '2019-05-30'
-    config['time_limit'] = 1800  # 탐색 시간
+    config['time_limit'] = 600  # 탐색 시간
+    config['search_method'] = 'multiple_solutions'  # single_solution, multiple_solutions
 
     # 배치 확정된 블록 사용
     config['use_block_allocation_result'] = False  # True 시 하단의 결과를 가져옴
