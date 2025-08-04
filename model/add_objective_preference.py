@@ -12,16 +12,15 @@ def add_objective_preference(self):
         block = self.block_dict[block_key]
         block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
 
-        # 블록 번호에서 숫자 부분 추출(A110L: 110)
-        match = re.search(r'\d+', block.block_number)
-        block_num = int(match.group()) if match else 0
+        # 블록 정보에서 블록 착수일 빼옴
+        block_stdt = block.allocation_index
+        block_fndt = block.TO_index
 
-        # 이 블록이 배치될 수 있는 모든 정반과 회전 조합
+        # 블록이 배치될 수 있는 모든 조합
         placements = []
         for surface_group_key, work_area in self.work_area_dict.items():
             surface_id = work_area.surface_id_list
-            if isinstance(surface_id, list):
-                surface_id = tuple(surface_id)
+            surface_id = tuple(surface_id) if isinstance(surface_id, list) else surface_id
 
             for rotate in self.rotation_list:
                 var_key = (block_id, surface_group_key, surface_id, 'STORE', rotate)
@@ -38,30 +37,47 @@ def add_objective_preference(self):
 
         block_info.append({
             'block_id': block_id,
-            'block_num': block_num,
+            'block_stdt': block_stdt,
+            'block_fndt': block_fndt,
             'placements': placements
         })
 
     # 2. 목적함수 구현: 패널티 구현
     for i, block1 in enumerate(block_info):
         for block2 in block_info[i + 1:]:
-            if block1['block_num'] == block2['block_num']:
+            if block1['block_stdt'] == block2['block_stdt']:
                 continue
 
-            if block1['block_num'] < block2['block_num']:
-                smaller_block = block1
-                larger_block = block2
-            else:
-                smaller_block = block2
-                larger_block = block1
+            if block1['block_fndt'] in range(block2['block_stdt'], block2['block_fndt'] + 1, 1):
+                if block1['block_stdt'] < block2['block_stdt']:
+                    early_block = block1
+                    late_block = block2
+                elif block1['block_stdt'] > block2['block_stdt']:
+                    early_block = block2
+                    late_block = block1
+                else:
+                    continue
 
-            for placement_smaller in smaller_block['placements']:
-                for placement_larger in larger_block['placements']:
-                    # 역전 조건: 숫자가 작은 블록이 우선순위가 높은 정반에, 숫자가 큰 블록이 우선순위가 낮은 정반에 배치될 경우
-                    if placement_smaller['priority'] >= placement_larger['priority']:
+            elif block2['block_fndt'] in range(block1['block_stdt'], block1['block_fndt'] + 1, 1):
+                if block2['block_stdt'] < block1['block_stdt']:
+                    early_block = block2
+                    late_block = block1
+                elif block2['block_stdt'] > block1['block_stdt']:
+                    early_block = block1
+                    late_block = block2
+                else:
+                    continue
+
+            else:
+                continue
+
+            for placement_early in early_block['placements']:
+                for placement_late in late_block['placements']:
+                    if placement_early['priority'] >= placement_late['priority']:
                         # 두 블록이 모두 해당 위치에 배치될 경우의 표현식
-                        penalty_expr = self.cpmodel.presence_of(placement_smaller['var']) * self.cpmodel.presence_of(
-                            placement_larger['var'])
+                        penalty_expr = self.cpmodel.presence_of(
+                            placement_early['var']) * self.cpmodel.presence_of(
+                            placement_late['var'])
                         penalty_exprs.append(penalty_expr)
 
     penalty_sum = self.cpmodel.sum(penalty_exprs)
