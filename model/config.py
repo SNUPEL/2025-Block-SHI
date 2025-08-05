@@ -6,13 +6,13 @@ import time
 def create_config():
     config = dict()
 
-    config['data_file_path'] = '../data/data_rev0.2.xlsx'
+    config['data_file_path'] = '../data/data_blocking.xlsx'
 
-    config['data_start_date'] = '2019-04-20'  # 시작일자 (착수일 기준)
+    config['data_start_date'] = '2019-04-22'  # 시작일자 (착수일 기준)
     config['only_workingday'] = False  # True: workingday 기준 duration의 기간을 셈, False: data_end_date 사용
     config['data_duration'] = 40  # workingday
-    config['data_end_date'] = '2019-05-30'
-    config['time_limit'] = 600  # 탐색 시간
+    config['data_end_date'] = '2019-05-10'
+    config['time_limit'] = 30  # 탐색 시간
     config['search_method'] = 'multiple_solutions'  # single_solution, multiple_solutions
 
     # 배치 확정된 블록 사용
@@ -45,9 +45,13 @@ def create_config():
     config['crane_usage'] = True  # True: 실행, False: 미실행
     config['crane_usage_time'] = 8   # 크레인 일별 가용 시간 설정
 
-    # 이격거리 조정
+    # 이격거리 조정 (블록 크기)
     config['block_spacing_x'] = 0.1
     config['block_spacing_y'] = 0.1
+
+    # 이격거리 조정 (제약조건)
+    config['min_block_spacing_distance'] = 0
+
 
     # 최대 허용 가능 지연
     config['max_delay_day'] = 2

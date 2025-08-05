@@ -50,6 +50,7 @@ class CPmodel:
         self.obj_weight_allocation = self.config['weight_allocation']
         self.crane_usage = self.config['crane_usage']
         self.pair_block = self. config['pair_block']
+        self.min_block_spacing_distance = self.config['min_block_spacing_distance']
 
         self.search_start_time = 0
         self.obj_sum_preference = 0
