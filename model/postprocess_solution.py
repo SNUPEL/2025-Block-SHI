@@ -165,8 +165,8 @@ def save_result(self, sol, solution_index):
                 length = int(y_sol.get_end() - y_sol.get_start())
 
                 if selected_group[0] == 4:
-                    if length <= breadth and length <= 110:
-                        length = 110
+                    if length <= breadth and length <= 55:
+                        length = 55
                     else:
                         pass
 
