@@ -6,6 +6,8 @@ import config
 def define_variable(self):
 
     self.crane_usage_step = self.cpmodel.step_at(0, 0)
+    for crane_id in self.crane_dict.keys():
+        self.crane_usage_step_dict[crane_id] = self.cpmodel.step_at(0, 0)
 
     # 블록 변수 딕셔너리 초기화
     self.block_keys = []

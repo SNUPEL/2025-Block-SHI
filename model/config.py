@@ -46,11 +46,11 @@ def create_config():
     config['crane_usage_time'] = 8   # 크레인 일별 가용 시간 설정
 
     # 이격거리 조정 (블록 크기)
-    config['block_spacing_x'] = 0.1
-    config['block_spacing_y'] = 0.1
+    config['block_spacing_x'] = 0
+    config['block_spacing_y'] = 0
 
     # 이격거리 조정 (제약조건)
-    config['min_block_spacing_distance'] = 0
+    config['min_block_spacing_distance'] = 1.5
 
 
     # 최대 허용 가능 지연
