@@ -1,0 +1,48 @@
+def add_constraint_scheduled(self):
+    """
+    정반그룹 4번에 배치된 블록들에 대하여 먼저 입고/나중에 출고되는 블록이 더 안쪽에 배치되는 것을 조건으로 이중배치를 허용하는 제약 구현
+    """
+    # 각 블록에 대해 변수 생성
+    for block_key in self.block_keys:
+        block = self.block_dict[block_key]
+        block_id = f"{block.ship_type}_{block.project_number}_{block.block_number}"
+
+        if block.allocate_condition == 'Y':
+
+            '''1. self.block_schedule_var_by_id_group_surf_work_rotate_dict 에서 변수 찾기'''
+            for key, val in self.block_schedule_var_by_id_group_surf_work_rotate_dict.items():
+                # 기본 흐름
+                if key[0] == block_id:
+
+                    if str(key[1]) == (block.group_id) and key[4] == block.rotate:
+
+                        # 1. 해당 정반으로 스케줄 변수 고정
+                        self.cpmodel.add(
+                            self.cpmodel.presence_of(
+                                self.block_schedule_var_by_id_group_surf_work_rotate_dict[key]) == 1
+                            )
+
+                        '''2. 해당 정반에 x, y, 시간축 변수 고정'''
+
+                        newkey = (key[0], key[1], key[2], key[4])
+
+                        # 2-1. X축
+                        self.cpmodel.add(
+                            self.cpmodel.start_of(
+                                self.block_x_var_by_id_group_surf_rotate_dict[newkey]) == block.x_location
+                        )
+
+                        # 2-2. Y축
+                        self.cpmodel.add(
+                            self.cpmodel.start_of(
+                                self.block_y_var_by_id_group_surf_rotate_dict[newkey]) == block.y_location
+                        )
+
+                        # 2-1. 시간축
+                        self.cpmodel.add(
+                            self.cpmodel.start_of(
+                                self.block_time_var_by_id_group_surf_rotate_dict[newkey]) == (block.allocation_index + 1)
+                        )
+
+            pass
+

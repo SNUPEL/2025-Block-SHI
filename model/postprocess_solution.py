@@ -164,8 +164,8 @@ def postprocess_solution(self):
                         breadth = block.adjusted_breadth
 
                     if selected_group[0] == 4:
-                        if length <= breadth and length <= 110:
-                            length = 110
+                        if length <= breadth and length <= 55:
+                            length = 55
                         else:
                             pass
 

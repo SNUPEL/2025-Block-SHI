@@ -45,7 +45,7 @@ class ScheduleChecker:
             timestamp_t = pd.Timestamp(t)
             presence = self.scheduled[
                 (self.scheduled['착수일'] <= timestamp_t) &
-                (self.scheduled['완료일'] >= timestamp_t)
+                (self.scheduled['완료일'] > timestamp_t)
                 ]
 
             self.blocks_by_time_dict[t] = []
@@ -118,7 +118,7 @@ class ScheduleChecker:
 
 if __name__ == "__main__":
     # OpenCV 라이브러리를 설치해야 함 (conda install openCV 사용)
-    schedule_path = "../data/General Case_1.xlsx"
-    block_path = "../data/data_rev0.2.xlsx"
+    schedule_path = "../data/blocking_before_result(3).xlsx"
+    block_path = "../data/data_blocking.xlsx"
 
     checker = ScheduleChecker(schedule_path, block_path, save_gif=True)

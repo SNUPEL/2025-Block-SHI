@@ -89,10 +89,18 @@ def plot_integrated_workarea_group(fig, ax):
     # 4번 정반그룹
     neworigin_x = 250
     workarea_polygon.append(generate_polygon_from_anchor(-10+neworigin_x, 0, 120, 100))
-    workarea_polygon.append(generate_polygon_from_anchor(110+neworigin_x, 0, 110, 245))
-    workarea_polygon.append(generate_polygon_from_anchor(325+neworigin_x, 0, 110, 260))
-    workarea_polygon.append(generate_polygon_from_anchor(435+neworigin_x, 0, 110, 260))
-    workarea_polygon.append(generate_polygon_from_anchor(660+neworigin_x, 0, 110, 255))
+    workarea_polygon.append(generate_polygon_from_anchor(110+neworigin_x, 0, 110, 85))
+    workarea_polygon.append(generate_polygon_from_anchor(110+neworigin_x, 85, 110, 85))
+    workarea_polygon.append(generate_polygon_from_anchor(110+neworigin_x, 170, 110, 75))
+    workarea_polygon.append(generate_polygon_from_anchor(325+neworigin_x, 0, 110, 85))
+    workarea_polygon.append(generate_polygon_from_anchor(325+neworigin_x, 85, 110, 85))
+    workarea_polygon.append(generate_polygon_from_anchor(325+neworigin_x, 170, 110, 90))
+    workarea_polygon.append(generate_polygon_from_anchor(435+neworigin_x, 0, 110, 85))
+    workarea_polygon.append(generate_polygon_from_anchor(435+neworigin_x, 85, 110, 85))
+    workarea_polygon.append(generate_polygon_from_anchor(435+neworigin_x, 170, 110, 90))
+    workarea_polygon.append(generate_polygon_from_anchor(660+neworigin_x, 0, 110, 70))
+    workarea_polygon.append(generate_polygon_from_anchor(660+neworigin_x, 70, 110, 95))
+    workarea_polygon.append(generate_polygon_from_anchor(660+neworigin_x, 165, 110, 90))
     workarea_polygon.append(generate_polygon_from_anchor(740+neworigin_x, 0, 30, 70))
 
     for workarea in workarea_polygon[:-1]:
@@ -123,7 +131,7 @@ def generate_integrated_polygon(groupidx, workareaidx, x, y, dx, dy):
         x+=250
         if workareaidx == '(1,)':
             x += -10
-        elif workareaidx == '(2, 3, 4)':
+        elif workareaidx in ['(2, 3, 4)', '(2, 4)']:
             x += 110
         elif workareaidx == '(5, 6, 7)':
             x += 325
