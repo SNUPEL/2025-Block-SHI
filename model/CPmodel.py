@@ -51,12 +51,25 @@ class CPmodel:
         self.crane_usage = self.config['crane_usage']
         self.pair_block = self. config['pair_block']
 
+        self.search_start_time = 0
         self.obj_sum_preference = 0
+        self.obj_sum_preference_var = 0
         self.obj_sum_delay = 0
+        self.obj_sum_delay_var = 0
         self.obj_sum_unassigned_block = 0
+        self.obj_sum_unassigned_block_var = 0
         self.obj_sum_allocation = 0
+        self.obj_sum_allocation_var = 0
+        self.obj_sum_allocation1 = 0
+        self.obj_sum_allocation_var1 = 0
+        self.obj_sum_allocation2 = 0
+        self.obj_sum_allocation_var2 = 0
+        self.obj_sum_allocation3 = 0
+        self.obj_sum_allocation_var3 = 0
         self.obj = 0
+        self.total_obj_var = 0
         self.solution_cpmodel = None
+
 
         # 일정 변수
         self.block_schedule_var_by_id_work_dict = {}  # 블록 ID별, 작업별 일정 변수(대표 변수)
@@ -98,7 +111,6 @@ class CPmodel:
         preprocess_data(self)
 
     def run_model(self):
-
         ## < 최적화 모델 구성> ##
         # 변수 정의 #
         define_variable(self)
@@ -119,35 +131,48 @@ class CPmodel:
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
 
-
         # 목적 함수 #
         # L/R 블록 배치 최대화
         if self.config['obj_allocation']:
             add_objective_allocation(self)
+            self.obj_sum_allocation_var = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_allocation_var == self.obj_sum_allocation * self.obj_weight_allocation)
+            self.obj_sum_allocation_var1 = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_allocation_var1 == self.obj_sum_allocation1)
+            self.obj_sum_allocation_var2 = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_allocation_var2 == self.obj_sum_allocation2)
+            self.obj_sum_allocation_var3 = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_allocation_var3 == self.obj_sum_allocation3)
         else:
             self.obj_sum_allocation = 0
 
         # 정반 그룹 선호도 최대화
         if self.config['obj_preference']:
             add_objective_preference(self)
+            self.obj_sum_preference_var = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_preference_var == self.obj_sum_preference * self.obj_weight_preference)
         else:
             self.obj_sum_preference = 0
 
         # 지연 최소화 목적함수
         if self.config['obj_delay']:
             add_objective_sum_delay(self)
+            self.obj_sum_delay_var = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_delay_var == self.obj_sum_delay * self.obj_weight_delay)
         else:
             self.obj_sum_delay = 0
 
         # 미배치 블록 최소화 목적함수
         if self.config['obj_unassigned_block']:
             add_objective_sum_unassinged_block(self)
+            self.obj_sum_unassigned_block_var = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_unassigned_block_var == self.obj_sum_unassigned_block * self.obj_weight_unassigned_block)
         else:
             self.obj_sum_unassigned_block = 0
 
         # 목적함수 계산
         self.obj = (
-                    self.obj_weight_allocation + self.obj_sum_allocation
+                    self.obj_weight_allocation * self.obj_sum_allocation
                     +
                     self.obj_weight_preference * self.obj_sum_preference
                     +
@@ -156,13 +181,17 @@ class CPmodel:
                     self.obj_weight_unassigned_block * self.obj_sum_unassigned_block
                     )
 
+        self.total_obj_var = self.cpmodel.integer_var()
+        self.cpmodel.add(self.total_obj_var == self.obj)
+
+        self.search_start_time = time.time()
         ## <모델 탐색 파트> ##
         self.solution_cpmodel = solve_model(self,
                                             model=self.cpmodel,
                                             objective_function=self.obj,
                                             direction="minimize",
                                             time_limit=self.time_limit,
-                                            method='single_solution')
+                                            method=self.config['search_method'])
 
         ## <모델 출력 및 후처리> ##
         postprocess_solution(self)
