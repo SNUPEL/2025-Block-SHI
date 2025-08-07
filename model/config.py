@@ -20,11 +20,11 @@ def create_config():
     config['result_data_file_path'] = '../results/20250611_14h_35m_8s/block_allocation_result.xlsx'
 
     # 정반그룹 선호도 최소화 목적함수
-    config['obj_preference'] = True  # True: 실행, False: 미실행
+    config['obj_preference'] = False  # True: 실행, False: 미실행
     config['weight_preference'] = 10  # 가중치
 
     # 지연 최소화 목적함수
-    config['obj_delay'] = True  # True: 실행, False: 미실행
+    config['obj_delay'] = False  # True: 실행, False: 미실행
     config['weight_delay'] = 1  # 가중치
 
     # 미배치 최소화 목적함수
@@ -37,9 +37,9 @@ def create_config():
     # L/R 블록 배치 최대화 목적함수 (L/R 블록 배치 제약 허용 시 목적 함수 미실행 되도록 해야함)
     config['obj_allocation'] = True  # True: 실행, False: 미실행
     config['weight_allocation'] = 100  # 가중치
-    config['score_position'] = 100  # 동일 정반 배치 시 위치 가중치
-    config['score_same_workarea'] = 100  # 동일 정반 배치 가중치
-    config['score_both_allocation'] = 100  # 타 정반 배치 가중치
+    config['score_position'] = 0  # 동일 정반 배치 시 위치 가중치
+    config['score_same_workarea'] = 0  # 동일 정반 배치 가중치
+    config['score_both_allocation'] = 0  # 타 정반 배치 가중치
 
     # 크레인 제약 활용 및 시간 설정
     config['crane_usage'] = True  # True: 실행, False: 미실행
@@ -50,7 +50,7 @@ def create_config():
     config['block_spacing_y'] = 0
 
     # 이격거리 조정 (제약조건)
-    config['min_block_spacing_distance'] = 1.5
+    config['min_block_spacing_distance'] = 0
 
 
     # 최대 허용 가능 지연
