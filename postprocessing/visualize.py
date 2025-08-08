@@ -1,5 +1,6 @@
 import pandas as pd
 from matplotlib import pyplot as plt
+from setuptools.sandbox import save_path
 from shapely import intersection_all
 from shapely import intersection
 import cv2
@@ -11,14 +12,15 @@ import numpy as np
 from datetime import datetime
 
 class ScheduleChecker:
-    def __init__(self, schedule_path, block_path, save_gif):
+    def __init__(self, schedule_path, block_path, save_path = '', save_gif = False):
         self.schedule_path = schedule_path
         self.block_path = block_path
         self.block_info = pd.read_excel(self.block_path, sheet_name='BLK', skiprows=[1])
         self.workarea_info = pd.read_excel(self.block_path, sheet_name='WORKAREA_GROUP', skiprows=[1])
         self.raw_schedule = pd.read_excel(self.schedule_path, sheet_name='크레인 정보', skiprows=[1])
         print("Schedule loaded successfully!")
-        self.prefix = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        self.savepath = save_path
+        self.prefix = save_path + datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
         self.scheduled = self.raw_schedule[self.raw_schedule['배치확정여부'].notna()]
         dates = pd.concat([self.scheduled['착수일'].dt.date, self.scheduled['완료일'].dt.date]).dropna().unique()
@@ -57,7 +59,7 @@ class ScheduleChecker:
                 poly = generate_integrated_polygon(groupidx=groupidx,
                                                    workareaidx=workareaidx,
                                       x=row['블록위치X']*10, y=row['블록위치Y'] * 10,
-                                      dx=row['변환 블록길이'] * 10, dy=row['변환 블록폭'] * 10)
+                                      dx=row['변환 블록폭'] * 10, dy=row['변환 블록길이'] * 10)
                 self.blocks_by_time_dict[t].append((name, poly))
 
 
@@ -118,7 +120,9 @@ class ScheduleChecker:
 
 if __name__ == "__main__":
     # OpenCV 라이브러리를 설치해야 함 (conda install openCV 사용)
-    schedule_path = "../data/blocking_before_result(3).xlsx"
-    block_path = "../data/data_blocking.xlsx"
+    schedule_path = "../results/20250806_15h_7m_7s/block_allocation_result.xlsx"
+    block_path = "../data/data_blocking_4_1_dense.xlsx"
 
-    checker = ScheduleChecker(schedule_path, block_path, save_gif=True)
+    checker = ScheduleChecker(schedule_path, block_path,
+                              save_path = "../results/20250806_15h_7m_7s/",
+                              save_gif=True)

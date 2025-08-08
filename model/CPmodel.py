@@ -8,6 +8,7 @@ from add_constraint_area_limitation import *
 from add_constraint_block_intersection import *
 from add_constraint_simultaneous_block import *
 from add_constraint_scheduled import *
+from add_constraint_blocking import *
 from add_constraint_lug_direction import *
 from add_constraint_crane_usage import *
 from add_objective_allocation import *
@@ -127,10 +128,13 @@ class CPmodel:
         if self.crane_usage:
             add_constraint_crane_usage(self)
         # 특정 블록(L/R) 동시 작업 제약
-        if self.pair_block:
-            add_constraint_simultaneous_block(self)
+        # if self.pair_block:
+        #     add_constraint_simultaneous_block(self)
         # 블록 간섭 제약
         add_constraint_block_intersection(self)
+
+        # 이중 배치 제약
+        add_constraint_blocking(self)
 
         # 목적 함수 #
         # L/R 블록 배치 최대화

@@ -164,11 +164,11 @@ def save_result(self, sol, solution_index):
                 breadth = int(x_sol.get_end() - x_sol.get_start())
                 length = int(y_sol.get_end() - y_sol.get_start())
 
-                if selected_group[0] == 4:
-                    if length <= breadth and length <= 55:
-                        length = 55
-                    else:
-                        pass
+                # if selected_group[0] == 4:
+                #     if length <= breadth and length <= 55:
+                #         length = 55
+                #     else:
+                #         pass
 
                 # 결과 행 추가
                 results.append({
@@ -510,81 +510,81 @@ def save_result(self, sol, solution_index):
 
 
 
-    self.df_result = pd.DataFrame(results_crane)
-    self.df_result.dropna(subset=['크레인ID'], inplace=True)  # 그룹 4에서 in은 크레인 없어서 출력 제외
-    self.df_result_2 = pd.DataFrame(results_crane_worktime)
-
-    # 크레인별로 작업 시간순 정렬
-    _24_hour_mask = self.df_result['date'].astype(str).str.contains(r' 24:00:00', na=False, regex=True)
-    if _24_hour_mask.any():
-        self.df_result.loc[_24_hour_mask, 'date'] = \
-            self.df_result.loc[_24_hour_mask, 'date'].astype(str).str.replace(' 24:00:00', ' 00:00:00')
-
-    expected_format = '%Y-%m-%d %H:%M:%S'
-    self.df_result['date'] = pd.to_datetime(self.df_result['date'], format=expected_format, errors='coerce')
-    if _24_hour_mask.any():
-        self.df_result.loc[_24_hour_mask, 'date'] = \
-            self.df_result.loc[_24_hour_mask, 'date'] + pd.Timedelta(days=1)
-
-    self.df_result = self.df_result.sort_values(['date', 'work'])
-
-    output_path = f"{self.config['folderpath']}/crane_result.xlsx"
-    output_path2 = f"{self.config['folderpath']}/crane_result_sol_{str(solution_index)}.xlsx"
-
-    with pd.ExcelWriter(output_path, engine='openpyxl', mode='w') as writer:
-        self.df_result.to_excel(writer, sheet_name='crane_result_main', index=False)
-        self.df_result_2.to_excel(writer, sheet_name='result_crane_worktime', index=False)
-
-    with pd.ExcelWriter(output_path2, engine='openpyxl', mode='w') as writer:
-        self.df_result.to_excel(writer, sheet_name='crane_result_main', index=False)
-        self.df_result_2.to_excel(writer, sheet_name='result_crane_worktime', index=False)
-
-    if len(self.df_result) == 0:
-        return True
-
-    df = self.df_result.copy()
-    df['weekday'] = df['date'].dt.day_name()
-    df['week'] = df['date'].dt.isocalendar().week
-
-    weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-    df = df[df['weekday'].isin(weekday_order)]
-    df['weekday'] = pd.Categorical(df['weekday'], categories=weekday_order, ordered=True)
-
-    df['크레인_소요시간'] = df['크레인_소요시간'].fillna(0).astype(int)
-    df['time_info'] = df['date'].dt.strftime('%H:%M')
-    df['summary'] = df['work'] + ' (' + df['time_info'] + '): ' + df['크레인_소요시간'].astype(str) + 'h'
-
-    summary_total_df = df.groupby(['week', 'weekday'], observed=False).agg(
-        {'summary': lambda x: '\n'.join(x), '크레인_소요시간': 'sum'}).reset_index()
-
-    summary_total_df['cell_text'] = summary_total_df['summary'] + '\nTotal: ' + summary_total_df[
-        '크레인_소요시간'].astype(
-        str) + 'h'
-
-    calendar_df = summary_total_df.pivot(index='week', columns='weekday', values='cell_text').fillna('')
-
-    calendar_df.columns.name = None
-
-    fig, ax = plt.subplots(figsize=(16, len(calendar_df) * 1.2))
-    ax.axis('off')
-
-    table = ax.table(
-        cellText=calendar_df.values,
-        rowLabels=[f"Week {w}" for w in calendar_df.index],
-        colLabels=calendar_df.columns.tolist(),
-        colWidths=[0.2] * len(calendar_df.columns),
-        loc='center',
-        cellLoc='center'
-    )
-
-    table.auto_set_font_size(False)
-    table.set_fontsize(10)
-    table.scale(1.5, 3.0)
-
-    plt.title('Crane Operation Calendar', fontsize=14, pad=20)
-    plt.tight_layout()
-    plt.savefig(f"{self.config['folderpath']}/crane_result.png")
-    plt.close()
+    # self.df_result = pd.DataFrame(results_crane)
+    # self.df_result.dropna(subset=['크레인ID'], inplace=True)  # 그룹 4에서 in은 크레인 없어서 출력 제외
+    # self.df_result_2 = pd.DataFrame(results_crane_worktime)
+    #
+    # # 크레인별로 작업 시간순 정렬
+    # _24_hour_mask = self.df_result['date'].astype(str).str.contains(r' 24:00:00', na=False, regex=True)
+    # if _24_hour_mask.any():
+    #     self.df_result.loc[_24_hour_mask, 'date'] = \
+    #         self.df_result.loc[_24_hour_mask, 'date'].astype(str).str.replace(' 24:00:00', ' 00:00:00')
+    #
+    # expected_format = '%Y-%m-%d %H:%M:%S'
+    # self.df_result['date'] = pd.to_datetime(self.df_result['date'], format=expected_format, errors='coerce')
+    # if _24_hour_mask.any():
+    #     self.df_result.loc[_24_hour_mask, 'date'] = \
+    #         self.df_result.loc[_24_hour_mask, 'date'] + pd.Timedelta(days=1)
+    #
+    # self.df_result = self.df_result.sort_values(['date', 'work'])
+    #
+    # output_path = f"{self.config['folderpath']}/crane_result.xlsx"
+    # output_path2 = f"{self.config['folderpath']}/crane_result_sol_{str(solution_index)}.xlsx"
+    #
+    # with pd.ExcelWriter(output_path, engine='openpyxl', mode='w') as writer:
+    #     self.df_result.to_excel(writer, sheet_name='crane_result_main', index=False)
+    #     self.df_result_2.to_excel(writer, sheet_name='result_crane_worktime', index=False)
+    #
+    # with pd.ExcelWriter(output_path2, engine='openpyxl', mode='w') as writer:
+    #     self.df_result.to_excel(writer, sheet_name='crane_result_main', index=False)
+    #     self.df_result_2.to_excel(writer, sheet_name='result_crane_worktime', index=False)
+    #
+    # if len(self.df_result) == 0:
+    #     return True
+    #
+    # df = self.df_result.copy()
+    # df['weekday'] = df['date'].dt.day_name()
+    # df['week'] = df['date'].dt.isocalendar().week
+    #
+    # weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    # df = df[df['weekday'].isin(weekday_order)]
+    # df['weekday'] = pd.Categorical(df['weekday'], categories=weekday_order, ordered=True)
+    #
+    # df['크레인_소요시간'] = df['크레인_소요시간'].fillna(0).astype(int)
+    # df['time_info'] = df['date'].dt.strftime('%H:%M')
+    # df['summary'] = df['work'] + ' (' + df['time_info'] + '): ' + df['크레인_소요시간'].astype(str) + 'h'
+    #
+    # summary_total_df = df.groupby(['week', 'weekday'], observed=False).agg(
+    #     {'summary': lambda x: '\n'.join(x), '크레인_소요시간': 'sum'}).reset_index()
+    #
+    # summary_total_df['cell_text'] = summary_total_df['summary'] + '\nTotal: ' + summary_total_df[
+    #     '크레인_소요시간'].astype(
+    #     str) + 'h'
+    #
+    # calendar_df = summary_total_df.pivot(index='week', columns='weekday', values='cell_text').fillna('')
+    #
+    # calendar_df.columns.name = None
+    #
+    # fig, ax = plt.subplots(figsize=(16, len(calendar_df) * 1.2))
+    # ax.axis('off')
+    #
+    # table = ax.table(
+    #     cellText=calendar_df.values,
+    #     rowLabels=[f"Week {w}" for w in calendar_df.index],
+    #     colLabels=calendar_df.columns.tolist(),
+    #     colWidths=[0.2] * len(calendar_df.columns),
+    #     loc='center',
+    #     cellLoc='center'
+    # )
+    #
+    # table.auto_set_font_size(False)
+    # table.set_fontsize(10)
+    # table.scale(1.5, 3.0)
+    #
+    # plt.title('Crane Operation Calendar', fontsize=14, pad=20)
+    # plt.tight_layout()
+    # plt.savefig(f"{self.config['folderpath']}/crane_result.png")
+    # plt.close()
 
 
 def postprocess_solution(self):
