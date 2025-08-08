@@ -52,6 +52,7 @@ class CPmodel:
         self.crane_usage = self.config['crane_usage']
         self.pair_block = self. config['pair_block']
         self.min_block_spacing_distance = self.config['min_block_spacing_distance']
+        self.crane_usage_step_dict = {}
 
         self.search_start_time = 0
         self.obj_sum_preference = 0

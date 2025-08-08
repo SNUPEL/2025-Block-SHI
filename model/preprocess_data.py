@@ -227,9 +227,16 @@ def preprocess_data(self):
             # 그룹ID로 먼저 필터링
             group_df = df_crane_time[df_crane_time['그룹ID'] == work_area.group_id]
 
-            # 일반 작업종류 처리
+            # # 일반 작업종류 처리
+            # for key, group in group_df[~group_df['작업종류'].isin(out_to_types)].groupby('작업종류'):
+            #     work_area.crane_operation_dict[key] = (int(sum(group['작업시간'] * 2)), list(group['크레인ID']))
+            ### 개별 크레인 제약을 위한 수정 0805 ###
             for key, group in group_df[~group_df['작업종류'].isin(out_to_types)].groupby('작업종류'):
-                work_area.crane_operation_dict[key] = (int(sum(group['작업시간'] * 2)), list(group['크레인ID']))
+                work_area.crane_operation_dict[key] = (
+                    int(sum(group['작업시간'] * 2)),
+                    list(group['크레인ID']),
+                    {row['크레인ID']: int(row['작업시간'] * 2) for _, row in group.iterrows()}  # 추가
+                )
 
             # PE와 TO 작업을 합쳐서 처리
             pe_to_df = group_df[group_df['작업종류'].isin(out_to_types)]
@@ -239,7 +246,14 @@ def preprocess_data(self):
                 # 두 작업에 사용된 크레인ID 리스트 (중복 제거)
                 combined_cranes = list(pe_to_df['크레인ID'].unique())
                 # TO 키 값으로 저장
-                work_area.crane_operation_dict['TO'] = (combined_time, combined_cranes)
+                # work_area.crane_operation_dict['TO'] = (combined_time, combined_cranes)
+
+                ## TO 키 값으로 저장 (크레인 개별 저장으로 수정) ##
+                work_area.crane_operation_dict['TO'] = (
+                    combined_time,
+                    combined_cranes,
+                    {row['크레인ID']: int(row['작업시간'] * 2) for _, row in pe_to_df.iterrows()}  # 추가
+                )
 
         print('Crane operation dictionary has been defined with PE and TO combined')
     else:
