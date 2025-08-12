@@ -54,7 +54,8 @@ class ScheduleChecker:
             for idx, row in presence.iterrows():
                 groupidx = int(row['그룹ID'][1:-1].split(', ')[0])
                 workareaidx = '('+row['그룹ID'][1:-1].split(', (')[1]
-                name = row['호선']+"\n"+row['블록']
+                name = row['블록']
+                # name = row['호선']+"\n"+row['블록']
                 # name = row['선종']+"\n"+row['호선']+"\n"+row['블록']
                 poly = generate_integrated_polygon(groupidx=groupidx,
                                                    workareaidx=workareaidx,
@@ -120,9 +121,11 @@ class ScheduleChecker:
 
 if __name__ == "__main__":
     # OpenCV 라이브러리를 설치해야 함 (conda install openCV 사용)
-    schedule_path = "../results/20250806_15h_7m_7s/block_allocation_result.xlsx"
-    block_path = "../data/data_blocking_4_1_dense.xlsx"
+    # schedule_path = "../data/blocking_ref_1.xlsx"
+    schedule_path = "../results/20250812_12h_28m_8s/block_allocation_result.xlsx"
+    block_path = "../data/blocking_data_2.xlsx"
 
     checker = ScheduleChecker(schedule_path, block_path,
-                              save_path = "../results/20250806_15h_7m_7s/",
+                              # save_path = "../data/",
+                              save_path = "../results/20250812_12h_28m_8s/",
                               save_gif=True)

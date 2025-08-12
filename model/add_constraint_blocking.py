@@ -27,65 +27,86 @@ def add_constraint_blocking(self):
 
                 if sum(self.work_area_dict[group_key].TP_direction) == 1:
                     # 정해진 TP 방향이 하나만 있음
-                    if self.work_area_dict[group_key].TP_direction.index(True) == 1:
-                        '''2번 정반그룹의 경우'''
-                        # 모든 회전 조합에 대해 고려
-                        for rotate1 in [0, 90]:
-                            for rotate2 in [0, 90]:
-                                block1_var_key = (block_id1, group_key, surface_id, rotate1)
-                                block2_var_key = (block_id2, group_key, surface_id, rotate2)
+                    # 모든 회전 조합에 대해 고려
+                    for rotate1 in [0, 90]:
+                        for rotate2 in [0, 90]:
+                            block1_var_key = (block_id1, group_key, surface_id, rotate1)
+                            block2_var_key = (block_id2, group_key, surface_id, rotate2)
 
-                                # 두 블록 변수가 모두 존재하는지 확인
-                                if (block1_var_key not in self.block_x_var_by_id_group_surf_rotate_dict or
-                                        block2_var_key not in self.block_x_var_by_id_group_surf_rotate_dict):
-                                    continue
+                            # 두 블록 변수가 모두 존재하는지 확인
+                            if (block1_var_key not in self.block_x_var_by_id_group_surf_rotate_dict or
+                                    block2_var_key not in self.block_x_var_by_id_group_surf_rotate_dict):
+                                continue
 
-                                # 첫 번째 블록의 위치 변수
-                                block1_x_var = self.block_x_var_by_id_group_surf_rotate_dict[block1_var_key]
-                                block1_y_var = self.block_y_var_by_id_group_surf_rotate_dict[block1_var_key]
-                                block1_time_var = self.block_x_var_by_id_group_surf_rotate_dict[block1_var_key]
+                            # 첫 번째 블록의 위치 변수
+                            block1_x_var = self.block_x_var_by_id_group_surf_rotate_dict[block1_var_key]
+                            block1_y_var = self.block_y_var_by_id_group_surf_rotate_dict[block1_var_key]
+                            block1_time_var = self.block_time_var_by_id_group_surf_rotate_dict[block1_var_key]
 
-                                # 두 번째 블록의 위치 변수
-                                block2_x_var = self.block_x_var_by_id_group_surf_rotate_dict[block2_var_key]
-                                block2_y_var = self.block_y_var_by_id_group_surf_rotate_dict[block2_var_key]
-                                block2_time_var = self.block_x_var_by_id_group_surf_rotate_dict[block2_var_key]
+                            # 두 번째 블록의 위치 변수
+                            block2_x_var = self.block_x_var_by_id_group_surf_rotate_dict[block2_var_key]
+                            block2_y_var = self.block_y_var_by_id_group_surf_rotate_dict[block2_var_key]
+                            block2_time_var = self.block_time_var_by_id_group_surf_rotate_dict[block2_var_key]
 
-                                presence_both = (self.cpmodel.presence_of(block1_x_var) *
-                                                 self.cpmodel.presence_of(block2_x_var)) == 1
+                            # presence_both = (self.cpmodel.presence_of(block1_time_var) *
+                            #                  self.cpmodel.presence_of(block2_time_var)) == 1
 
-                                self.cpmodel.add(self.cpmodel.if_then(
-                                    # [조건]
+                            y_overlap = ((self.cpmodel.start_of(block1_y_var) < self.cpmodel.end_of(block2_y_var)) &
+                                         (self.cpmodel.start_of(block2_y_var) < self.cpmodel.end_of(block1_y_var)))
 
-                                    # 두 블록 변수가 둘 다 존재해야 해당 조건 발동 (두 블록 중 하나라도 배치되지 않았다면 제약 통과)
-                                    presence_both &
-                                    # 5번, 6번 (=2번을 풀어 쓴 형태)
-                                    (self.cpmodel.start_of(block1_y_var) <= self.cpmodel.end_of(block2_y_var)) &
-                                    (self.cpmodel.start_of(block2_y_var) <= self.cpmodel.end_of(block1_y_var)),
-
-                                    # [제약]
-                                    # 1번. Block 1이 더 왼쪽에 있음
-                                    # 3번. Block 1이 시작하는 시간이 Block 2보다 빨라야 함
-                                    # 4번. Block 1이 끝나는 시간이 Block 2보다 늦어야 함
+                            if self.work_area_dict[group_key].TP_direction.index(True) == 1:
+                                '''(4, (2, 3, 4)) 번 정반그룹의 경우'''
+                                self.cpmodel.add(
+                                    (self.cpmodel.presence_of(block1_time_var) == 0) |
+                                    (self.cpmodel.presence_of(block2_time_var) == 0) |
+                                    (y_overlap == 0) |
                                     (
-                                        ((self.cpmodel.start_of(block1_x_var) <= self.cpmodel.end_of(block2_x_var)) # 1번
-                                        == (self.cpmodel.start_of(block2_time_var) <= self.cpmodel.start_of(block1_time_var)) # 3번
-                                        )
-                                        &
-                                        (
-                                            (self.cpmodel.start_of(block2_time_var) <= self.cpmodel.start_of(block1_time_var)) # 3번
-                                            == (self.cpmodel.end_of(block1_time_var) <= self.cpmodel.end_of(block2_time_var))) # 4번
-                                        )
+                                            (self.cpmodel.start_of(block1_x_var) < self.cpmodel.start_of(
+                                                block2_x_var))  &
+                                            (self.cpmodel.start_of(block2_time_var) >= self.cpmodel.start_of(
+                                                block1_time_var))  &
+                                            (self.cpmodel.end_of(block1_time_var) >= self.cpmodel.end_of(
+                                                block2_time_var))
+                                    )
+                                    |
+                                    (
+                                            (self.cpmodel.start_of(block1_x_var) > self.cpmodel.start_of(
+                                                block2_x_var)) &
+                                            (self.cpmodel.start_of(block2_time_var) <= self.cpmodel.start_of(
+                                                block1_time_var)) &
+                                            (self.cpmodel.end_of(block1_time_var) <= self.cpmodel.end_of(
+                                                block2_time_var))
                                     )
                                 )
 
-                        pass
 
-
+                            elif self.work_area_dict[group_key].TP_direction.index(True) == 3:
+                                '''(4, (5, 6, 7)) 번 정반그룹의 경우'''
+                                self.cpmodel.add(
+                                    (self.cpmodel.presence_of(block1_time_var) == 0) |
+                                    (self.cpmodel.presence_of(block2_time_var) == 0) |
+                                    (y_overlap == 0) |
+                                    (
+                                            (self.cpmodel.start_of(block1_x_var) > self.cpmodel.start_of(
+                                                block2_x_var)) &
+                                            (self.cpmodel.start_of(block2_time_var) >= self.cpmodel.start_of(
+                                                block1_time_var)) &
+                                            (self.cpmodel.end_of(block1_time_var) >= self.cpmodel.end_of(
+                                                block2_time_var))
+                                    )
+                                    |
+                                    (
+                                            (self.cpmodel.start_of(block1_x_var) < self.cpmodel.start_of(
+                                                block2_x_var)) &
+                                            (self.cpmodel.start_of(block2_time_var) <= self.cpmodel.start_of(
+                                                block1_time_var)) &
+                                            (self.cpmodel.end_of(block1_time_var) <= self.cpmodel.end_of(
+                                                block2_time_var))
+                                    )
+                                )
                     else: # TP direction 이 0이나 2번 index 에서 True
-                        '''다른 정반'''
+                        '''TP 운송 방향이 위 혹은 아래인 경우 <- 현재 문제에서 개발 대상 아님'''
                         pass
-
-
                 elif sum(self.work_area_dict[group_key].TP_direction) == 2:
                     '''(4,(1,)) 의 경우 <- 아직 개발 대상 아님'''
                     pass

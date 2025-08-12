@@ -7,20 +7,20 @@ def create_config():
     config = dict()
 
     # config['data_file_path'] = '../data/data_blocking_4_1_dense.xlsx'
-    config['data_file_path'] = '../data/data_blocking_4_1_dense.xlsx'
+    config['data_file_path'] = '../data/blocking_data_2.xlsx'
 
-    config['data_start_date'] = '2019-04-22'  # 시작일자 (착수일 기준)
+    config['data_start_date'] = '2019-04-21'  # 시작일자 (착수일 기준)
     config['only_workingday'] = False  # True: workingday 기준 duration의 기간을 셈, False: data_end_date 사용
     config['data_duration'] = 40  # workingday
     config['data_end_date'] = '2019-05-11'
-    config['time_limit'] = 600  # 탐색 시간
+    config['time_limit'] = 60  # 탐색 시간
     config['search_method'] = 'single_solution'  # single_solution, multiple_solutions
     # config['search_method'] = 'multiple_solutions'  # single_solution, multiple_solutions
 
     # 배치 확정된 블록 사용
     config['use_block_allocation_result'] = False  # True 시 하단의 결과를 가져옴
     # config['result_data_file_path'] = '../results/20250611_14h_35m_8s/block_allocation_result.xlsx'
-    config['result_data_file_path'] = '../data/blocking_before_result_ref(일자조정).xlsx' # 27행짜리 파일
+    config['result_data_file_path'] = '../data/blocking_ref_2.xlsx'
 
 
     # 정반그룹 선호도 최소화 목적함수
@@ -70,6 +70,7 @@ def create_config():
     config['second'] = str(time.localtime().tm_sec)
     config["folderpath"] = '../results/{0}_{1}h_{2}m_{3}s'.format(
         config['ymd'], config['hour'], config['minute'], config['second'])
+    print(config["folderpath"])
 
     if not os.path.exists(config["folderpath"]):
         os.mkdir(config["folderpath"])

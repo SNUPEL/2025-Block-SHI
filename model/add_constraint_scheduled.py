@@ -11,6 +11,7 @@ def add_constraint_scheduled(self):
 
             '''1. self.block_schedule_var_by_id_group_surf_work_rotate_dict 에서 변수 찾기'''
             for key, val in self.block_schedule_var_by_id_group_surf_work_rotate_dict.items():
+                # IN, STORE, TO, PE에 대해 4번 시행
                 # 기본 흐름
                 if key[0] == block_id:
 
@@ -43,6 +44,7 @@ def add_constraint_scheduled(self):
                             self.cpmodel.start_of(
                                 self.block_time_var_by_id_group_surf_rotate_dict[newkey]) == (block.allocation_index + 1)
                         )
+                        # print(f'Block {block_id} located in {block.x_location}, {block.y_location}')
 
             pass
 

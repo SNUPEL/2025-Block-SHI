@@ -113,8 +113,9 @@ def plot_integrated_workarea_group(fig, ax):
     margin_polygon.append(generate_polygon_from_anchor(460, 0, 10, 245))
     margin_polygon.append(generate_polygon_from_anchor(575, 0, 10, 260))
     margin_polygon.append(generate_polygon_from_anchor(785, 0, 10, 260))
-    margin_polygon.append(generate_polygon_from_anchor(980, 0, 10, 70))
-    margin_polygon.append(generate_polygon_from_anchor(1010, 70, 10, 185))
+    margin_polygon.append(generate_polygon_from_anchor(910, 0, 10, 255))
+    # margin_polygon.append(generate_polygon_from_anchor(980, 0, 10, 70))
+    # margin_polygon.append(generate_polygon_from_anchor(1010, 70, 10, 185))
 
     for margin in margin_polygon:
         ax.fill(*margin.exterior.xy, color='grey', alpha=0.5)
@@ -131,7 +132,7 @@ def generate_integrated_polygon(groupidx, workareaidx, x, y, dx, dy):
         x+=250
         if workareaidx == '(1,)':
             x += -10
-        elif workareaidx in ['(2, 3, 4)', '(2, 4)']:
+        elif workareaidx in ['(2, 3, 4)', '(2, 4)', '(2,)']:
             x += 110
         elif workareaidx == '(5, 6, 7)':
             x += 325
@@ -149,7 +150,7 @@ def generate_polygon(groupidx, workareaidx, x, y, dx, dy, rotate = False):
     if groupidx == 4:
         if workareaidx == '(1,)':
             pass
-        elif workareaidx == '(2, 3, 4)':
+        elif workareaidx in ['(2, 3, 4)', '(2,)']:
             x += 120
         elif workareaidx == '(5, 6, 7)':
             x += 335
@@ -166,7 +167,7 @@ def generate_polygon(groupidx, workareaidx, x, y, dx, dy, rotate = False):
 
 def plot_integrated_block_polygon(fig, ax, _polygon, name = None):
     ax.fill(*_polygon.exterior.xy, color='grey')
-    ax.plot(*_polygon.exterior.xy, color='black')
+    ax.plot(*_polygon.exterior.xy, color='black', linewidth=0.5)
     if name is not None:
         # polygon의 중심
         cx, cy = _polygon.centroid.xy  # shapely.geometry.Polygon.centroid → Point
@@ -176,7 +177,8 @@ def plot_integrated_block_polygon(fig, ax, _polygon, name = None):
         ax.text(cx, cy, name,
                 ha='center', va='center',  # 중앙 정렬
                 fontsize=4,  # 필요하면 추가 옵션
-                fontweight='light')
+                fontweight='light',
+                rotation=90)
 
 def plot_block_polygon(fig, axes, _groupidx, _polygon, with_margin=True, color=None):
     if color is not None:

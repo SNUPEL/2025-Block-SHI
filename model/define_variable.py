@@ -86,39 +86,39 @@ def define_variable(self):
                             continue
 
                     # TP 사용 시 경우 짧은 쪽이 55가 되도록 수정
-                    if work_area.TP_condition == 'Y':
-                        # TP 방향이 가로 세로 동시일 경우
-                        if ((work_area.TP_direction[0] or work_area.TP_direction[2])
-                                and (work_area.TP_direction[1] or work_area.TP_direction[3])):
-                            # 작은 쪽이 55를 못 넘으면 55로 취급
-                            if block_length >= block_breadth:
-                                if block_breadth - self.config['block_spacing_y'] * 10 <= 55:
-                                    block_breadth = 55 + self.config['block_spacing_y'] * 10
-                            else:
-                                if block_length - self.config['block_spacing_x'] * 10 <= 55:
-                                    block_length = 55 + self.config['block_spacing_x'] * 10
-                        # TP 방향이 세로 방향일 경우
-                        elif work_area.TP_direction[0] or work_area.TP_direction[2]:
-                            # L이 더 작아야 함
-                            if block_breadth >= block_length:
-                                # L이 55를 못 넘으면 55로 취급
-                                if block_length - self.config['block_spacing_x'] * 10 <= 55:
-                                    block_length = 55 + self.config['block_spacing_x'] * 10
-                            else:
-                                continue
-                        # TP 방향이 가로 방향일 경우
-                        elif work_area.TP_direction[1] or work_area.TP_direction[3]:
-                            # B가 더 작아야 함
-                            if block_length >= block_breadth:
-                                # B가 55를 못 넘으면 55로 취급
-                                if block_breadth - self.config['block_spacing_y'] * 10 <= 55:
-                                    block_breadth = 55 + self.config['block_spacing_y'] * 10
-                            else:
-                                continue
-                    else:
-                        # TP 미 사용 시 않는 경우 중량이 45를 넘을 수 없음
-                        if block.weight > 45:
-                            continue
+                    # if work_area.TP_condition == 'Y':
+                    #     # TP 방향이 가로 세로 동시일 경우
+                    #     if ((work_area.TP_direction[0] or work_area.TP_direction[2])
+                    #             and (work_area.TP_direction[1] or work_area.TP_direction[3])):
+                    #         # 작은 쪽이 55를 못 넘으면 55로 취급
+                    #         if block_length >= block_breadth:
+                    #             if block_breadth - self.config['block_spacing_y'] * 10 <= 55:
+                    #                 block_breadth = 55 + self.config['block_spacing_y'] * 10
+                    #         else:
+                    #             if block_length - self.config['block_spacing_x'] * 10 <= 55:
+                    #                 block_length = 55 + self.config['block_spacing_x'] * 10
+                    #     # TP 방향이 세로 방향일 경우
+                    #     elif work_area.TP_direction[0] or work_area.TP_direction[2]:
+                    #         # L이 더 작아야 함
+                    #         if block_breadth >= block_length:
+                    #             # L이 55를 못 넘으면 55로 취급
+                    #             if block_length - self.config['block_spacing_x'] * 10 <= 55:
+                    #                 block_length = 55 + self.config['block_spacing_x'] * 10
+                    #         else:
+                    #             continue
+                    #     # TP 방향이 가로 방향일 경우
+                    #     elif work_area.TP_direction[1] or work_area.TP_direction[3]:
+                    #         # B가 더 작아야 함
+                    #         if block_length >= block_breadth:
+                    #             # B가 55를 못 넘으면 55로 취급
+                    #             if block_breadth - self.config['block_spacing_y'] * 10 <= 55:
+                    #                 block_breadth = 55 + self.config['block_spacing_y'] * 10
+                    #         else:
+                    #             continue
+                    # else:
+                    #     # TP 미 사용 시 않는 경우 중량이 45를 넘을 수 없음
+                    #     if block.weight > 45:
+                    #         continue
 
                     # 정반 사이즈 제약에 따른 변수 선언
                     if rotate == 0:
