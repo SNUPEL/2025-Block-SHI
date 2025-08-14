@@ -55,7 +55,6 @@ def add_constraint_blocking(self):
                                          (self.cpmodel.start_of(block2_y_var) < self.cpmodel.end_of(block1_y_var)))
 
                             if self.work_area_dict[group_key].TP_direction.index(True) == 1:
-                                '''(4, (2, 3, 4)) 번 정반그룹의 경우'''
                                 self.cpmodel.add(
                                     (self.cpmodel.presence_of(block1_time_var) == 0) |
                                     (self.cpmodel.presence_of(block2_time_var) == 0) |
@@ -81,7 +80,6 @@ def add_constraint_blocking(self):
 
 
                             elif self.work_area_dict[group_key].TP_direction.index(True) == 3:
-                                '''(4, (5, 6, 7)) 번 정반그룹의 경우'''
                                 self.cpmodel.add(
                                     (self.cpmodel.presence_of(block1_time_var) == 0) |
                                     (self.cpmodel.presence_of(block2_time_var) == 0) |
@@ -105,9 +103,7 @@ def add_constraint_blocking(self):
                                     )
                                 )
                     else: # TP direction 이 0이나 2번 index 에서 True
-                        '''TP 운송 방향이 위 혹은 아래인 경우 <- 현재 문제에서 개발 대상 아님'''
                         pass
                 elif sum(self.work_area_dict[group_key].TP_direction) == 2:
-                    '''(4,(1,)) 의 경우 <- 아직 개발 대상 아님'''
                     pass
         pass

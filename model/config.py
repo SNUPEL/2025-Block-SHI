@@ -6,8 +6,7 @@ import time
 def create_config():
     config = dict()
 
-    # config['data_file_path'] = '../data/data_blocking_4_1_dense.xlsx'
-    config['data_file_path'] = '../data/blocking_data_2.xlsx'
+    config['data_file_path'] = '../data/data_rev0.2.xlsx'
 
     config['data_start_date'] = '2019-04-21'  # 시작일자 (착수일 기준)
     config['only_workingday'] = False  # True: workingday 기준 duration의 기간을 셈, False: data_end_date 사용
@@ -19,8 +18,7 @@ def create_config():
 
     # 배치 확정된 블록 사용
     config['use_block_allocation_result'] = False  # True 시 하단의 결과를 가져옴
-    # config['result_data_file_path'] = '../results/20250611_14h_35m_8s/block_allocation_result.xlsx'
-    config['result_data_file_path'] = '../data/blocking_ref_2.xlsx'
+    config['result_data_file_path'] = '../results/20250611_14h_35m_8s/block_allocation_result.xlsx'
 
 
     # 정반그룹 선호도 최소화 목적함수
@@ -54,7 +52,7 @@ def create_config():
     config['block_spacing_y'] = 0
 
     # 이격거리 조정 (제약조건)
-    config['min_block_spacing_distance'] = 0
+    config['min_block_spacing_distance'] = 1.5
 
 
     # 최대 허용 가능 지연

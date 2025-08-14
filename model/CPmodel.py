@@ -51,6 +51,7 @@ class CPmodel:
         self.obj_weight_allocation = self.config['weight_allocation']
         self.crane_usage = self.config['crane_usage']
         self.pair_block = self. config['pair_block']
+        ## 크레인 제약 만족을 위한 사항 ##
         self.min_block_spacing_distance = self.config['min_block_spacing_distance']
         self.crane_usage_step_dict = {}
 
