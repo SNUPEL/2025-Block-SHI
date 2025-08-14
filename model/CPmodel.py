@@ -122,52 +122,56 @@ class CPmodel:
         # 제약 조건 #
         # 기 배치된 블록 제약
         add_constraint_scheduled(self)
+        # 크레인 단독 운용
+        if self.crane_usage:
+            add_constraint_crane_usage(self)
+        # 블록 간섭 및 이격거리 제약
+        add_constraint_block_intersection(self)
+        # 이중 배치 제약
+        add_constraint_blocking(self)
+
         # 정반 별 블록 사이즈 제한
         # add_constraint_area_limitation(self)
         # 정반 러그 방향 제한 제약
         # add_constraint_lug_direction(self)
-        # 크레인 단독 운용
-        # if self.crane_usage:
-        #     add_constraint_crane_usage(self)
         # 특정 블록(L/R) 동시 작업 제약
         # if self.pair_block:
         #     add_constraint_simultaneous_block(self)
-        # 블록 간섭 제약
-        add_constraint_block_intersection(self)
+        # 특정 블록(L/R) 동시 작업 제약
+        # if self.pair_block:
+        #     add_constraint_simultaneous_block(self)
 
-        # 이중 배치 제약
-        add_constraint_blocking(self)
 
         # 목적 함수 #
         # L/R 블록 배치 최대화
-        # if self.config['obj_allocation']:
-        #     add_objective_allocation(self)
-        #     self.obj_sum_allocation_var = self.cpmodel.integer_var()
-        #     self.cpmodel.add(self.obj_sum_allocation_var == self.obj_sum_allocation * self.obj_weight_allocation)
-        #     self.obj_sum_allocation_var1 = self.cpmodel.integer_var()
-        #     self.cpmodel.add(self.obj_sum_allocation_var1 == self.obj_sum_allocation1)
-        #     self.obj_sum_allocation_var2 = self.cpmodel.integer_var()
-        #     self.cpmodel.add(self.obj_sum_allocation_var2 == self.obj_sum_allocation2)
-        #     self.obj_sum_allocation_var3 = self.cpmodel.integer_var()
-        #     self.cpmodel.add(self.obj_sum_allocation_var3 == self.obj_sum_allocation3)
-        # else:
-        #     self.obj_sum_allocation = 0
+        if self.config['obj_allocation']:
+            add_objective_allocation(self)
+            self.obj_sum_allocation_var = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_allocation_var == self.obj_sum_allocation * self.obj_weight_allocation)
+            self.obj_sum_allocation_var1 = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_allocation_var1 == self.obj_sum_allocation1)
+            self.obj_sum_allocation_var2 = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_allocation_var2 == self.obj_sum_allocation2)
+            self.obj_sum_allocation_var3 = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_allocation_var3 == self.obj_sum_allocation3)
+        else:
+            self.obj_sum_allocation = 0
 
         # 정반 그룹 선호도 최대화
-        # if self.config['obj_preference']:
-        #     add_objective_preference(self)
-        #     self.obj_sum_preference_var = self.cpmodel.integer_var()
-        #     self.cpmodel.add(self.obj_sum_preference_var == self.obj_sum_preference * self.obj_weight_preference)
-        # else:
-        #     self.obj_sum_preference = 0
+        if self.config['obj_preference']:
+            add_objective_preference(self)
+            self.obj_sum_preference_var = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_preference_var == self.obj_sum_preference * self.obj_weight_preference)
+        else:
+            self.obj_sum_preference = 0
 
         # 지연 최소화 목적함수
-        # if self.config['obj_delay']:
-        #     add_objective_sum_delay(self)
-        #     self.obj_sum_delay_var = self.cpmodel.integer_var()
-        #     self.cpmodel.add(self.obj_sum_delay_var == self.obj_sum_delay * self.obj_weight_delay)
-        # else:
-        #     self.obj_sum_delay = 0
+        if self.config['obj_delay']:
+            add_objective_sum_delay(self)
+            self.obj_sum_delay_var = self.cpmodel.integer_var()
+            self.cpmodel.add(self.obj_sum_delay_var == self.obj_sum_delay * self.obj_weight_delay)
+        else:
+            self.obj_sum_delay = 0
 
         # 미배치 블록 최소화 목적함수
         if self.config['obj_unassigned_block']:

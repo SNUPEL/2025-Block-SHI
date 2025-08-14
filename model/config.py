@@ -8,10 +8,10 @@ def create_config():
 
     config['data_file_path'] = '../data/data_rev0.2.xlsx'
 
-    config['data_start_date'] = '2019-04-21'  # 시작일자 (착수일 기준)
+    config['data_start_date'] = '2019-07-01'  # 시작일자 (착수일 기준)
     config['only_workingday'] = False  # True: workingday 기준 duration의 기간을 셈, False: data_end_date 사용
     config['data_duration'] = 40  # workingday
-    config['data_end_date'] = '2019-05-11'
+    config['data_end_date'] = '2019-08-20'
     config['time_limit'] = 60  # 탐색 시간
     config['search_method'] = 'single_solution'  # single_solution, multiple_solutions
     # config['search_method'] = 'multiple_solutions'  # single_solution, multiple_solutions
@@ -37,7 +37,7 @@ def create_config():
     config['pair_block'] = False  # True: 실행, False: 미실행
 
     # L/R 블록 배치 최대화 목적함수 (L/R 블록 배치 제약 허용 시 목적 함수 미실행 되도록 해야함)
-    config['obj_allocation'] = True  # True: 실행, False: 미실행
+    config['obj_allocation'] = False  # True: 실행, False: 미실행
     config['weight_allocation'] = 100  # 가중치
     config['score_position'] = 0  # 동일 정반 배치 시 위치 가중치
     config['score_same_workarea'] = 0  # 동일 정반 배치 가중치
