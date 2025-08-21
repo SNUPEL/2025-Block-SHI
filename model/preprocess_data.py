@@ -3,27 +3,31 @@ import pandas as pd
 import numpy as np
 
 
-def get_work_area_list(df_work_area_group, df_work_area):
+def get_work_area_list(df_work_area_group, df_work_area, workarea_y_symmetric):
     work_area_dict = dict()
     for _, row in df_work_area_group.iterrows():
         if row['사용여부'] == 'Y':
-            filtered_df_work_area = df_work_area[
-                (df_work_area['그룹ID'] == row['그룹ID']) & (df_work_area['정반사용여부'] == 'Y')].copy()
-
+            filtered_df_work_area = df_work_area[df_work_area['그룹ID'] == row['그룹ID']].copy()
+            # filtered_df_work_area = df_work_area[
+            #     (df_work_area['그룹ID'] == row['그룹ID']) & (df_work_area['정반사용여부'] == 'Y')].copy()
             filtered_df_work_area['그룹내정반위치Y'] = filtered_df_work_area['그룹내정반위치Y'] + filtered_df_work_area[
                 '마진거리1'].fillna(0)
             filtered_df_work_area['그룹내정반위치X'] = filtered_df_work_area['그룹내정반위치X'] - filtered_df_work_area[
                 '마진거리4'].fillna(0)
 
             min_x_of_work_area = min(filtered_df_work_area['그룹내정반위치X'])
+            min_y_of_work_area = min(filtered_df_work_area['그룹내정반위치Y'])
             filtered_df_work_area['그룹내정반위치X'] = filtered_df_work_area['그룹내정반위치X'] - min_x_of_work_area
-
-            filtered_df_work_area['그룹내정반위치Y'] = -1 * filtered_df_work_area['그룹내정반위치Y']
+            if workarea_y_symmetric:
+                filtered_df_work_area['그룹내정반위치Y'] = -1 * filtered_df_work_area['그룹내정반위치Y']
+            else:
+                filtered_df_work_area['그룹내정반위치Y'] = filtered_df_work_area['그룹내정반위치Y'] - min_y_of_work_area
 
             filtered_df_work_area['정반폭'] = (filtered_df_work_area['정반폭'] + filtered_df_work_area['마진거리1'].fillna(0)
                                             + filtered_df_work_area['마진거리3'].fillna(0))
             filtered_df_work_area['정반길이'] = (filtered_df_work_area['정반길이'] + filtered_df_work_area['마진거리2'].fillna(0)
                                              + filtered_df_work_area['마진거리4'].fillna(0))
+            filtered_df_work_area = filtered_df_work_area[filtered_df_work_area['정반사용여부'] == 'Y']
 
             # 정반끼리 조금 떨어져 있는 경우는 고려하지 않음
             if row['정반연결축'] == 'B':
@@ -43,8 +47,9 @@ def get_work_area_list(df_work_area_group, df_work_area):
                                               L_limit_of_block=row['사이즈제한LTH'], B_limit_of_block=row['사이즈제한BTH'],
                                               H_limit_of_block=row['사이즈제한HGT'], W_limit_of_block=row['사이즈제한WGT'],
                                               TP_condition=row['TP운송여부'], TP_direction=direction, L=length, B=breadth,
-                                              min_x_of_work_area=min_x_of_work_area)
-                    temp_work_area.work_unit_dict[rect['정반ID']] = WorkUnit(unit_id=rect['정반ID'], x=rect['그룹내정반위치X'],
+                                              min_x_of_work_area=min_x_of_work_area, min_y_of_work_area=min_y_of_work_area)
+                    temp_work_area.work_unit_dict[rect['정반ID']] = WorkUnit(unit_id=rect['정반ID'], x_raw=rect['그룹내정반위치X'],
+                                                                           y_raw=rect['그룹내정반위치Y'], x=rect['그룹내정반위치X'],
                                                                            y=rect['그룹내정반위치Y'], dx=length, dy=breadth)
                     work_area_dict[(row['그룹ID'], rect['정반ID'])] = temp_work_area
                 filtered_df_work_area_group_by_axis = None
@@ -90,7 +95,8 @@ def get_work_area_list(df_work_area_group, df_work_area):
                                    L_limit_of_block=row['사이즈제한LTH'], B_limit_of_block=row['사이즈제한BTH'],
                                    H_limit_of_block=row['사이즈제한HGT'], W_limit_of_block=row['사이즈제한WGT'],
                                    TP_condition=row['TP운송여부'], TP_direction=direction,
-                                   L=combined_length, B=combined_breadth, min_x_of_work_area=min_x_of_work_area)
+                                   L=combined_length, B=combined_breadth,
+                                   min_x_of_work_area=min_x_of_work_area, min_y_of_work_area=min_y_of_work_area)
 
                     print(
                         f"work_area {temp_work_area.group_id}-{temp_work_area.surface_id_list}:"
@@ -202,7 +208,7 @@ def preprocess_data(self):
     if 'WORKAREA_GROUP' in sheet_name_list and 'WORKAREA' in sheet_name_list:
         df_work_area_group = self.df_raw_data_dict['WORKAREA_GROUP']
         df_work_area = self.df_raw_data_dict['WORKAREA']
-        self.work_area_dict = get_work_area_list(df_work_area_group, df_work_area)
+        self.work_area_dict = get_work_area_list(df_work_area_group, df_work_area, self.config['workarea_y_symmetric'])
         print('WorkArea class has been defined')
     else:
         print('Sheet names do not match')

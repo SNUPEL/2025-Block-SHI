@@ -5,6 +5,7 @@ import time
 def save_result(self, sol, solution_index):
     results = []
     crane_results = []
+    raw_results = []
     results.append({
         '선종': 'NEW_SKND',
         '호선': 'PROJ_NO',
@@ -27,6 +28,36 @@ def save_result(self, sol, solution_index):
         '블록위치Y': 'BLK_LOC_Y'
     })
     crane_results.append({
+        '선종': 'NEW_SKND',
+        '호선': 'PROJ_NO',
+        '블록': 'BLK_NO',
+        '착수일': 'STDT',
+        '완료일': 'FNDT',
+        '공기': 'DUR',
+        'OUT일정': 'OUT_DATE',
+        'TO일정': 'TO_DATE',
+        'PE일정': 'PE_DATE',
+        '블록길이': 'LTH',
+        '블록폭': 'BTH',
+        '블록높이': 'HGT',
+        '블록중량': 'WGT',
+        '옥내외': 'BLK_IODR',
+        '러그방향': 'LUG_DRCT',
+        '배치확정여부': 'ARNG_CNFM_YN',
+        '그룹ID': 'GRP_ID',
+        '블록위치X': 'BLK_LOC_X',
+        '블록위치Y': 'BLK_LOC_Y',
+        '회전': 'ROT',
+        '변환 블록길이': 'ADJ_LTH',
+        '변환 블록폭': 'ADJ_BTH',
+        'IN_크레인_소요시간': 'IN_CRANE_TIME',
+        'TO_크레인_소요시간': 'TO_CRANE_TIME',
+        'PE_크레인_소요시간': 'PE_CRANE_TIME',
+        'IN_크레인ID': 'IN_CRANE_ID',
+        'TO_크레인ID': 'TO_CRANE_ID',
+        'PE_크레인ID': 'PE_ID',
+    })
+    raw_results.append({
         '선종': 'NEW_SKND',
         '호선': 'PROJ_NO',
         '블록': 'BLK_NO',
@@ -225,6 +256,37 @@ def save_result(self, sol, solution_index):
                     'TO_크레인ID': TO_crane_id,
                     'PE_크레인ID': PE_crane_id
                 })
+                raw_results.append({
+                    '선종': block.ship_type,
+                    '호선': block.project_number,
+                    '블록': block.block_number,
+                    '착수일': IN_date,
+                    '완료일': OUT_date,
+                    '공기': block.processing_time,
+                    'OUT일정': OUT_date,
+                    'TO일정': TO_date,
+                    'PE일정': PE_date,
+                    '블록길이': block.length,
+                    '블록폭': block.breadth,
+                    '블록높이': block.height,
+                    '블록중량': block.weight,
+                    '옥내외': block.indoor_outdoor_condition,
+                    '러그방향': block.lug_direction,
+                    '배치확정여부': 'Y',
+                    '그룹ID': selected_group,
+                    '블록위치X': x_sol.get_start() / 10 + self.work_area_dict[selected_group].min_x_of_work_area,
+                    '블록위치Y': y_sol.get_start() / 10 * -1 if self.config['workarea_y_symmetric'] else y_sol.get_start() / 10 + self.work_area_dict[selected_group].min_y_of_work_area,
+                    '회전': selected_rotation,
+                    '변환 블록길이': length / 10,
+                    '변환 블록폭': breadth / 10,
+                    'IN_크레인_소요시간': IN_crane_time,
+                    'TO_크레인_소요시간': TO_crane_time,
+                    'PE_크레인_소요시간': PE_crane_time,
+                    'IN_크레인ID': IN_crane_id,
+                    'TO_크레인ID': TO_crane_id,
+                    'PE_크레인ID': PE_crane_id
+                })
+
             else:
                 # 미배치 블록
                 results.append({
@@ -250,6 +312,37 @@ def save_result(self, sol, solution_index):
                 })
 
                 crane_results.append({
+                    '선종': block.ship_type,
+                    '호선': block.project_number,
+                    '블록': block.block_number,
+                    '착수일': None,
+                    '완료일': None,
+                    '공기': block.processing_time,
+                    'OUT일정': None,
+                    'TO일정': None,
+                    'PE일정': None,
+                    '그룹ID': None,
+                    '블록길이': block.length,
+                    '블록폭': block.breadth,
+                    '블록높이': block.height,
+                    '블록중량': block.weight,
+                    '옥내외': block.indoor_outdoor_condition,
+                    '러그방향': block.lug_direction,
+                    '배치확정여부': 'N',
+                    '블록위치X': None,
+                    '블록위치Y': None,
+                    '회전': None,
+                    '변환 블록길이': block.adjusted_length / 10,
+                    '변환 블록폭': block.adjusted_breadth / 10,
+                    'IN_크레인_소요시간': None,
+                    'TO_크레인_소요시간': None,
+                    'PE_크레인_소요시간': None,
+                    'IN_크레인ID': None,
+                    'TO_크레인ID': None,
+                    'PE_크레인ID': None
+                })
+
+                raw_results.append({
                     '선종': block.ship_type,
                     '호선': block.project_number,
                     '블록': block.block_number,
@@ -341,18 +434,51 @@ def save_result(self, sol, solution_index):
                 'TO_크레인ID': None,
                 'PE_크레인ID': None
             })
+            raw_results.append({
+                '선종': block.ship_type,
+                '호선': block.project_number,
+                '블록': block.block_number,
+                '착수일': block.allocation_start_date,
+                '완료일': block.allocation_end_date,
+                '공기': block.processing_time,
+                'OUT일정': block.allocation_end_date,
+                'TO일정': block.TO_date,
+                'PE일정': block.PE_date,
+                '블록길이': block.length,
+                '블록폭': block.breadth,
+                '블록높이': block.height,
+                '블록중량': block.weight,
+                '옥내외': block.indoor_outdoor_condition,
+                '러그방향': block.lug_direction,
+                '배치확정여부': None,
+                '그룹ID': None,
+                '블록위치X': None,
+                '블록위치Y': None,
+                '회전': None,
+                '변환 블록길이': None,
+                '변환 블록폭': None,
+                'IN_크레인_소요시간': None,
+                'TO_크레인_소요시간': None,
+                'PE_크레인_소요시간': None,
+                'IN_크레인ID': None,
+                'TO_크레인ID': None,
+                'PE_크레인ID': None
+            })
 
     # DataFrame 생성 및 엑셀 저장
     self.df_result = pd.DataFrame(results)
     self.df_crane_result = pd.DataFrame(crane_results)
+    self.df_raw_result = pd.DataFrame(raw_results)
     output_path = f"{self.config['folderpath']}/block_allocation_result.xlsx"
     output_path2 = f"{self.config['folderpath']}/block_allocation_result_sol_{str(solution_index)}.xlsx"
     with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
         self.df_result.to_excel(writer, index=False, sheet_name='배치결과')
         self.df_crane_result.to_excel(writer, index=False, sheet_name='크레인 정보')
+        self.df_raw_result.to_excel(writer, index=False, sheet_name='기존 좌표 변환')
     with pd.ExcelWriter(output_path2, engine='openpyxl') as writer:
         self.df_result.to_excel(writer, index=False, sheet_name='배치결과')
         self.df_crane_result.to_excel(writer, index=False, sheet_name='크레인 정보')
+        self.df_raw_result.to_excel(writer, index=False, sheet_name='기존 좌표 변환')
         # self.df_result.to_excel(output_path, index=False)
 
         # postprocess_solution_crane
@@ -515,7 +641,6 @@ def save_result(self, sol, solution_index):
         #             crane_worktime += int(result['PE_크레인_소요시간'] or 0)
         #
         #             day_time_tracker[day] = {'hour': end_hour, 'minute': end_minute}
-
 
 
     # self.df_result = pd.DataFrame(results_crane)

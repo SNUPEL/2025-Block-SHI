@@ -20,7 +20,6 @@ def create_config():
     config['use_block_allocation_result'] = False  # True 시 하단의 결과를 가져옴
     config['result_data_file_path'] = '../results/20250611_14h_35m_8s/block_allocation_result.xlsx'
 
-
     # 정반그룹 선호도 최소화 목적함수
     config['obj_preference'] = False  # True: 실행, False: 미실행
     config['weight_preference'] = 10  # 가중치
@@ -47,13 +46,15 @@ def create_config():
     config['crane_usage'] = True  # True: 실행, False: 미실행
     config['crane_usage_time'] = 8   # 크레인 일별 가용 시간 설정
 
+    # True시 y 방향을 대칭으로 설정(기존 방식), False시 x와 같게 평행 이동으로 설정
+    config['workarea_y_symmetric'] = True
+
     # 이격거리 조정 (블록 크기)
     config['block_spacing_x'] = 0
     config['block_spacing_y'] = 0
 
     # 이격거리 조정 (제약조건)
     config['min_block_spacing_distance'] = 1.5
-
 
     # 최대 허용 가능 지연
     config['max_delay_day'] = 2
