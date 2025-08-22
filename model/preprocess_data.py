@@ -47,7 +47,8 @@ def get_work_area_list(df_work_area_group, df_work_area, workarea_y_symmetric):
                                               L_limit_of_block=row['사이즈제한LTH'], B_limit_of_block=row['사이즈제한BTH'],
                                               H_limit_of_block=row['사이즈제한HGT'], W_limit_of_block=row['사이즈제한WGT'],
                                               TP_condition=row['TP운송여부'], TP_direction=direction, L=length, B=breadth,
-                                              min_x_of_work_area=min_x_of_work_area, min_y_of_work_area=min_y_of_work_area)
+                                              min_x_of_work_area=min_x_of_work_area, min_y_of_work_area=min_y_of_work_area,
+                                              min_x_of_work_group=row['그룹내정반위치X'], min_y_of_work_group=row['그룹내정반위치Y'])
                     temp_work_area.work_unit_dict[rect['정반ID']] = WorkUnit(unit_id=rect['정반ID'], x_raw=rect['그룹내정반위치X'],
                                                                            y_raw=rect['그룹내정반위치Y'], x=rect['그룹내정반위치X'],
                                                                            y=rect['그룹내정반위치Y'], dx=length, dy=breadth)
@@ -96,7 +97,8 @@ def get_work_area_list(df_work_area_group, df_work_area, workarea_y_symmetric):
                                    H_limit_of_block=row['사이즈제한HGT'], W_limit_of_block=row['사이즈제한WGT'],
                                    TP_condition=row['TP운송여부'], TP_direction=direction,
                                    L=combined_length, B=combined_breadth,
-                                   min_x_of_work_area=min_x_of_work_area, min_y_of_work_area=min_y_of_work_area)
+                                   min_x_of_work_area=min_x_of_work_area, min_y_of_work_area=min_y_of_work_area,
+                                   min_x_of_work_group=min_of_x_vals, min_y_of_work_group=min_of_y_vals)
 
                     print(
                         f"work_area {temp_work_area.group_id}-{temp_work_area.surface_id_list}:"

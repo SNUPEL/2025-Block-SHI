@@ -274,8 +274,9 @@ def save_result(self, sol, solution_index):
                     '러그방향': block.lug_direction,
                     '배치확정여부': 'Y',
                     '그룹ID': selected_group,
-                    '블록위치X': x_sol.get_start() / 10 + self.work_area_dict[selected_group].min_x_of_work_area,
-                    '블록위치Y': y_sol.get_start() / 10 * -1 if self.config['workarea_y_symmetric'] else y_sol.get_start() / 10 + self.work_area_dict[selected_group].min_y_of_work_area,
+                    '블록위치X': x_sol.get_start() / 10 + self.work_area_dict[selected_group].min_x_of_workgroup + self.work_area_dict[selected_group].min_x_of_work_area,
+                    '블록위치Y': (y_sol.get_start() / 10 + self.work_area_dict[selected_group].min_y_of_workgroup) * -1
+                    if self.config['workarea_y_symmetric'] else y_sol.get_start() / 10 + self.work_area_dict[selected_group].min_y_of_workgroup + self.work_area_dict[selected_group].min_y_of_work_area,
                     '회전': selected_rotation,
                     '변환 블록길이': length / 10,
                     '변환 블록폭': breadth / 10,

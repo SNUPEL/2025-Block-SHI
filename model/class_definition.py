@@ -16,7 +16,7 @@ class WorkUnit:
 class WorkArea:
     def __init__(self, group_id, surface_id_list, priority, lug_condition, indoor_outdoor_condition, L_limit_of_block,
                  B_limit_of_block, H_limit_of_block, W_limit_of_block, TP_condition, TP_direction, L, B,
-                 min_x_of_work_area, min_y_of_work_area):
+                 min_x_of_work_area, min_y_of_work_area, min_x_of_work_group, min_y_of_work_group):
         self.group_id = group_id
         self.surface_id_list = surface_id_list
         self.priority = priority
@@ -33,6 +33,8 @@ class WorkArea:
         self.B = int(B * 10)
         self.min_x_of_work_area = min_x_of_work_area
         self.min_y_of_work_area = min_y_of_work_area
+        self.min_x_of_workgroup = min_x_of_work_group
+        self.min_y_of_workgroup = min_y_of_work_group
 
         self.unavailable_area_x = None
         self.unavailable_area_y = None
