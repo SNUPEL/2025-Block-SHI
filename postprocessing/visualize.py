@@ -1,8 +1,8 @@
-import pandas as pd
-from matplotlib import pyplot as plt
-from setuptools.sandbox import save_path
-from shapely import intersection_all
-from shapely import intersection
+# import pandas as pd
+# from matplotlib import pyplot as plt
+# from setuptools.sandbox import save_path
+# from shapely import intersection_all
+# from shapely import intersection
 import cv2
 from postprocessing.plot import *
 import matplotlib.pyplot as plt
@@ -37,10 +37,25 @@ class ScheduleChecker:
         self.intersections_by_time_dict = {}
         self.summary = {}
 
+
+        self._create_areas()
         self._create_polygon()
 
         if save_gif:
             self.create_GIF()
+
+    def _create_areas(self):
+
+        # 1. 엑셀 파일에서 WORKAREA 시트 읽기
+        file_path = r'C:\SNU EnSite\2025-Block-SHI\data\data_rev0.5.xlsx'
+        df = pd.read_excel(file_path, sheet_name='WORKAREA', skiprows=[1])  # 두 번째 행은 무시
+
+        # 2. Area 객체 리스트 생성
+        self.areas = {
+            (row['그룹ID'], row['정반ID']): Area(row)
+            for _, row in df.iterrows()
+        }
+
 
     def _create_polygon(self):
         for t in self.time_horizon:
@@ -54,13 +69,14 @@ class ScheduleChecker:
             for idx, row in presence.iterrows():
                 groupidx = int(row['그룹ID'][1:-1].split(', ')[0])
                 workareaidx = '('+row['그룹ID'][1:-1].split(', (')[1]
-                name = row['블록']
-                # name = row['호선']+"\n"+row['블록']
+                # name = row['블록']
+                name = row['호선']+"\n"+row['블록']
                 # name = row['선종']+"\n"+row['호선']+"\n"+row['블록']
-                poly = generate_integrated_polygon(groupidx=groupidx,
+                poly = generate_integrated_polygon(areas = self.areas,
+                                                   groupidx=groupidx,
                                                    workareaidx=workareaidx,
                                       x=row['블록위치X']*10, y=row['블록위치Y'] * 10,
-                                      dx=row['변환 블록폭'] * 10, dy=row['변환 블록길이'] * 10)
+                                      dx=row['변환 블록길이'] * 10, dy=row['변환 블록폭'] * 10)
                 self.blocks_by_time_dict[t].append((name, poly))
 
 
@@ -69,10 +85,9 @@ class ScheduleChecker:
         W, H = 1920, 1280  # 픽셀
         DPI = 300  # 그대로 저장할 DPI
 
-        fig, ax = plt.subplots(figsize=(W / DPI, H / DPI), dpi=DPI)  # ← 핵심
+        fig, ax = plt.subplots(figsize=(W / DPI, H / DPI), dpi=DPI)
+        generate_workarea_info_from_excel(fig, ax, self.areas)
 
-        plot_integrated_workarea_group(fig, ax)
-        ax.set_aspect('equal')
         for idx, (name, block_polygon) in enumerate(self.blocks_by_time_dict[t]):
             plot_integrated_block_polygon(fig, ax, block_polygon, name=name)
 
@@ -122,10 +137,11 @@ class ScheduleChecker:
 if __name__ == "__main__":
     # OpenCV 라이브러리를 설치해야 함 (conda install openCV 사용)
     # schedule_path = "../data/blocking_ref_1.xlsx"
-    schedule_path = "../results/20250812_12h_28m_8s/block_allocation_result.xlsx"
-    block_path = "../data/blocking_data_2.xlsx"
+    schedule_path = "block_allocation_result_250716.xlsx"
+    # schedule_path = "../data/data_rev0.5.xlsx"
+    block_path = "../data/data_rev0.5.xlsx"
 
     checker = ScheduleChecker(schedule_path, block_path,
                               # save_path = "../data/",
-                              save_path = "../results/20250812_12h_28m_8s/",
+                              save_path = "../results/",
                               save_gif=True)

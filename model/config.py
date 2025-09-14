@@ -6,12 +6,13 @@ import time
 def create_config():
     config = dict()
 
-    config['data_file_path'] = '../data/data_rev0.2.xlsx'
+    config['data_file_path'] = '../data/data_rev0.5.xlsx'
+    # config['data_file_path'] = '../data/data_rev0.2.xlsx'
 
-    config['data_start_date'] = '2019-07-01'  # 시작일자 (착수일 기준)
+    config['data_start_date'] = '2019-04-11'  # 시작일자 (착수일 기준)
     config['only_workingday'] = False  # True: workingday 기준 duration의 기간을 셈, False: data_end_date 사용
     config['data_duration'] = 40  # workingday
-    config['data_end_date'] = '2019-08-20'
+    config['data_end_date'] = '2019-06-08'
     config['time_limit'] = 60  # 탐색 시간
     config['search_method'] = 'single_solution'  # single_solution, multiple_solutions
     # config['search_method'] = 'multiple_solutions'  # single_solution, multiple_solutions
